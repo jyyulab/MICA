@@ -5,7 +5,7 @@ with open("./version.py") as fp:
     exec(fp.read(), version)
 
 setup(
-    name="MIE",
+    name="MICA",
     version=version["__version__"],
     description="Mutual Information-based Clustering Analysis",
     url="https://github.com/jyyulab/MICA",
@@ -21,8 +21,14 @@ setup(
     ],
     python_requires="==3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
-    package_data={"MIE": ["test_data/*"]},
+    package_data={
+        "MICA": ["ggplot.cc.r"],
+    },
     include_package_data=True,
     test_suite="tests",
-    entry_points={"console_scripts": ["mica=MICA.mica:main"]},
+    entry_points={
+        "console_scripts": [
+            "mica=MICA.mica:main",
+        ]
+    },
 )
