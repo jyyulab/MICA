@@ -21,14 +21,8 @@ setup(
     ],
     python_requires="==3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
-    package_data={
-        "MIE": ["test_data/*"],
-    },
+    package_data={"MIE": ["test_data/*"]},
     include_package_data=True,
     test_suite="tests",
-    entry_points={
-        "console_scripts": [
-            "mica=MICA.mica:main",
-        ]
-    },
+    entry_points={"console_scripts": ["mica=MICA.mica:main"]},
 )
