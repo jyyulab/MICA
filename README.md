@@ -1,6 +1,7 @@
-# MICA-Py
+# MICA-exe
+
 Mutual informtion-based Consensus Clustering for single-cell RNA-Seq data<br/>
-To use this package download it and run python MICA.py from the downloaded directory.<br />
+To use this package download it and run ./MICA from the downloaded directory.<br />
 Running MICA without any arguments will show the following help message:<br /><br />
 
 * -m OR --mode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running mode of the application, default: clustering.<br/>
@@ -41,23 +42,23 @@ Running MICA without any arguments will show the following help message:<br /><b
 <code>git clone https://github.com/jyyulab/MICA-Py</code>
 
 ## Run
-<code>python MICA.py</code>
+<code>./MICA</code>
 
 ### Optimal K Analysis
-<code>python MICA.py --infile your_input_file?{delimiter=","}{kn="[3:6]"} -m opt-k-2 </code>
+<code>./MICA --infile your_input_file?{delimiter=","}{kn="[3:6]"} -m opt-k-2 </code>
 
 ### Clustering
-<code>python MICA.py --infile your_input_file?{delimiter=","}{kn="[3,4]"}{dmin=18}{dmax=19}{B=5}</code>
+<code>./MICA --infile your_input_file?{delimiter=","}{kn="[3,4]"}{dmin=18}{dmax=19}{B=5}</code>
 
 ### Validate
-<code>python MICA.py --infile your_input_file?{delimiter=","} -m validate -T path_to_ground_truth -L path_to_clustering_labels </code>
+<code>./MICA --infile your_input_file?{delimiter=","} -m validate -T path_to_ground_truth -L path_to_clustering_labels </code>
 
 ### Component-by-Component Quality
-<code>python MICA.py --infile your_input_file?{delimiter=","}{kn=[3]"}{dmin=1}{dmax=50}{B=10} -m c-quality -T path_to_ground_truth </code>
+<code>./MICA --infile your_input_file?{delimiter=","}{kn=[3]"}{dmin=1}{dmax=50}{B=10} -m c-quality -T path_to_ground_truth </code>
 
 ### Bootstrap Quality
-<code>python MICA.py --infile your_input_file?{delimiter=","}{kn="[3]"}{B=50} -m b-quality -T path_to_ground_truth </code>
+<code>./MICA --infile your_input_file?{delimiter=","}{kn="[3]"}{B=50} -m b-quality -T path_to_ground_truth </code>
 
 ### Gene Expression Analysis
-<code>python MICA.py --infile your_input_file?{delimiter=","} -m overlay -e path_to_expression_matrix?{delimiter="\t"}{ncol=1} -bm "[gene1, gene2, gene3, ...]" -L path_to_clustering_labels </code>
+<code>./MICA --infile your_input_file?{delimiter=","} -m overlay -e path_to_expression_matrix?{delimiter="\t"}{ncol=1} -bm "[gene1, gene2, gene3, ...]" -L path_to_clustering_labels </code>
 
