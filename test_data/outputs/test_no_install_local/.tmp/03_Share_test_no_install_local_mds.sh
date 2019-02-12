@@ -1,6 +1,0 @@
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_clust.h5 ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_4/MICA_out/
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_mds.pdf ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_4/MICA_out/
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_clust.h5 ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_5/MICA_out/
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_mds.pdf ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_5/MICA_out/
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_clust.h5 ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_6/MICA_out/
-cp ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_3/MICA_out/test_no_install_local_mds.pdf ./test_data/outputs/test_no_install_local/MICA_test_no_install_local_MDS_6/MICA_out/

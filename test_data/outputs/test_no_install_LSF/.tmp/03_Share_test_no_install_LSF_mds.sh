@@ -1,6 +1,0 @@
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_clust.h5 ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_4/MICA_out/
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_mds.pdf ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_4/MICA_out/
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_clust.h5 ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_5/MICA_out/
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_mds.pdf ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_5/MICA_out/
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_clust.h5 ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_6/MICA_out/
-cp ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_3/MICA_out/test_no_install_LSF_mds.pdf ./test_data/outputs/test_no_install_LSF/MICA_test_no_install_LSF_MDS_6/MICA_out/
