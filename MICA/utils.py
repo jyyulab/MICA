@@ -473,7 +473,7 @@ def aggregate(tmp_dir, n_clusters, common_name):
         hdf = pd.HDFStore(tmp_dir + clusts[i])
         df = hdf["kmeans"] + 1
         hdf.close()
-        dff = pd.DataFrame(data=np.matmul(df, df.T), index=df.index, columns=df.index)
+        dff = pd.DataFrame(data=df@df.T, index=df.index, columns=df.index)
         dff_div = pd.DataFrame(
             data=np.array((np.diag(dff),) * dff.shape[0]).T,
             index=dff.index,
