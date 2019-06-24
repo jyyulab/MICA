@@ -1,9 +1,11 @@
 # MICA
 
-MICA is an ensemble and mutual information-based clustering algorithm that consists of three steps:
-1. Decomposition and Dimension Reduction
-2. Ensemble Clustering
-3. Consensus Clustering
+MICA is a mutual information-based clustering algorithm that consists of following steps:
+1. Mutual information calculation
+2. Decomposition and Dimension Reduction
+3. Ensemble Clustering
+4. Consensus Clustering
+In thie pipeline, we utilized common workflow languages as a wrapper for multi-platform compatibility.
 
 ## Prerequisites
 * [python==3.6.1](https://www.python.org/downloads/)
@@ -12,7 +14,9 @@ MICA is an ensemble and mutual information-based clustering algorithm that consi
     * [scikit-learn>=0.19.1](http://scikit-learn.org/stable/install.html#)
     * [matplotlib>=2.2.2](https://matplotlib.org/users/installing.html)
     * [scipy>=1.0.1](https://www.scipy.org/install.html)
-* [R==3.4.0](https://www.r-project.org/)
+    * [cwltool>=1.0.2](https://github.com/common-workflow-language/cwltool)   
+		or
+    * [cwlexec>=0.2.1](https://github.com/IBMSpectrumComputing/cwlexec)
 * [Phoenix] (Required only for parallel processing on a LSF cluster)
 
 ## Download
@@ -28,6 +32,7 @@ Setup a virtual python environment using [conda](https://conda.io/docs/) (not re
 conda create -n py36 python=3.6.1           # Create a python3.6 virtual environment
 source activate py36                        # Activate the virtual environment
 ```
+
 Install MICA in the virtual environment.
 ```
 cd MICA                     # Switch to the MICA root directory
@@ -38,16 +43,25 @@ mica -h                      # Check if mica works correctly
 ## Demo
 This is an example of running MICA using the input file in `test_data` without an installation on
 St. Jude Research LSF Cluster (assume you have the access to CompBio environment).
+
 ```
 ssh hpc                             # ssh to a head node
 hpcf_interactive                    # login an interactive node
 setcbenv prod                       # set CompBio environment to prod
 cbload phoenix                      # load CompBio modules
-cbload util-python
-module load python/3.6.1            # load python
-module load R/3.4.0                 # load R
-./MICA/mica.py Clust test_no_install_LSF ./test_data/inputs/test_local.whole.h5 ./test_data/inputs/test_local_mi.h5 
-./test_data/outputs/test_no_install_LSF/ test_no_install_LSF --k 3 4 5 6 --perplexity 30 --retransformation False 
---host LSF
+
+mica lsf \
+-i [path_to_input_txt] \
+-p [your_project_name] \
+-k 3 4 \ # specify number of cluster
+-o [path_to_outputs] \
+-q standard # which queue
+
 ```
-After the completion of the pipeline, the outputs are saved in `./test_data/outputs/MICA_test_no_intall_LSF`.
+
+After the completion of the pipeline, MICA will generate following outputs:
+1. Cell-cell Mutual information matrix 
+2. Dimension reduced distance matrix 
+3. Clustering results plot with clustering label mapped to each cluster
+4. Clustering results txt file with visualization coordinates and clustering label
+
