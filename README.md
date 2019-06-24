@@ -41,7 +41,7 @@ mica -h                      # Check if mica works correctly
 ```
 
 ## Demo
-This is an example of running MICA using the input file in `test_data` without an installation on
+This is an example of running MICA with an installation on
 St. Jude Research LSF Cluster (assume you have the access to CompBio environment).
 
 ```
