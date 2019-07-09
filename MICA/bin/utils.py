@@ -135,8 +135,8 @@ def calc_distance_mat(mat1, mat2, paras, method):
     elif method == "spearman":
         df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
         for c in mat2.index:
-            for r in mat1.index:
-                df.loc[r, c] = spearmanr(mat1.loc[r, :], mat2.loc[c, :])[0]
+            df.loc[:, c] = vpearson(mat1.rank(axis=1).values, mat2.loc[c, :].values)
+
     else:
         print("Distance Metrics not supported!\n")
         exit()
