@@ -12,7 +12,7 @@ import json
 
 
 def main():
-    head_description = '''MICA [scMINER] is a scalable tool to perform unsupervised scRNA-seq clustering analysis.'''
+    head_description = '''MICA is a scalable tool to perform unsupervised scRNA-seq clustering analysis.'''
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=head_description)
 
@@ -47,29 +47,33 @@ def main():
     parent_parser.add_argument('-d', '--min-dist', metavar='FLOAT', default=0.01,
                                help='Minimum distance parameter for UMAP visualization (optional)')
 
-    parent_parser.add_argument('-sn', '--slice-size', metavar='INT', default=1000,
+    parent_parser.add_argument('-sn', '--slice-size', metavar='INT', default=1000, type=int,
                                help='Number of cells in each MI sub-matrix (default: 1000)')
 
-    parent_parser.add_argument('-t', '--thread-number', metavar='INT', default=10,
+    parent_parser.add_argument('-t', '--thread-number', metavar='INT', default=10, type=int,
                                help='Number of pooling used for multiple kmeans iterations,'
                                     'usually equals to iterations_km (default: 10)')
 
     parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19],
                                help='Dimensions used in clustering, array inputs are supported (default: 19)')
 
-    parent_parser.add_argument('--dims-plot', metavar='INT', default=19,
+    parent_parser.add_argument('--dims-plot', metavar='INT', default=19, type=int,
                                help='Number of dimensions used in visualization (default: 19)')
 
     parent_parser.add_argument('-r', '--resource', default=[12000, 16000, 20000],
                                help="Memory assigned to step merge and norm, dimension reduce and clustering "
                                     "(default: 12000, 16000, 20000")
 
+    parent_parser.add_argument('--dist', metavar='STRING', default="mi", type=str,
+                               help="Method for distance matrix calculation [mi | euclidean | spearman | pearson]"
+                                    "(default:mi)")
+
     subparsers = parser.add_subparsers(title='Subcommands', help='platforms', dest='subcommand')
     subparsers.required = True
 
     # Create a sub parser for running cwltool
     subparser_local = subparsers.add_parser('local', parents=[parent_parser], help='run cwltool in a local workstation')
-    subparser_local.add_argument('-s', '--serial', help='run cwltool in serial mode', action='store_true')
+    subparser_local.add_argument('-s', '--serial', help='run cwltool in serial mode', action='store_false')
 
     # Create a sub parser for running cwlexec
     subparser_lsf = subparsers.add_parser('lsf', parents=[parent_parser], help='run cwlexec in a IBM LSF interface')
@@ -101,10 +105,11 @@ def main():
                        'perplexity: {}\n' \
                        'min_dist: {}\n' \
                        'slice_size: {}\n' \
-                       'thread_number: {}\n'.format(os.path.abspath(args.exp), args.project_name, args.clusters,
+                       'thread_number: {}\n' \
+                       'dist_metrics: {}\n'.format(os.path.abspath(args.exp), args.project_name, args.clusters,
                                                     args.visualization, args.dim_reduction, args.bootstrap,
                                                     args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
-                                                    args.slice_size, args.thread_number)
+                                                    args.slice_size, args.thread_number, args.dist)
 
             logging.info(contents)
             fp_yml.write(contents)
@@ -118,7 +123,7 @@ def main():
                                                                                   fp_yml.name)
 
                 else:
-                    cmd = 'cwltool --parallel --debug --outdir {} {}/mica.cwl {}'.format(args.output_dir,
+                    cmd = 'cwltool --parallel --debug --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
                                                                                              cwl_path,
                                                                                              fp_yml.name)
             elif args.subcommand == 'lsf':
