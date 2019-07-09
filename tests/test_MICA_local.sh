@@ -4,4 +4,4 @@ mica local \
 -p "cwl_local" \
 -k 3 4 \
 -o ./test_data/outputs/cwl_local/ \
---dist "mi" \
+--dist "spearman" \
