@@ -1,0 +1,25 @@
+dist: xenial
+language: python
+python:
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+  - python setup.py install
+
+before_script:
+  - eggpath='/home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages/MICA-0.1.0-py3.6.egg/MICA/bin/'
+  - chmod 755 $eggpath/01_prep.py $eggpath/02_calc_scatter.py $eggpath/03_merge_and_norm.py $eggpath/04_transform.py $eggpath/05_Clustering.py $eggpath/utils.py
+
+script:
+  - python -m pytest -v
+
+#safelist
+branches:
+  only:
+    - master
+
+notifications:
+  email: false
+
+
