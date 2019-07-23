@@ -13,8 +13,8 @@ import pandas as pd
 import matplotlib  # for plotting
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
-import numba
-from numba import jit
+#import numba
+#from numba import jit
 
 from sklearn.metrics import mutual_info_score
 from sklearn import cluster  # for kmeans
@@ -149,7 +149,6 @@ def vpearson(X, y):
     r = r_num/r_den
     return r
 
-@jit
 def calc_mi(arr1, arr2, bins, m):
     """Calculates mutual information in between two cells, considering their gene expression levels
     
