@@ -200,21 +200,6 @@ def calc_mi_old(arr1, arr2, bins, m):
     agg = np.multiply(fq, ent, out=np.zeros_like(fq), where=fq != 0)
     return agg.sum()
 
-def calc_mi_jimmy(arr1, arr2, bins):
-    c_arrs = np.histogram2d(arr1.values, arr2.values, bins=(bins, bins))[0]
-    c_arr1 = np.histogram(arr1.values, bins)[0]
-    c_arr2 = np.histogram(arr2.values, bins)[0]
-
-    h_arr1 = shan_entropy(c_arr1)
-    h_arr2 = shan_entropy(c_arr2)
-    h_arrs = shan_entropy(c_arrs)
-    return h_arr1 + h_arr2 - h_arrs
-
-def shan_entropy(c):
-    c_norm = c / float(np.sum(c))
-    c_norm = c_norm[np.nonzero(c_norm)]
-    H = -sum(c_norm * np.log2(c_norm))
-    return H
 
 def calc_distance_mat(mat1, mat2, paras, method):
     """Calculates a distance metric in between two matrices (slices)
@@ -253,26 +238,6 @@ def calc_distance_mat(mat1, mat2, paras, method):
                 calc_mi, axis=1, args=(mat2.loc[c, :], bins, m)
             )
         end = time.time()
-        print("Total time for modified method with .values is {}".format(end-start))
-
-        """
-        start = time.time()
-        for c in mat2.index:
-            df.loc[mat1.index, c] = mat1.apply(
-                calc_mi_old, axis=1, args=(mat2.loc[c, :], bins, m)
-            )
-        end = time.time()
-        print("Total time for current method is {}".format(end-start))
-
-        start = time.time()
-        for d in mat2.index:
-            df.loc[mat1.index, d] = mat1.apply(calc_mi_jimmy, axis=1, args=(mat2.loc[d, :], bins))
-        end = time.time()
-        print("Total time for Jimmy's method is {}".format(end-start))
-
-        #df_mod.to_hdf("mod.h5", str(key))
-        #df_jimmy.to_hdf("jimmy.h5", str(key))
-        """
 
     elif method == "euclidean":
         dist = distance.cdist(mat1, mat2, method)
