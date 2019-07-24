@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
-import utils
 import argparse
+from MICA.bin import utils
 
 """02_calc_scatter.py
 

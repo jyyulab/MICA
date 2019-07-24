@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-import utils
+from MICA.bin import utils
 import argparse
 
 """01_prep.py
