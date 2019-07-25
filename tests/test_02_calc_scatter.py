@@ -24,14 +24,12 @@ class TestCalcScatter(unittest.TestCase):
         pd_ans = pd.HDFStore("./tests/answerkey/calc_scatter/test_mi_04.h5")
         mi_test = pd_test['mi_04']
         mi_ans = pd_ans['mi_04']
-        almostEq = True
         for i in  mi_test.index:
             arr_test = mi_test.loc[i]
             arr_ans = mi_ans.loc[i]
-            for i in range(0, 100):
-                np.testing.assert_almost_equal(arr_test[i], arr_ans[i])
-
-        self.assertTrue(almostEq)
+            np.testing.assert_allclose(arr_test, arr_ans)
+            # This assures that if rows are significantly different floats, that an AssertionError
+            # will be raised, which will stop execution of test and return error
 
 
 if __name__ == '__main__':
