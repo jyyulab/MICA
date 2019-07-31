@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-import utils
+from MICA.bin import utils
 
 def main():
     """Handles arguments and calls the driver function"""
@@ -18,6 +18,16 @@ def main():
 
 
 def transform(infile, proj_name, trans, max_dim, metric):
+    """Applies transform function to a matrix
+    
+    Args:
+        infile    (str): path to input file
+        proj_name (str): name of output file, ideally same as project name used in previous steps
+        trans     (str): method used for transformation
+        max_dir   (int): maximum numer of dimensions used in reduction
+        method    (str): method used for distance calculation in previous steps
+    """
+
     if trans == "MDS":
         utils.mds(infile, max_dim, proj_name, dist_method=metric)
     elif trans == "LPL":

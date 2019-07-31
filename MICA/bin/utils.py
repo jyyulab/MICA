@@ -175,32 +175,6 @@ def calc_mi(arr1, arr2, bins, m):
     return agg.sum()
 
 
-def calc_mi_old(arr1, arr2, bins, m):
-    """Calculates mutual information in between two cells, considering their gene expression levels
-    
-    This function is called by calc_distance_mat. It takes gene expression data from single cells,
-    and compares them using standard calculation for mutual information. It builds a 2d histogram,
-    which is used to calculate P(arr1, arr2)
-
-    Args:
-        arr1 (pandas series): gene expression data for a given cell in matrix_1
-        arr2 (pandas series):
-        bins           (int):
-        m              (int):
-    
-    """
-    fq = np.histogram2d(arr1, arr2, bins=(bins, bins))[0] / float(m)
-    sm = np.sum(fq * float(m), axis=1)
-    tm = np.sum(fq * float(m), axis=0)
-    sm = np.asmatrix(sm / float(sm.sum()))
-    tm = np.asmatrix(tm / float(tm.sum()))
-    sm_tm = np.matmul(np.transpose(sm), tm)
-    div = np.divide(fq, sm_tm, where=sm_tm != 0, out=np.zeros_like(fq))
-    ent = np.log(div, where=div != 0, out=np.zeros_like(div))
-    agg = np.multiply(fq, ent, out=np.zeros_like(fq), where=fq != 0)
-    return agg.sum()
-
-
 def calc_distance_mat(mat1, mat2, paras, method):
     """Calculates a distance metric in between two matrices (slices)
 
@@ -254,8 +228,7 @@ def calc_distance_mat(mat1, mat2, paras, method):
             for r in mat1.index:
                 df.loc[r, c] = spearmanr(mat1.loc[r, :], mat2.loc[c, :])[0]
     else:
-        print("Distance Metrics not supported!\n")
-        exit()
+        sys.exit("Distance Metrics not supported!\n")
 
     df.to_hdf(out_file_name, str(key))  # key: MI_indx
     paras.to_hdf(out_file_name, "params")

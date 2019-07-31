@@ -6,7 +6,7 @@ import argparse
 import pandas as pd
 from multiprocessing import Pool
 from functools import partial
-import utils
+from MICA.bin import utils
 
 start_time = time.time()
 
