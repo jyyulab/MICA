@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import utils
+from MICA.bin import utils
 
 def main():
     """Handles arguments and calls the driver function"""

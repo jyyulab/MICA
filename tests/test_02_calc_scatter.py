@@ -1,11 +1,11 @@
 #!/usr/bin/ python3
 
-import unittest
 import tempfile
-import numpy as np
+import unittest
+import pytest
+import numpy.testing as np
 import pandas as pd
 from MICA.bin import calc_scatter as cs
-
 
 class TestCalcScatter(unittest.TestCase):
     @classmethod
@@ -17,7 +17,8 @@ class TestCalcScatter(unittest.TestCase):
         params.loc['project_name'] = self.folder.name + "/test"
         pd_infile.close()
         params.to_hdf(self.infile, 'params')
-
+    
+    @pytest.mark.filterwarnings("ignore::PendingDeprecationWarning")
     def test_mutual_information_calculation(self):
         cs.calc_scatter(self.infile, "mi")
         pd_test = pd.HDFStore(self.folder.name + "/test_mi_04.h5")
@@ -27,7 +28,7 @@ class TestCalcScatter(unittest.TestCase):
         for i in  mi_test.index:
             arr_test = mi_test.loc[i]
             arr_ans = mi_ans.loc[i]
-            np.testing.assert_allclose(arr_test, arr_ans)
+            np.assert_allclose(arr_test, arr_ans)
             # This assures that if rows are significantly different floats, that an AssertionError
             # will be raised, which will stop execution of test and return error
 
