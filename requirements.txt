@@ -3,4 +3,4 @@ numpy>=1.14.2
 scikit-learn>=0.19.1
 matplotlib>=2.2.2
 scipy>=1.0.1
-cwltool==1.0.20190618201008
+cwltool>=1.0.20190618201008

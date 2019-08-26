@@ -18,56 +18,40 @@ def main():
 
     # Create a parent parser with common arguments for every sub parser
     parent_parser = argparse.ArgumentParser(description='Parser for common arguments', add_help=False)
-
-    parent_parser.add_argument('-i', '--exp', metavar='FILE', required=True,
+    parent_parser.add_argument('-i', '--input-exp', metavar='FILE', required=True,
                                help='Path to an expression matrix file, only tab separated files are allowed')
-
-    parent_parser.add_argument('-p', '--project-name', metavar='NAME', required=True, type=str,
+    parent_parser.add_argument('-p', '--project-name', metavar='STR', required=True, type=str,
                                help='Project name/ID.')
-
     parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=True, type=int,
                                help='Number of cluster to be specified in kmeans')
-
     parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                                help='Path to final output directory')
-
     parent_parser.add_argument('-b', '--bootstrap', metavar='INT', default=10, type=int,
                                help='Maximum number of iterations per dimension (default: 10)')
-
-    parent_parser.add_argument('-dr', '--dim_reduction', metavar='STRING', default='MDS',
+    parent_parser.add_argument('-dr', '--dim-reduction', metavar='STRING', default='MDS',
                                help='Transformation method used for dimension reduction '
                                     '[MDS | PCA | LPL | LPCA] (default: MDS)')
-
-    parent_parser.add_argument('-v', '--visualization', metavar='STRING', default="tsne",
+    parent_parser.add_argument('-v', '--visualization', metavar='STR', default="tsne",
                                help='Visualization options to plot final clustering results: umap and tsne')
-
     parent_parser.add_argument('-pp', '--perplexity', metavar='INT', default=30,
                                help='Perplexity parameter for tSNE visualization')
-
     parent_parser.add_argument('-d', '--min-dist', metavar='FLOAT', default=0.01,
                                help='Minimum distance parameter for UMAP visualization (optional)')
-
     parent_parser.add_argument('-sn', '--slice-size', metavar='INT', default=1000, type=int,
                                help='Number of cells in each MI sub-matrix (default: 1000)')
-
     parent_parser.add_argument('-t', '--thread-number', metavar='INT', default=10, type=int,
                                help='Number of pooling used for multiple kmeans iterations,'
                                     'usually equals to iterations_km (default: 10)')
-
     parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19],
                                help='Dimensions used in clustering, array inputs are supported (default: 19)')
-
     parent_parser.add_argument('--dims-plot', metavar='INT', default=19, type=int,
                                help='Number of dimensions used in visualization (default: 19)')
-
     parent_parser.add_argument('-r', '--resource', default=[12000, 16000, 20000],
                                help="Memory assigned to step merge and norm, dimension reduce and clustering "
                                     "(default: 12000, 16000, 20000")
-
-    parent_parser.add_argument('--dist', metavar='STRING', default="mi", type=str,
+    parent_parser.add_argument('--dist', metavar='STR', default="mi", type=str,
                                help="Method for distance matrix calculation [mi | euclidean | spearman | pearson]"
                                     "(default:mi)")
-
     subparsers = parser.add_subparsers(title='Subcommands', help='platforms', dest='subcommand')
     subparsers.required = True
 
@@ -106,10 +90,10 @@ def main():
                        'min_dist: {}\n' \
                        'slice_size: {}\n' \
                        'thread_number: {}\n' \
-                       'dist_metrics: {}\n'.format(os.path.abspath(args.exp), args.project_name, args.clusters,
-                                                    args.visualization, args.dim_reduction, args.bootstrap,
-                                                    args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
-                                                    args.slice_size, args.thread_number, args.dist)
+                       'dist_metrics: {}\n'.format(os.path.abspath(args.input_exp), args.project_name, args.clusters,
+                                                   args.visualization, args.dim_reduction, args.bootstrap,
+                                                   args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
+                                                   args.slice_size, args.thread_number, args.dist)
 
             logging.info(contents)
             fp_yml.write(contents)
@@ -119,13 +103,13 @@ def main():
             if args.subcommand == 'local':
                 if args.serial:
                     cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                                  cwl_path,
-                                                                                  fp_yml.name)
+                                                                      cwl_path,
+                                                                      fp_yml.name)
 
                 else:
                     cmd = 'cwltool --parallel --debug --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                                             cwl_path,
-                                                                                             fp_yml.name)
+                                                                                                        cwl_path,
+                                                                                                        fp_yml.name)
             elif args.subcommand == 'lsf':
                 with open(pathlib.PurePath(tmpdirname).joinpath('config.json'), 'w') as fp_config:
                     config_dict = {"queue": args.queue,
