@@ -1,25 +1,58 @@
 #!/usr/bin/env python3
-import umap as ump  # will pop up "joblib" deprecation warning message
+
+"""utils.py
+
+This module contains helper functions, essential to the execution of MICA (Mutual Information-based clustering algorithm)
+"""
+import sys
+import time
+
+#import umap as ump  # will pop up "joblib" deprecation warning message
 import numpy as np
 import pandas as pd
+import matplotlib  # for plotting
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gs
+#import numba
+#from numba import jit
+
+from sklearn.metrics import mutual_info_score
 from sklearn import cluster  # for kmeans
 from sklearn import manifold  # for tsne
 from sklearn import decomposition  # for PCA, etc
 from scipy.cluster.hierarchy import dendrogram  # for heatmap
 from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
-import matplotlib  # for plotting
+
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gs
 
+def read_file(in_file_name, out_file_name):
+    """Reads text file and stores data in a temporary HDF5-format file.
+    
+    Args:
+        in_file_name  (str): path to input text file
+        out_file_name (str): user-defined name for output file
+    """
 
-def read_file(file, out_file_name):
-    frame = pd.read_csv(file, sep="\t", index_col=0).iloc[:, 0:]
+    frame = pd.read_csv(in_file_name, sep="\t", index_col=0).iloc[:, 0:]
     frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
 
 
 def slice_file(df_file,  out_file_name, slice_size="1000"):
+    """Slices the HDF5 file.
+    
+    Determines the number of slices for the data, based on slice_size.
+    Calculates start and end indices for slicing, creating a new dataframe
+    based on those indices and appends them to the sliced output file using
+    a unique-identifier in the format 'slice_00x' as key.
+
+    Args:
+        df_file       (str): path to HDF5-format file
+        out_file_name (str): path to sliced output HDF5 file
+        slice_size    (str): number of items in each slice
+    """
+
     slice_size = int(slice_size)
     df = pd.HDFStore(df_file)["slice_0"]
     b = int(np.ceil(float(df.shape[0]) / float(slice_size)))
@@ -46,6 +79,17 @@ def slice_file(df_file,  out_file_name, slice_size="1000"):
 
 
 def patch_file(df_file,  out_file_name):
+    """Prepares the HDF5 file for slicing. Completes the "temporary" HDF5-format file.
+
+    Reads input file into several dataframes. Indexes attributes as row, col and slice.
+    Indexes columns and rows of data. Converts all dataframes into an output HDF5 file 
+    with separate keys for each piece of data.
+    
+    Args:
+        df_file       (str): path to HDF5-format file
+        out_file_name (str): path to complete HDF5-format file
+    """
+
     df = pd.HDFStore(df_file)["slice_0"]
     df.to_hdf(out_file_name + ".whole.h5", "slice_0")
     pd.DataFrame(data=np.array(df.shape + (1,)), index=["row", "col", "slice"]).to_hdf(
@@ -60,6 +104,18 @@ def patch_file(df_file,  out_file_name):
 
 
 def calc_prep(in_file, project_name):
+    """Prepares the already sliced input file for further calculation in MICA.
+    
+    Enters pairs of slices (matrices) into temporary HDF5-format files. It enters them
+    individually, using their unique key. It also enters the parameter data for every single 
+    pair into the key "params", which consists of: [key1, key2, num_bins, num_genes,
+    pair_index, project_name, num_slices]
+    
+    Args:
+        in_file      (str): path to sliced HDF5-format file
+        project_name (str): project name used to generate path for final outputs
+    """
+
     in_ = pd.HDFStore(in_file, "r")  # slice.h5
     bins = int(np.floor(in_["attr"].loc["row"] ** (1 / 3.0)))  # number of bins
     b = in_["attr"].loc["slice", 0]  # number of sliced matrix
@@ -93,9 +149,21 @@ def vpearson(X, y):
     r = r_num/r_den
     return r
 
-
 def calc_mi(arr1, arr2, bins, m):
-    fq = np.histogram2d(arr1, arr2, bins=(bins, bins))[0] / float(m)
+    """Calculates mutual information in between two cells, considering their gene expression levels
+    
+    This function is called by calc_distance_mat. It takes gene expression data from single cells,
+    and compares them using standard calculation for mutual information. It builds a 2d histogram,
+    which is used to calculate P(arr1, arr2)
+
+    Args:
+        arr1 (pandas series): gene expression data for a given cell in matrix_1
+        arr2 (pandas series):
+        bins           (int):
+        m              (int):
+    
+    """
+    fq = np.histogram2d(arr1.values, arr2.values, bins=(bins, bins))[0] / float(m)
     sm = np.sum(fq * float(m), axis=1)
     tm = np.sum(fq * float(m), axis=0)
     sm = np.asmatrix(sm / float(sm.sum()))
@@ -108,6 +176,26 @@ def calc_mi(arr1, arr2, bins, m):
 
 
 def calc_distance_mat(mat1, mat2, paras, method):
+    """Calculates a distance metric in between two matrices (slices)
+
+    Calculates a distance metric using the preferred method of comparison. Iterates over each cell's
+    gene expression data and populates a new matrix with rows and columns as cells from the input
+    matrices. The resulting matrix is then converted to an HDF5-format file.
+
+    Args:
+        mat1  (pandas dataframe): a sliced part of the original matrix, with some fraction of the
+                                  total cells as rows from original file and all gene expression
+                                  attributes as columns
+        mat2  (pandas dataframe): similar to mat1
+        paras (pandas dataframe): a dataframe that holds an array of parameters from the whole dataset
+        method             (str): the method to be used for the distance calculation (
+                                        mutual information: "mi"
+                                        euclidean distance: "euclidean"
+                                        pearson correlation: "pearson"
+                                        spearman correlation: "spearman"
+                                  ) 
+    """
+
     bins = int(paras.loc["num_bins", 0])
     m = int(paras.loc["n_genes", 0])
     key = paras.loc["MI_indx", 0]
@@ -117,11 +205,13 @@ def calc_distance_mat(mat1, mat2, paras, method):
     print(out_file_name)
 
     if method == "mi":
-        df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
+        df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index) 
+        start = time.time()
         for c in mat2.index:
             df.loc[mat1.index, c] = mat1.apply(
                 calc_mi, axis=1, args=(mat2.loc[c, :], bins, m)
             )
+        end = time.time()
 
     elif method == "euclidean":
         dist = distance.cdist(mat1, mat2, method)
@@ -138,21 +228,27 @@ def calc_distance_mat(mat1, mat2, paras, method):
             for r in mat1.index:
                 df.loc[r, c] = spearmanr(mat1.loc[r, :], mat2.loc[c, :])[0]
     else:
-        print("Distance Metrics not supported!\n")
-        exit()
+        sys.exit("Distance Metrics not supported!\n")
 
     df.to_hdf(out_file_name, str(key))  # key: MI_indx
     paras.to_hdf(out_file_name, "params")
 
 
 def merge_dist_mats(mi_slices, in_common_name, metrics):
+    """Iterates over and merges all distance matrices in one HDF5-format file
+
+    Args:
+        mi_slices    (str[]): path to all processed distance matrices wished to be merged
+        in_common_name (str): project name
+        metric         (str): metric used to calculate distance
+    """
+
     mi_0 = pd.HDFStore(mi_slices[0])
     n_slice = int(mi_0["params"].loc["num_slices", 0])  # number of chopped dfs
     n = ((n_slice + 1) * n_slice) / 2
 
     if len(mi_slices) < n:
-        print("[ERROR] --> [MERGE] Missing MI file(s).")
-        exit()
+        sys.exit("[ERROR] --> [MERGE] Missing MI file(s).")
 
     k = mi_0.keys()[0]
     mi_0[k].to_hdf(in_common_name + "_mi_whole.h5", key=k)
@@ -171,7 +267,6 @@ def merge_dist_mats(mi_slices, in_common_name, metrics):
     mi_whole = pd.HDFStore(in_common_name + "_mi_whole.h5")
 
     for i in range(n_slice):
-
         row_cols = []
 
         for j in range(i):
@@ -192,6 +287,12 @@ def merge_dist_mats(mi_slices, in_common_name, metrics):
 
 
 def norm_mi_mat(in_mat_file, out_file_name):
+    """Normalizes mutual information metric in the merged matrix
+    
+    Args:
+        in_mat_file   (str): path to merged matrix
+        out_file_name (str): name of output file
+    """
     hdf = pd.HDFStore(in_mat_file)
     df = hdf["mi"]
     diag = np.asmatrix(np.diag(df))
@@ -362,7 +463,7 @@ def aggregate(km_results, n_clusters, common_name):
     mem = None
     for i in range(n_iter):
         df = km_results[i]
-        dff = pd.DataFrame(data=df@df.T, index=df.index, columns=df.index)
+        dff = pd.DataFrame(data=df.values@df.T.values, index=df.index, columns=df.index)
         dff_div = pd.DataFrame(
             data=np.array((np.diag(dff),) * dff.shape[0]).T,
             index=dff.index,
