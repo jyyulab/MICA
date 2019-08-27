@@ -60,9 +60,9 @@ def main():
     parent_parser.add_argument('--dims-plot', metavar='INT', default=19, type=int,
                                help='Number of dimensions used in visualization (default: 19)')
 
-    parent_parser.add_argument('-r', '--resource', default=[12000, 16000, 20000],
-                               help="Memory assigned to step merge and norm, dimension reduce and clustering "
-                                    "(default: 12000, 16000, 20000")
+    parent_parser.add_argument('-r', '--resource', metavar='INT', nargs='+', type=int, default=[8000, 12000, 16000, 20000],
+                               help="Memory assigned to step prep, merge and norm, dimension reduce and clustering "
+                                    "(default: 8000, 12000, 16000, 20000")
 
     parent_parser.add_argument('--dist', metavar='STRING', default="mi", type=str,
                                help="Method for distance matrix calculation [mi | euclidean | spearman | pearson]"
@@ -131,17 +131,18 @@ def main():
                     config_dict = {"queue": args.queue,
                                    "rerunnable": True,
                                    "steps": {
-                                       "mergeAndnorm": {"res_req": "rusage[mem=" + str(args.resource[0]) + "]"},
-                                       "dimension_reduce": {"res_req": "rusage[mem=" + str(args.resource[1]) + "]"},
-                                       "clustering": {"res_req": "rusage[mem=" + str(args.resource[2]) + "]"}
+                                       "prep": {"res_req": "rusage[mem=" + str(args.resource[0]) + "]"},
+                                       "mergeAndnorm": {"res_req": "rusage[mem=" + str(args.resource[1]) + "]"},
+                                       "dimension_reduce": {"res_req": "rusage[mem=" + str(args.resource[2]) + "]"},
+                                       "clustering": {"res_req": "rusage[mem=" + str(args.resource[3]) + "]"}
                                    }
                                    }
                     logging.info(config_dict)
                     json.dump(config_dict, fp_config)
                     fp_config.flush()
                     fp_config.seek(0)
-                    cmd = 'cwlexec -pe PATH -c {} --outdir {} ./MICA/cwl/mica.cwl {}'.format(
-                        fp_config.name, args.output_dir, fp_yml.name)
+                    cmd = 'cwlexec -pe PATH -c {} --outdir {} {}/mica.cwl {}'.format(
+                        fp_config.name, args.output_dir, cwl_path ,fp_yml.name)
             else:
                 sys.exit('Error - invalid sub command.')
             logging.info(cmd)
