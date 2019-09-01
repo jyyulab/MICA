@@ -1,8 +1,9 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import unittest
 import tempfile
 from MICA.bin import clustering as cl
+
 
 class TestClustering(unittest.TestCase):
     @classmethod
@@ -29,7 +30,6 @@ class TestClustering(unittest.TestCase):
         self.assertEqual(arr, res)
 
 
-
-
 if __name__ == "__main__":
     unittest.main()
+

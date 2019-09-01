@@ -1,4 +1,4 @@
-#!/usr/bin/ python3
+#!/usr/bin/env python3
 
 import unittest
 import tempfile
@@ -22,6 +22,7 @@ class TestPrep(unittest.TestCase):
         pd_test = pd.HDFStore(self.folder.name + "/test.sliced.h5")
         pd_ans = pd.HDFStore("./tests/answerkey/prep/test.sliced.h5")
         self.assertTrue(pd_test['slice_0'].equals(pd_ans['slice_0']) and pd_test['slice_1'].equals(pd_ans['slice_1']))
+
 
 if __name__ == '__main__':
     unittest.main()

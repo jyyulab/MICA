@@ -1,10 +1,11 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import unittest
 import tempfile
 import pandas as pd
 import numpy.testing as np
 from MICA.bin import transform
+
 
 class TestTransform(unittest.TestCase):
     @classmethod
@@ -22,5 +23,8 @@ class TestTransform(unittest.TestCase):
             arr_test = mds_test.loc[i]
             arr_ans = mds_ans.loc[i]
             np.assert_allclose(arr_test, arr_ans)
+
+
 if __name__ == '__main__':
     unittest.main()
+
