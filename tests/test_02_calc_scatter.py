@@ -1,4 +1,4 @@
-#!/usr/bin/ python3
+#!/usr/bin/env python3
 
 import tempfile
 import unittest
@@ -6,6 +6,7 @@ import pytest
 import numpy.testing as np
 import pandas as pd
 from MICA.bin import calc_scatter as cs
+
 
 class TestCalcScatter(unittest.TestCase):
     @classmethod

@@ -1,4 +1,4 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import os
 import unittest
@@ -6,6 +6,7 @@ import tempfile
 import pandas as pd
 import numpy.testing as np
 from MICA.bin import merge_and_norm as merge
+
 
 class TestMerge(unittest.TestCase):
     @classmethod
@@ -45,7 +46,7 @@ class TestMerge(unittest.TestCase):
                 arr_ans = pd_ans['mi_{}'.format(i)].loc[j]
                 np.assert_allclose(arr_test, arr_ans)
 
-        
 
 if __name__ == '__main__':
     unittest.main()
+

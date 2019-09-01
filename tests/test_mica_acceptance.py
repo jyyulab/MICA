@@ -6,6 +6,7 @@ import filecmp
 import shlex
 import subprocess
 
+
 class TestMICA(unittest.TestCase):
     def test_acceptance(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -30,5 +31,7 @@ class TestMICA(unittest.TestCase):
             self.assertEqual(arr, res)
             #self.assertTrue(filecmp.cmp('./tests/answerkey/cwl_local_k4_tsne_ClusterMem.txt', '{}/test_k4_tsne_ClusterMem.txt'.format(tmpdir)))
 
+
 if __name__ == '__main__':
     unittest.main()
+
