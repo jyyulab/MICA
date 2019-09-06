@@ -72,7 +72,6 @@ inputs:
     doc: "Number of pooling used for multiple kmeans iterations, usually equals to iterations_km (default: 10)"
 
 outputs:
-
   mi.h5:
     type: File
     outputSource: mergeAndnorm/MI_h5
@@ -94,9 +93,8 @@ outputs:
     outputSource: clustering/out_fig
 
 steps:
-
   prep:
-    run: 01_prep.cwl
+    run: prep.cwl
     in:
       out_name: project_name
       input_file: infile
@@ -104,7 +102,7 @@ steps:
     out: [mat_pair_array]
 
   calc_pairwise_MI:
-    run: 02_calc_MIpair.cwl
+    run: calc_MI_pair.cwl
     in:
       h5tmp_file: prep/mat_pair_array
       method: dist_metrics
@@ -113,7 +111,7 @@ steps:
     out: [MI_files]
 
   mergeAndnorm:
-    run: 03_merge_and_norm.cwl # merge requires big memory
+    run: merge_and_norm.cwl     # merge requires large memory
     in:
       mi_pairs: calc_pairwise_MI/MI_files
       method: dist_metrics
@@ -122,7 +120,7 @@ steps:
     out: [MI_h5]
 
   dimension_reduce:
-    run: 04_dim_reduce.cwl
+    run: dim_reduce.cwl
     in:
       out_name: project_name
       in_file: mergeAndnorm/MI_h5
@@ -132,7 +130,7 @@ steps:
     out: [reduced_mi, preview_plots]
 
   clustering:
-    run: 05_clustering.cwl
+    run: clustering.cwl
     in:
       input_file: dimension_reduce/reduced_mi
       out_name: project_name

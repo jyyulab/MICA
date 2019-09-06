@@ -6,7 +6,6 @@ import argparse
 import subprocess
 import shlex
 import logging
-import tempfile
 import pathlib
 import json
 
@@ -28,7 +27,7 @@ def main():
                                help='Path to final output directory')
     parent_parser.add_argument('-b', '--bootstrap', metavar='INT', default=10, type=int,
                                help='Maximum number of iterations per dimension (default: 10)')
-    parent_parser.add_argument('-dr', '--dim-reduction', metavar='STRING', default='MDS',
+    parent_parser.add_argument('-dr', '--dim-reduction', metavar='STR', default='MDS',
                                help='Transformation method used for dimension reduction '
                                     '[MDS | PCA | LPL | LPCA] (default: MDS)')
     parent_parser.add_argument('-v', '--visualization', metavar='STR', default="tsne",
@@ -75,61 +74,58 @@ def main():
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        with open(pathlib.PurePath(tmpdirname).joinpath('mica.yml'), 'w') as fp_yml:
-            logging.info(fp_yml.name)
-            contents = 'infile:\n  class: File\n  path: {}\n' \
-                       'project_name: {}\n' \
-                       'k: {}\n' \
-                       'visualization: {}\n' \
-                       'dim_reduction: {}\n' \
-                       'iterations_km: {}\n' \
-                       'dims_km: {}\n' \
-                       'dims_plot: {}\n' \
-                       'perplexity: {}\n' \
-                       'min_dist: {}\n' \
-                       'slice_size: {}\n' \
-                       'thread_number: {}\n' \
-                       'dist_metrics: {}\n'.format(os.path.abspath(args.input_exp), args.project_name, args.clusters,
-                                                   args.visualization, args.dim_reduction, args.bootstrap,
-                                                   args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
-                                                   args.slice_size, args.thread_number, args.dist)
+    with open(pathlib.PurePath(args.output_dir).joinpath('mica.yml'), 'w') as fp_yml:
+        logging.info(fp_yml.name)
+        contents = 'infile:\n  class: File\n  path: {}\n' \
+                   'project_name: {}\n' \
+                   'k: {}\n' \
+                   'visualization: {}\n' \
+                   'dim_reduction: {}\n' \
+                   'iterations_km: {}\n' \
+                   'dims_km: {}\n' \
+                   'dims_plot: {}\n' \
+                   'perplexity: {}\n' \
+                   'min_dist: {}\n' \
+                   'slice_size: {}\n' \
+                   'thread_number: {}\n' \
+                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_exp), args.project_name, args.clusters,
+                                               args.visualization, args.dim_reduction, args.bootstrap,
+                                               args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
+                                               args.slice_size, args.thread_number, args.dist)
+        logging.info(contents)
+        fp_yml.write(contents)
+        fp_yml.flush()
+        fp_yml.seek(0)
 
-            logging.info(contents)
-            fp_yml.write(contents)
-            fp_yml.flush()
-            fp_yml.seek(0)
-
-            if args.subcommand == 'local':
-                if args.serial:
-                    cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                      cwl_path,
-                                                                      fp_yml.name)
-
-                else:
-                    cmd = 'cwltool --parallel --debug --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                                                        cwl_path,
-                                                                                                        fp_yml.name)
-            elif args.subcommand == 'lsf':
-                with open(pathlib.PurePath(tmpdirname).joinpath('config.json'), 'w') as fp_config:
-                    config_dict = {"queue": args.queue,
-                                   "rerunnable": True,
-                                   "steps": {
-                                       "mergeAndnorm": {"res_req": "rusage[mem=" + str(args.resource[0]) + "]"},
-                                       "dimension_reduce": {"res_req": "rusage[mem=" + str(args.resource[1]) + "]"},
-                                       "clustering": {"res_req": "rusage[mem=" + str(args.resource[2]) + "]"}
-                                   }
-                                   }
-                    logging.info(config_dict)
-                    json.dump(config_dict, fp_config)
-                    fp_config.flush()
-                    fp_config.seek(0)
-                    cmd = 'cwlexec -pe PATH -c {} --outdir {} ./MICA/cwl/mica.cwl {}'.format(
-                        fp_config.name, args.output_dir, fp_yml.name)
+        if args.subcommand == 'local':
+            if args.serial:
+                cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
+                                                                  cwl_path,
+                                                                  fp_yml.name)
             else:
-                sys.exit('Error - invalid sub command.')
-            logging.info(cmd)
-            run_shell_command_call(cmd)
+                cmd = 'cwltool --parallel --debug --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
+                                                                                                    cwl_path,
+                                                                                                    fp_yml.name)
+        elif args.subcommand == 'lsf':
+            with open(pathlib.PurePath(args.output_dir).joinpath('config.json'), 'w') as fp_config:
+                config_dict = {"queue": args.queue,
+                               "rerunnable": True,
+                               "steps": {
+                                   "mergeAndnorm": {"res_req": "rusage[mem=" + str(args.resource[0]) + "]"},
+                                   "dimension_reduce": {"res_req": "rusage[mem=" + str(args.resource[1]) + "]"},
+                                   "clustering": {"res_req": "rusage[mem=" + str(args.resource[2]) + "]"}
+                               }
+                               }
+                logging.info(config_dict)
+                json.dump(config_dict, fp_config)
+                fp_config.flush()
+                fp_config.seek(0)
+                cmd = 'cwlexec -pe PATH -c {} --outdir {} ./MICA/cwl/mica.cwl {}'.format(
+                    fp_config.name, args.output_dir, fp_yml.name)
+        else:
+            sys.exit('Error - invalid sub command.')
+        logging.info(cmd)
+        run_shell_command_call(cmd)
 
     logging.info('All done.')
 
