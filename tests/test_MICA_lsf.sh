@@ -5,4 +5,5 @@ mica lsf \
 -p "cwl_lsf" \
 -k 3 4 \
 -o ./test_data/outputs/cwl_lsf/ \
--c ./MICA/config/config_cwlexec.json
+-j ./MICA/config/config_cwlexec.json
+
