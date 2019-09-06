@@ -7,16 +7,16 @@ This module contains helper functions, essential to the execution of MICA (Mutua
 import sys
 import time
 
-#import umap as ump  # will pop up "joblib" deprecation warning message
+# import umap as ump  # will pop up "joblib" deprecation warning message
 import numpy as np
 import pandas as pd
 import matplotlib  # for plotting
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
-#import numba
-#from numba import jit
+# import numba
+# from numba import jit
 
-from sklearn.metrics import mutual_info_score
+# from sklearn.metrics import mutual_info_score
 from sklearn import cluster  # for kmeans
 from sklearn import manifold  # for tsne
 from sklearn import decomposition  # for PCA, etc
@@ -24,8 +24,8 @@ from scipy.cluster.hierarchy import dendrogram  # for heatmap
 from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
 
-
 matplotlib.use("Agg")
+
 
 def read_file(in_file_name, out_file_name):
     """Reads text file and stores data in a temporary HDF5-format file.
@@ -79,10 +79,10 @@ def slice_file(df_file,  out_file_name, slice_size="1000"):
 
 
 def patch_file(df_file,  out_file_name):
-    """Prepares the HDF5 file for slicing. Completes the "temporary" HDF5-format file.
+    """ Prepares the HDF5 file for slicing. Completes the "temporary" HDF5-format file.
 
-    Reads input file into several dataframes. Indexes attributes as row, col and slice.
-    Indexes columns and rows of data. Converts all dataframes into an output HDF5 file 
+    Reads input file into several data frames. Indexes attributes as row, col and slice.
+    Indexes columns and rows of data. Converts all data frames into an output HDF5 file
     with separate keys for each piece of data.
     
     Args:
@@ -104,7 +104,7 @@ def patch_file(df_file,  out_file_name):
 
 
 def calc_prep(in_file, project_name):
-    """Prepares the already sliced input file for further calculation in MICA.
+    """ Prepares the already sliced input file for further calculation in MICA.
     
     Enters pairs of slices (matrices) into temporary HDF5-format files. It enters them
     individually, using their unique key. It also enters the parameter data for every single 
@@ -149,8 +149,9 @@ def vpearson(X, y):
     r = r_num/r_den
     return r
 
+
 def calc_mi(arr1, arr2, bins, m):
-    """Calculates mutual information in between two cells, considering their gene expression levels
+    """ Calculates mutual information in between two cells, considering their gene expression levels
     
     This function is called by calc_distance_mat. It takes gene expression data from single cells,
     and compares them using standard calculation for mutual information. It builds a 2d histogram,
@@ -192,8 +193,7 @@ def calc_distance_mat(mat1, mat2, paras, method):
                                         mutual information: "mi"
                                         euclidean distance: "euclidean"
                                         pearson correlation: "pearson"
-                                        spearman correlation: "spearman"
-                                  ) 
+                                        spearman correlation: "spearman")
     """
 
     bins = int(paras.loc["num_bins", 0])
@@ -212,21 +212,17 @@ def calc_distance_mat(mat1, mat2, paras, method):
                 calc_mi, axis=1, args=(mat2.loc[c, :], bins, m)
             )
         end = time.time()
-
     elif method == "euclidean":
         dist = distance.cdist(mat1, mat2, method)
         df = pd.DataFrame(data=dist, index=mat1.index, columns=mat2.index, dtype="float")
-
     elif method == "pearson":
         df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
         for c in mat2.index:
             df.loc[:, c] = vpearson(mat1.values, mat2.loc[c, :].values)
-
     elif method == "spearman":
         df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
         for c in mat2.index:
             df.loc[:, c] = vpearson(mat1.rank(axis=1).values, mat2.loc[c, :].values)
-
     else:
         sys.exit("Distance Metrics not supported!\n")
 
@@ -411,7 +407,7 @@ def lpl(
 
 
 def pca(
-         in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method= "mi",
+         in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi",
 ):
     hdf = pd.HDFStore(in_mat_file)
 

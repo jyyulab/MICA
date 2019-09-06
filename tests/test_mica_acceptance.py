@@ -2,9 +2,9 @@
 
 import unittest
 import tempfile
-import filecmp
 import shlex
 import subprocess
+# import filecmp
 
 
 class TestMICA(unittest.TestCase):
@@ -29,9 +29,9 @@ class TestMICA(unittest.TestCase):
                     res.append(line)
 
             self.assertEqual(arr, res)
-            #self.assertTrue(filecmp.cmp('./tests/answerkey/cwl_local_k4_tsne_ClusterMem.txt', '{}/test_k4_tsne_ClusterMem.txt'.format(tmpdir)))
+            # self.assertTrue(filecmp.cmp('./tests/answerkey/cwl_local_k4_tsne_ClusterMem.txt',
+            # '{}/test_k4_tsne_ClusterMem.txt'.format(tmpdir)))
 
 
 if __name__ == '__main__':
     unittest.main()
-

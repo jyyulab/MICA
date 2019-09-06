@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import os
-from MICA.bin import utils
-import argparse
-
-"""01_prep.py
-
-This script is responsible for pre-processing HDF5-format files for computation.
+""" This script is responsible for pre-processing HDF5-format files for computation.
 """
+import os
+import argparse
+import logging
+
+from MICA.bin import utils
+
 
 def main():
     """Handles arguments and calls the driver function"""
@@ -31,7 +31,7 @@ def prep(input_file, out_name, slice_unit):
         out_name   (str): common rootname of generated output files
         slice_unit (int): size of each slice of cell data in input text-file
     """
-
+    logging.basicConfig(level=logging.INFO)
     # frame = pd.read_csv(input_file, sep=sep_sym, index_col=0).iloc[:, 0:]
     # read_file(file, sep, header, out_dir, out_file_name, index_col="0")
     utils.read_file(input_file, out_name)
@@ -51,7 +51,8 @@ def prep(input_file, out_name, slice_unit):
     h5_sliced = out_name + ".sliced.h5"  # update input files
     utils.calc_prep(h5_sliced, out_name)
 
-    print("[INFO] --> [MIE-PREP] Finished.")
+    logging.info('MICA-prep step completed successfully.')
+
 
 if __name__ == '__main__':
     main()
