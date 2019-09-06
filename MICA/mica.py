@@ -39,7 +39,7 @@ def main():
     parent_parser.add_argument('-sn', '--slice-size', metavar='INT', default=1000, type=int,
                                help='Number of cells in each MI sub-matrix (default: 1000)')
     parent_parser.add_argument('-t', '--thread-number', metavar='INT', default=10, type=int,
-                               help='Number of pooling used for multiple kmeans iterations,'
+                               help='Number of poolings used for multiple kmeans iterations,'
                                     'usually equals to iterations_km (default: 10)')
     parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19],
                                help='Dimensions used in clustering, array inputs are supported (default: 19)')

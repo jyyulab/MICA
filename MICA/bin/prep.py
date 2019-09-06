@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ This script is responsible for pre-processing HDF5-format files for computation.
 """
+
 import os
 import argparse
 import logging
