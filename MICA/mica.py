@@ -7,7 +7,6 @@ import subprocess
 import shlex
 import logging
 import pathlib
-import json
 
 
 def main():
@@ -45,12 +44,9 @@ def main():
                                help='Dimensions used in clustering, array inputs are supported (default: 19)')
     parent_parser.add_argument('--dims-plot', metavar='INT', default=19, type=int,
                                help='Number of dimensions used in visualization (default: 19)')
-    parent_parser.add_argument('-r', '--resource', default=[12000, 16000, 20000],
-                               help="Memory assigned to step merge and norm, dimension reduce and clustering "
-                                    "(default: 12000, 16000, 20000")
     parent_parser.add_argument('--dist', metavar='STR', default="mi", type=str,
-                               help="Method for distance matrix calculation [mi | euclidean | spearman | pearson]"
-                                    "(default:mi)")
+                               help='Method for distance matrix calculation [mi | euclidean | spearman | pearson]'
+                                    '(default:mi)')
     subparsers = parser.add_subparsers(title='Subcommands', help='platforms', dest='subcommand')
     subparsers.required = True
 
@@ -60,7 +56,9 @@ def main():
 
     # Create a sub parser for running cwlexec
     subparser_lsf = subparsers.add_parser('lsf', parents=[parent_parser], help='run cwlexec in a IBM LSF interface')
-    subparser_lsf.add_argument('-q', '--queue', metavar='STR', required=True, help='LSF queue to submit the workflow')
+    subparser_lsf.add_argument('-j', '--config-json', metavar='FILE', required=True, help='LSF-specific configuration'
+                                                                                          'file in JSON format to be'
+                                                                                          'used for workflow execution')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -107,26 +105,12 @@ def main():
                                                                                                     cwl_path,
                                                                                                     fp_yml.name)
         elif args.subcommand == 'lsf':
-            with open(pathlib.PurePath(args.output_dir).joinpath('config.json'), 'w') as fp_config:
-                config_dict = {"queue": args.queue,
-                               "rerunnable": True,
-                               "steps": {
-                                   "mergeAndnorm": {"res_req": "rusage[mem=" + str(args.resource[0]) + "]"},
-                                   "dimension_reduce": {"res_req": "rusage[mem=" + str(args.resource[1]) + "]"},
-                                   "clustering": {"res_req": "rusage[mem=" + str(args.resource[2]) + "]"}
-                               }
-                               }
-                logging.info(config_dict)
-                json.dump(config_dict, fp_config)
-                fp_config.flush()
-                fp_config.seek(0)
-                cmd = 'cwlexec -pe PATH -c {} --outdir {} ./MICA/cwl/mica.cwl {}'.format(
-                    fp_config.name, args.output_dir, fp_yml.name)
+            cmd = 'cwlexec -pe PATH -c {} --outdir {} {}/mica.cwl {}'.format(args.config_json,
+                                                                             args.output_dir, cwl_path, fp_yml.name)
         else:
-            sys.exit('Error - invalid sub command.')
+            sys.exit('Error - invalid subcommand.')
         logging.info(cmd)
         run_shell_command_call(cmd)
-
     logging.info('All done.')
 
 
