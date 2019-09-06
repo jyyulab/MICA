@@ -84,7 +84,7 @@ matrix and a list of cluster sizes to be specified in multiple runs of K-means.
 
 #### Outputs
 After the completion of the pipeline, `mica` will generate the following outputs:
-1. Cell-cell Mutual information matrix 
+1. Cell-cell mutual information matrix 
 2. Dimension reduced distance matrix 
 3. Clustering results plot with clustering label mapped to each cluster
 4. Clustering results txt file with visualization coordinates and clustering label
