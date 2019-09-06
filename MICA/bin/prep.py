@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
+"""
+This script is responsible for pre-processing HDF5-format files for computation.
+"""
+
 import os
 from MICA.bin import utils
 import argparse
 
-"""01_prep.py
-
-This script is responsible for pre-processing HDF5-format files for computation.
-"""
 
 def main():
     """Handles arguments and calls the driver function"""
