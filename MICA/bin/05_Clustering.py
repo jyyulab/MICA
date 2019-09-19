@@ -12,7 +12,6 @@ start_time = time.time()
 
 def km_multiprocess(
     mi_file,
-    trans,
     n_cluster,
     n_iter,
     common_name,
@@ -20,17 +19,21 @@ def km_multiprocess(
     thread=1,
 ):
     pool = Pool(processes=thread)
-
     hdf = pd.HDFStore(mi_file)
-    df = hdf[trans]
-    hdf.close()
+    r = []
 
-    # def utils.kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id)
-    km_iterable = partial(utils.kmeans, df, n_cluster, common_name)
-    iterations = itertools.product(dims, range(n_iter))
+    for trans in hdf.keys():
+        df = hdf[trans]
 
-    r = pool.starmap(km_iterable, iterations)
+        # def utils.kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id)
+        km_iterable = partial(utils.kmeans, df, n_cluster, common_name)
+        iterations = itertools.product(dims, range(n_iter))
+
+        res = pool.starmap(km_iterable, iterations)
+        r = r + res
+
     pool.close()
+    hdf.close()
     return r
 
 
@@ -63,7 +66,7 @@ if __name__ == '__main__':
     # umap_min_dist = 0.1
     # tsne_perplexity = 30
 
-    result = km_multiprocess(in_file, dr, n_cluster=k, n_iter=n_bootstrap,
+    result = km_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
                              common_name=out_name, dims=dim_km, thread=n_thread)
 
     # def aggregate(result, n_clusters, common_name):
