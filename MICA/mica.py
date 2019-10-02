@@ -100,7 +100,6 @@ def main():
                 cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
                                                                   cwl_path,
                                                                   fp_yml.name)
-            else:
                 cmd = 'cwltool --parallel --debug --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
                                                                                                     cwl_path,
                                                                                                     fp_yml.name)
