@@ -394,7 +394,7 @@ def lpl(
         index=df.index,
         columns=["lpl_" + str(x) for x in np.arange(1, n)],
     )
-    Y.to_hdf(out_file_name + "_clust.h5", "lpl")
+    Y.to_hdf(out_file_name + "_reduced.h5", "lpl")
     if plot == "True":
         tsne(
             Y,
@@ -426,7 +426,7 @@ def pca(
         index=df.index,
         columns=["pca_" + str(x) for x in np.arange(1, n + 1)],
     )
-    Y.to_hdf(out_file_name + "_clust.h5", "pca")
+    Y.to_hdf(out_file_name + "_reduced.h5", "pca")
     if plot == "True":
         tsne(
             Y,
