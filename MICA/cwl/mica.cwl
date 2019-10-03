@@ -81,7 +81,7 @@ outputs:
     outputSource: dimension_reduce/reduced_mi
 
   initial_plots:
-    type: File
+    type: File[]
     outputSource: dimension_reduce/preview_plots
 
   clustering_res:
