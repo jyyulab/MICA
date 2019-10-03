@@ -47,6 +47,6 @@ outputs:
       glob: "*_reduced.h5"
 
   preview_plots:
-    type: File
+    type: File[]
     outputBinding:
       glob: "*.pdf"
