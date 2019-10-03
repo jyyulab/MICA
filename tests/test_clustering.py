@@ -2,19 +2,25 @@
 
 import unittest
 import tempfile
+import cProfile
 from MICA.bin import clustering as cl
 
 
 class TestClustering(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.infile = "./tests/inputs/test_reduced.h5"
-        self.folder = tempfile.TemporaryDirectory()
+    def setUpClass(cls):
+        cls.infile = "./tests/inputs/test_reduced.h5"
+        cls.folder = tempfile.TemporaryDirectory()
 
-    def test_5_clustering(self):
+    def test_clustering(self):
         arr = []
         res = []
-        cl.clustering(self.infile, "mds", 5, 10, self.folder.name + "/test", "tsne", 0.1, 30, 20, 10, [20])
+
+        pr = cProfile.Profile()
+        pr.enable()
+        cl.clustering(self.infile, "mds", 5, 10, self.folder.name + "/test", "tsne", 0.1, 30, 20, 4, [20])
+        pr.disable()
+        pr.print_stats(sort='time')
         with open("{}/test_k5_tsne_ClusterMem.txt".format(self.folder.name), 'r') as fin:
             fin.readline()
             for line in fin:

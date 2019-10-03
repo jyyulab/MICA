@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-
-"""utils.py
-
+"""
 This module contains helper functions, essential to the execution of MICA (Mutual Information-based clustering algorithm)
 """
 import sys
@@ -440,8 +438,8 @@ def pca(
 
 def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     out_file_name = project_name + "_kmeans_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
-
     km = cluster.KMeans(n_clusters=n_clusters, max_iter=1000, n_init=1000)
+
     km_res = pd.DataFrame(
         data=np.transpose(km.fit_predict(in_mat.iloc[:, 0:dim])),
         index=in_mat.index,

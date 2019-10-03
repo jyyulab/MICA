@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import itertools
 import time
 import argparse
@@ -15,9 +14,9 @@ def main():
     """Handles arguments and calls the driver function"""
     head_description = "Clusters reduced data"
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
-    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Reduced matrix file')
+    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Reduced matrix file in h5 format')
     parser.add_argument('-dr', '--merge-option', metavar='STR', required=True,
-                        help='Method used for transforming')
+                        help='Method used for dimension reduction')
     parser.add_argument('-k', '--k', type=int, metavar='INT', required=True,
                         help='k value for k-means')
     parser.add_argument('-n', '--n-bootstrap', type=int, metavar='INT', required=True,
@@ -36,21 +35,14 @@ def main():
                         help='Total number of threads used')
     parser.add_argument('-km', '--dim-km', nargs='+', type=int, metavar='INT', required=True,
                         help='Size of k-means dimensions')
-    args=parser.parse_args()
+    args = parser.parse_args()
     
     clustering(args.input_file, args.merge_option.lower(), args.k, args.n_bootstrap, args.output_file, args.plot_method,
                args.umap_min_dist, args.tsne_perplexity, args.plot_dim, args.n_thread, args.dim_km)
 
 
-def km_multiprocess(
-    mi_file,
-    n_cluster,
-    n_iter,
-    common_name,
-    dims=[19],
-    thread=1,
-):
-    pool = Pool(processes=thread)
+def km_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_processes=1):
+    pool = Pool(processes=num_processes)
     hdf = pd.HDFStore(mi_file)
     r = []
 
@@ -70,23 +62,10 @@ def km_multiprocess(
 
 
 def clustering(in_file, dr, k, n_bootstrap, out_name,
-               plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_thread, dim_km):
-
+               plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
     dim_km = map(int, dim_km)
-
-    # in_file = "/home/cqian/PBMC12K/PBMC12k_reduced.h5"
-    # k = 8
-    # n_bootstrap = 10
-    # out_name = "pbmc_psub"
-    # dim_km = [19]
-    # n_thread = 6
-    # plot_method = "tsne"
-    # plot_dim = 19
-    # umap_min_dist = 0.1
-    # tsne_perplexity = 30
-
     result = km_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
-                             common_name=out_name, dims=dim_km, thread=n_thread)
+                             common_name=out_name, dims=dim_km, num_processes=n_processes)
 
     # def aggregate(result, n_clusters, common_name):
     agg, out_f = utils.aggregate(result, k, out_name)
@@ -100,7 +79,6 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
                         min_dist=umap_min_dist,
                         perplexity=tsne_perplexity
                         )
-
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
