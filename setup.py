@@ -19,6 +19,7 @@ setup(
         "matplotlib>=2.2.2",
         "scipy>=1.0.1",
         "tables>=3.5.2",
+        "cwltool>=1.0.20190915164430",
         ],
     python_requires=">=3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

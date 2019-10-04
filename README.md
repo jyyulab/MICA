@@ -37,7 +37,7 @@ Note: cwlexec requires manual installation if needed.
 
 #### Install using pip
 ```
-$ pip install SJARACNe
+$ pip install MICA
 ```
 
 
