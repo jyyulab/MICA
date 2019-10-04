@@ -1,4 +1,6 @@
 # MICA
+[![Build Status](https://travis-ci.com/jyyulab/MICA.svg?token=HDr9KWz2yFUbD2psHJxJ&branch=master)](https://travis-ci.com/jyyulab/MICA)
+
 MICA is a mutual information-based clustering algorithm that consists of following steps:
 1. Mutual information calculation
 2. Decomposition and Dimension Reduction
