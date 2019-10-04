@@ -17,7 +17,7 @@
         },
         "clustering": {
             "processors": "8",
-            "res_req": "span[ptile=8] rusage[mem=12000MB]"
+            "res_req": "span[ptile=8] rusage[mem=2000MB]"
         }
     }
 }
