@@ -18,7 +18,7 @@ class TestClustering(unittest.TestCase):
 
         pr = cProfile.Profile()
         pr.enable()
-        cl.clustering(self.infile, "mds", 5, 10, self.folder.name + "/test", "tsne", 0.1, 30, 20, 4, [20])
+        cl.clustering(self.infile, "mds", 5, 10, self.folder.name + "/test", "tsne", 0.1, 30, 20, 5, [20])
         pr.disable()
         pr.print_stats(sort='time')
         with open("{}/test_k5_tsne_ClusterMem.txt".format(self.folder.name), 'r') as fin:

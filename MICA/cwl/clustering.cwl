@@ -3,7 +3,12 @@ class: CommandLineTool
 cwlVersion: v1.0
 
 requirements:
- - class: InlineJavascriptRequirement
+  ResourceRequirement:
+    ramMin: 10000
+    ramMax: 20000
+    coresMin: 8
+    coresMax: 10
+  InlineJavascriptRequirement: {}
 
 baseCommand: clustering.py
 
@@ -70,7 +75,7 @@ inputs:
 
   n_thread:
     type: int
-    default: 10
+    default: 5
     inputBinding:
       position: 10
       prefix: -t

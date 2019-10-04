@@ -2,6 +2,7 @@
 """
 This module contains helper functions, essential to the execution of MICA (Mutual Information-based clustering algorithm)
 """
+
 import sys
 import time
 
