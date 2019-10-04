@@ -93,4 +93,3 @@ outputs:
     type: File
     outputBinding:
       glob: "*_ClusterMem.txt"
-
