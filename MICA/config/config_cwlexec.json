@@ -14,9 +14,6 @@
         },
         "dimension_reduce": {
             "res_req": "rusage[mem=16000MB]"
-        },
-        "clustering": {
-            "res_req": "rusage[mem=20000MB]"
         }
     }
 }
