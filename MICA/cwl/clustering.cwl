@@ -4,8 +4,6 @@ cwlVersion: v1.0
 
 requirements:
   ResourceRequirement:
-    ramMin: 10000
-    ramMax: 20000
     coresMin: 8
     coresMax: 10
   InlineJavascriptRequirement: {}
