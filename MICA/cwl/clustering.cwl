@@ -3,9 +3,6 @@ class: CommandLineTool
 cwlVersion: v1.0
 
 requirements:
-  ResourceRequirement:
-    coresMin: 8
-    coresMax: 10
   InlineJavascriptRequirement: {}
 
 baseCommand: clustering.py
