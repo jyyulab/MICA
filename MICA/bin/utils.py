@@ -9,6 +9,7 @@ import time
 # import umap as ump  # will pop up "joblib" deprecation warning message
 import numpy as np
 import pandas as pd
+import h5py
 import matplotlib  # for plotting
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
@@ -34,7 +35,13 @@ def read_file(in_file_name, out_file_name):
         out_file_name (str): user-defined name for output file
     """
 
-    frame = pd.read_csv(in_file_name, sep="\t", index_col=0).iloc[:, 0:]
+    if in_file_name.endswith('.txt'):
+        frame = pd.read_csv(in_file_name, sep="\t", index_col=0).iloc[:, 0:]
+    if in_file_name.endswith('.h5'):
+        f = h5py.File(in_file_name)
+        frame = pd.DataFrame(data=f['input'][:], index=np.char.decode(f['ID'][:]), columns=np.char.decode(f['fn'][:]))
+        f.close()
+
     frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
 
 
