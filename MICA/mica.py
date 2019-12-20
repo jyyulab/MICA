@@ -104,6 +104,7 @@ def main():
                                                                                                     cwl_path,
                                                                                                     fp_yml.name)
         elif args.subcommand == 'lsf':
+            os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
             cmd = 'cwlexec -pe PATH -c {} --outdir {} {}/mica.cwl {}'.format(args.config_json,
                                                                              args.output_dir, cwl_path, fp_yml.name)
         else:
