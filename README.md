@@ -15,7 +15,8 @@ MICA is a mutual information-based clustering algorithm that consists of followi
     * [scikit-learn>=0.19.1](http://scikit-learn.org/stable/install.html#)
     * [matplotlib>=2.2.2](https://matplotlib.org/users/installing.html)
     * [scipy>=1.0.1](https://www.scipy.org/install.html)
-    * [cwltool>=1.0.2](https://github.com/common-workflow-language/cwltool)   
+    * [cwltool>=1.0.2](https://github.com/common-workflow-language/cwltool)
+    * [h5py>=2.10.0](https://www.h5py.org/)
 * [cwlexec>=0.2.2](https://github.com/IBMSpectrumComputing/cwlexec) (required for running on IBM LSF)
 
 Note: the pipeline is written in [common workflow language](https://www.commonwl.org/) for multi-platform compatibility.

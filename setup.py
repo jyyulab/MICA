@@ -20,6 +20,7 @@ setup(
         "scipy>=1.0.1",
         "tables>=3.5.2",
         "cwltool>=1.0.2",
+        "h5py>=2.10.0",
         ],
     python_requires=">=3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
