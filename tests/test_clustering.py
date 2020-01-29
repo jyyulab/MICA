@@ -11,11 +11,11 @@ class TestClustering(unittest.TestCase):
     def setUpClass(cls):
         cls.infile = "./tests/inputs/test_reduced.h5"
         cls.folder = tempfile.TemporaryDirectory()
-
+    
     def test_clustering(self):
         arr = []
         res = []
-
+        self.maxDiff = None
         pr = cProfile.Profile()
         pr.enable()
         cl.clustering(self.infile, "mds", 5, 10, self.folder.name + "/test", "tsne", 0.1, 30, 20, 5, [20])
