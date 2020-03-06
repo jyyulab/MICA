@@ -11,7 +11,7 @@ MICA is a mutual information-based clustering algorithm that consists of followi
 ## Prerequisites
 * [python==3.6.1](https://www.python.org/downloads/)
     * [pandas>=0.22.0](https://pandas.pydata.org/)
-    * [numpy>=1.14.2](https://www.scipy.org/scipylib/download.html)
+    * [numpy==1.14.2](https://www.scipy.org/scipylib/download.html)
     * [scikit-learn>=0.19.1](http://scikit-learn.org/stable/install.html#)
     * [matplotlib>=2.2.2](https://matplotlib.org/users/installing.html)
     * [scipy>=1.0.1](https://www.scipy.org/install.html)
