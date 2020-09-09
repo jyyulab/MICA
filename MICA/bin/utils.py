@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import h5py
 import matplotlib  # for plotting
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
 # import numba
@@ -23,8 +24,6 @@ from sklearn import decomposition  # for PCA, etc
 from scipy.cluster.hierarchy import dendrogram  # for heatmap
 from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
-
-matplotlib.use("Agg")
 
 
 def read_file(in_file_name, out_file_name):
