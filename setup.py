@@ -14,7 +14,7 @@ setup(
     license="See LICENSE.md",
     install_requires=[
         "pandas>=0.22.0",
-        "numpy==1.14.2",
+        "numpy==1.14.5",
         "scikit-learn>=0.19.1",
         "matplotlib==2.2.2",
         "scipy>=1.0.1",
