@@ -13,7 +13,7 @@ before_script:
   - chmod 755 $eggpath/prep.py $eggpath/calc_scatter.py $eggpath/merge_and_norm.py $eggpath/transform.py $eggpath/clustering.py $eggpath/utils.py
 
 script:
-  - python -m pytest -v
+  - travis_wait python -m pytest -v
 
 #safelist
 branches:
