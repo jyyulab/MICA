@@ -3,6 +3,7 @@
 import argparse
 from MICA.bin import utils
 
+
 def main():
     """Handles arguments and calls the driver function"""
     head_description = 'Merges a set of matrices into one' 

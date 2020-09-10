@@ -15,7 +15,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Input file')
     parser.add_argument('-o', '--output-file', metavar='STR', required=True, help='Output file name')
-    parser.add_argument('-s', '--slice-unit', type=int, metavar='INT', required=True, help='Size of data slices')
+    parser.add_argument('-s', '--calc_prepslice-unit', type=int, metavar='INT', required=True, help='Size of data slices')
     args = parser.parse_args()
 
     prep(args.input_file, args.output_file, args.slice_unit)
