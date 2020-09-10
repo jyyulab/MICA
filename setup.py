@@ -28,4 +28,3 @@ setup(
     test_suite="tests",
     entry_points={"console_scripts": ["mica=MICA.mica:main"]},
 )
-
