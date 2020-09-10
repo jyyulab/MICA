@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+
 import sys
 import argparse
 from MICA.bin import utils
+
 
 def main():
     """Handles arguments and calls the driver function"""
@@ -12,7 +14,7 @@ def main():
     parser.add_argument('-t', '--transform', metavar='STR', required=True, help='Transform method')
     parser.add_argument('-d', '--max-dimension', type=int, metavar='INT', required=True, help='Maximum number of dimensions in reduction')
     parser.add_argument('-m', '--metric', metavar='STR', required=True, help='Metric used in calculating distance')
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     transform(args.input_file, args.proj_name, args.transform.upper(), args.max_dimension, args.metric)
 
@@ -43,6 +45,7 @@ def transform(infile, proj_name, trans, max_dim, metric):
     print("[PREP DONE] Method used for dimension reduce: " + trans)
 
 # def mds(fig_num, in_mat_file, max_dim, out_dir, out_file_name, perplexity=30, print_plot="True")
+
 
 if __name__ == '__main__':
     main()
