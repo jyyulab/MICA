@@ -21,6 +21,8 @@ setup(
         "tables>=3.5.2",
         "cwltool>=1.0.2",
         "h5py>=2.10.0",
+        "anndata>=0.7.4",
+        "scanpy>=1.6.0",
         ],
     python_requires=">=3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

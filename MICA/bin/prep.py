@@ -11,7 +11,7 @@ from MICA.bin import utils
 
 def main():
     """Handles arguments and calls the driver function"""
-    head_description='Slice data, name parameters in input file, and generate data files with pairs of slices'
+    head_description = 'Slice data, name parameters in input file, and generate data files with pairs of slices'
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Input file')
     parser.add_argument('-o', '--output-file', metavar='STR', required=True, help='Output file name')
