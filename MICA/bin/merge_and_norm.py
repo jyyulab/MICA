@@ -28,7 +28,6 @@ def merge_and_norm(mat_files, project_name, method):
         project_name (str): name of project/original output name
         method       (str): metric used for calculating distance
     """
-
     utils.merge_dist_mats(mat_files, project_name, method)
     dist_file = project_name + "_dist.h5"
     if method == "mi":
