@@ -16,8 +16,8 @@ def main():
 
     # Create a parent parser with common arguments for every sub parser
     parent_parser = argparse.ArgumentParser(description='Parser for common arguments', add_help=False)
-    parent_parser.add_argument('-i', '--input-exp', metavar='FILE', required=True,
-                               help='Path to an expression matrix file, only tab separated files are allowed')
+    parent_parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
+                               help='Path to an input file (h5ad file or tab-delimited text file)')
     parent_parser.add_argument('-p', '--project-name', metavar='STR', required=True, type=str,
                                help='Project name/ID.')
     parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=True, type=int,
@@ -86,7 +86,7 @@ def main():
                    'min_dist: {}\n' \
                    'slice_size: {}\n' \
                    'thread_number: {}\n' \
-                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_exp), args.project_name, args.clusters,
+                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
                                                args.visualization, args.dim_reduction, args.bootstrap,
                                                args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
                                                args.slice_size, args.thread_number, args.dist)
@@ -100,9 +100,9 @@ def main():
                 cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
                                                                   cwl_path,
                                                                   fp_yml.name)
-                cmd = 'cwltool --parallel --leave-tmpdir --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                                                    cwl_path,
-                                                                                                    fp_yml.name)
+            else:
+                cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
+                      '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
         elif args.subcommand == 'lsf':
             os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
             cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(args.config_json,

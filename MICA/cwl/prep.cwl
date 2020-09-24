@@ -29,4 +29,3 @@ outputs:
     type: File[]
     outputBinding:
       glob: "*.h5.tmp"
-

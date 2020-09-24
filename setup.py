@@ -13,10 +13,10 @@ setup(
     author_email="liang.ding@stjude.org",
     license="See LICENSE.md",
     install_requires=[
-        "pandas>=0.22.0",
+        "pandas>=1.0",
         "numpy>=1.17.0",
         "scikit-learn>=0.19.1",
-        "matplotlib==2.2.2",
+        "matplotlib>=3.1.2",
         "scipy>=1.0.1",
         "tables>=3.5.2",
         "cwltool>=1.0.2",
