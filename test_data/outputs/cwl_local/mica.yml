@@ -1,6 +1,6 @@
 infile:
   class: File
-  path: /Users/lding/Git/MICA/test_data/inputs/PBMC_Demo_MICA_input_mini.txt
+  path: /Users/lding/Git/MICA/test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad
 project_name: cwl_local
 k: [3, 4]
 visualization: tsne
@@ -12,4 +12,4 @@ perplexity: 30
 min_dist: 0.01
 slice_size: 1000
 thread_number: 10
-dist_metrics: spearman
+dist_metrics: mi

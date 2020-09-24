@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-This module contains helper functions, essential to the execution of MICA (Mutual Information-based clustering algorithm)
+This module contains helper functions, essential to the execution of MICA (Mutual Information-based
+clustering algorithm)
 """
 
 import sys
@@ -14,39 +15,37 @@ import matplotlib  # for plotting
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
+import anndata
 # import numba
 # from numba import jit
 
 # from sklearn.metrics import mutual_info_score
-from sklearn import cluster  # for kmeans
-from sklearn import manifold  # for tsne
+from sklearn import cluster        # for kmeans
+from sklearn import manifold       # for tsne
 from sklearn import decomposition  # for PCA, etc
 from scipy.cluster.hierarchy import dendrogram  # for heatmap
 from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
 
 
-def read_file(in_file_name, out_file_name):
-    """Reads text file and stores data in a temporary HDF5-format file.
-    
+def read_file(in_file, out_file_name):
+    """ Reads text file and stores data in a temporary HDF5-format file.
+
     Args:
         in_file_name  (str): path to input text file
         out_file_name (str): user-defined name for output file
     """
-
-    if in_file_name.endswith('.txt'):
-        frame = pd.read_csv(in_file_name, sep="\t", index_col=0).iloc[:, 0:]
-    if in_file_name.endswith('.h5'):
-        f = h5py.File(in_file_name)
-        frame = pd.DataFrame(data=f['input'][:], index=np.char.decode(f['ID'][:]), columns=np.char.decode(f['fn'][:]))
-        f.close()
-
+    if in_file.endswith('.txt'):
+        frame = pd.read_csv(in_file, sep="\t", index_col=0).iloc[:, 0:]
+    if in_file.endswith('.h5ad'):
+        adata = anndata.read_h5ad(in_file)
+        frame = adata.to_df()
     frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
 
 
 def slice_file(df_file,  out_file_name, slice_size="1000"):
-    """Slices the HDF5 file.
-    
+    """ Slices the HDF5 file.
+
     Determines the number of slices for the data, based on slice_size.
     Calculates start and end indices for slicing, creating a new dataframe
     based on those indices and appends them to the sliced output file using
