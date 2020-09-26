@@ -59,6 +59,8 @@ def main():
     subparser_lsf.add_argument('-j', '--config-json', metavar='FILE', required=True, help='LSF-specific configuration'
                                                                                           'file in JSON format to be'
                                                                                           'used for workflow execution')
+    subparser_lsf.add_argument('-r', '--rerun', metavar='STR', type=str, help='Rerun an exited workflow with the given'
+                                                                              'workflow ID.')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -105,8 +107,12 @@ def main():
                       '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
         elif args.subcommand == 'lsf':
             os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
-            cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(args.config_json,
-                                                                             args.output_dir, cwl_path, fp_yml.name)
+            if args.rerun:
+                cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
+                    args.rerun, args.config_json)
+            else:
+                cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
+                    args.config_json, args.output_dir, cwl_path, fp_yml.name)
         else:
             sys.exit('Error - invalid subcommand.')
         logging.info(cmd)

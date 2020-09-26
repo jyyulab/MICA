@@ -181,7 +181,7 @@ def calc_mi(arr1, arr2, bins, m):
 
 
 def calc_distance_mat(mat1, mat2, paras, method):
-    """Calculates a distance metric in between two matrices (slices)
+    """ Calculates a distance metric in between two matrices (slices)
 
     Calculates a distance metric using the preferred method of comparison. Iterates over each cell's
     gene expression data and populates a new matrix with rows and columns as cells from the input
@@ -235,20 +235,19 @@ def calc_distance_mat(mat1, mat2, paras, method):
 
 
 def merge_dist_mats(mi_slices, in_common_name, metrics):
-    """Iterates over and merges all distance matrices in one HDF5-format file
+    """ Iterates over and merges all distance matrices in one HDF5-format file
 
     Args:
-        mi_slices    (str[]): path to all processed distance matrices wished to be merged
+        mi_slices    (str[]): a list of paths of sliced distance matrix files
         in_common_name (str): project name
-        metric         (str): metric used to calculate distance
+        metrics        (str): metric used to calculate distance
     """
-
     mi_0 = pd.HDFStore(mi_slices[0])
     n_slice = int(mi_0["params"].loc["num_slices", 0])  # number of chopped dfs
     n = ((n_slice + 1) * n_slice) / 2
 
     if len(mi_slices) < n:
-        sys.exit("[ERROR] --> [MERGE] Missing MI file(s).")
+        sys.exit("Error - missing sliced MI file(s) for merging.")
 
     k = mi_0.keys()[0]
     mi_0[k].to_hdf(in_common_name + "_mi_whole.h5", key=k)
@@ -258,7 +257,6 @@ def merge_dist_mats(mi_slices, in_common_name, metrics):
     rows = []
 
     for i in range(len(mi_slices))[1:]:
-
         mi_k = pd.HDFStore(mi_slices[i])
         k = mi_k.keys()[0]
         mi_k[k].to_hdf(in_common_name + "_mi_whole.h5", key=k)
@@ -268,20 +266,18 @@ def merge_dist_mats(mi_slices, in_common_name, metrics):
 
     for i in range(n_slice):
         row_cols = []
-
         for j in range(i):
             idx = int(j * n_slice + i - (j * (j + 1)) / 2)
             key = "mi_" + str(idx).zfill(digit)  # mi_idx (name)
             mat_t = mi_whole[key]
             row_cols.append(mat_t.T)  # transposed MI add to merged file
-
         for j in range(i, n_slice):
             idx = int(i * n_slice + j - (i * (i + 1)) / 2)
             key = "mi_" + str(idx).zfill(digit)  # mi_idx (name)
             mat = mi_whole[key]
             row_cols.append(mat)
-
         rows.append(pd.concat(row_cols, axis=1))
+
     df = pd.concat(rows, axis=0)
     df.to_hdf(in_common_name + "_dist.h5", metrics)
 
