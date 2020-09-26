@@ -11,20 +11,20 @@ def main():
     parser.add_argument('-i', '--mi-slices', nargs='+', metavar='STR', required=True, help='List of matrices')
     parser.add_argument('-o', '--proj-name', metavar='STR', required=True, help='Project name used for previous steps')
     parser.add_argument('-m', '--metric', metavar='STR', required=True, help='Metric used in calculation')
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     merge_and_norm(args.mi_slices, args.proj_name, args.metric.lower())
 
 
 def merge_and_norm(mat_files, project_name, method):
-    """Merges matrices, and normalizes numeric data when distance metric is mutual information.
+    """ Merges matrices, and normalizes numeric data when distance metric is mutual information.
 
     Calls on utility functions to merge distance metrics that were calculated in between slices.
     Normalizes the resulting merged matrix when the data that was originally calculated was a
     measure of mutual information.
 
     Args:
-        mat_files  (str[]): list of sliced files comparing slices
+        mat_files  (str[]): a list of paths of sliced distance matrix files
         project_name (str): name of project/original output name
         method       (str): metric used for calculating distance
     """

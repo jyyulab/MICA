@@ -22,7 +22,7 @@ def main():
 
 
 def calc_scatter(input_file, metric):
-    """Calls calc_distance_mat utility function and calculates a metric in between cells that is chosen by the user
+    """ Calls calc_distance_mat utility function and calculates a metric in between cells that is chosen by the user
 
     Args:
         input_file (str): path to input HDF5-format file
@@ -37,8 +37,6 @@ def calc_scatter(input_file, metric):
     mat2 = mat[params.loc["key2", 0]]
     mat.close()
 
-    # calc_mi_mat(mat, mat1, mat2, bins, m, key, out_dir, out_file_name)
-    # mat1, mat2, bins, m, MI_indx, path[2], project_name + MI_indx
     utils.calc_distance_mat(mat1, mat2, params, method=metrics)
 
 
