@@ -10,7 +10,7 @@
             "res_req": "rusage[mem=2000MB]"
         },
         "mergeAndnorm": {
-            "res_req": "rusage[mem=12000MB]"
+            "res_req": "rusage[mem=40000MB]"
         },
         "dimension_reduce": {
             "res_req": "rusage[mem=16000MB]"
