@@ -20,7 +20,7 @@ import anndata
 # from numba import jit
 
 # from sklearn.metrics import mutual_info_score
-from sklearn import cluster        # for kmeans
+from sklearn import cluster        # for kmeanmerge_dist_matss
 from sklearn import manifold       # for tsne
 from sklearn import decomposition  # for PCA, etc
 from scipy.cluster.hierarchy import dendrogram  # for heatmap
