@@ -13,11 +13,11 @@
             "res_req": "rusage[mem=40000MB]"
         },
         "dimension_reduce": {
-            "res_req": "rusage[mem=16000MB]"
+            "res_req": "rusage[mem=40000MB]"
         },
         "clustering": {
             "processors": "8",
-            "res_req": "span[ptile=8] rusage[mem=2000MB]"
+            "res_req": "span[ptile=8] rusage[mem=5000MB]"
         }
     }
 }

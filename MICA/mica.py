@@ -16,13 +16,13 @@ def main():
 
     # Create a parent parser with common arguments for every sub parser
     parent_parser = argparse.ArgumentParser(description='Parser for common arguments', add_help=False)
-    parent_parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
+    parent_parser.add_argument('-i', '--input-file', metavar='FILE', required=False,
                                help='Path to an input file (h5ad file or tab-delimited text file)')
-    parent_parser.add_argument('-p', '--project-name', metavar='STR', required=True, type=str,
+    parent_parser.add_argument('-p', '--project-name', metavar='STR', required=False, type=str,
                                help='Project name/ID.')
-    parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=True, type=int,
+    parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=False, type=int,
                                help='Number of cluster to be specified in kmeans')
-    parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=True,
+    parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=False,
                                help='Path to final output directory')
     parent_parser.add_argument('-b', '--bootstrap', metavar='INT', default=10, type=int,
                                help='Maximum number of iterations per dimension (default: 10)')
@@ -74,49 +74,55 @@ def main():
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
-    with open(pathlib.PurePath(args.output_dir).joinpath('mica.yml'), 'w') as fp_yml:
-        logging.info(fp_yml.name)
-        contents = 'infile:\n  class: File\n  path: {}\n' \
-                   'project_name: {}\n' \
-                   'k: {}\n' \
-                   'visualization: {}\n' \
-                   'dim_reduction: {}\n' \
-                   'iterations_km: {}\n' \
-                   'dims_km: {}\n' \
-                   'dims_plot: {}\n' \
-                   'perplexity: {}\n' \
-                   'min_dist: {}\n' \
-                   'slice_size: {}\n' \
-                   'thread_number: {}\n' \
-                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
-                                               args.visualization, args.dim_reduction, args.bootstrap,
-                                               args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
-                                               args.slice_size, args.thread_number, args.dist)
-        logging.info(contents)
-        fp_yml.write(contents)
-        fp_yml.flush()
-        fp_yml.seek(0)
+    if args.rerun:      # only supported in LSF option
+        os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
+        if args.rerun:
+            cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
+                   args.rerun, args.config_json)
+    else:
+        with open(pathlib.PurePath(args.output_dir).joinpath('mica.yml'), 'w') as fp_yml:
+            logging.info(fp_yml.name)
+            contents = 'infile:\n  class: File\n  path: {}\n' \
+                       'project_name: {}\n' \
+                       'k: {}\n' \
+                       'visualization: {}\n' \
+                       'dim_reduction: {}\n' \
+                       'iterations_km: {}\n' \
+                       'dims_km: {}\n' \
+                       'dims_plot: {}\n' \
+                       'perplexity: {}\n' \
+                       'min_dist: {}\n' \
+                       'slice_size: {}\n' \
+                       'thread_number: {}\n' \
+                       'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
+                                                   args.visualization, args.dim_reduction, args.bootstrap,
+                                                   args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
+                                                   args.slice_size, args.thread_number, args.dist)
+            logging.info(contents)
+            fp_yml.write(contents)
+            fp_yml.flush()
+            fp_yml.seek(0)
 
-        if args.subcommand == 'local':
-            if args.serial:
-                cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                  cwl_path,
-                                                                  fp_yml.name)
+            if args.subcommand == 'local':
+                if args.serial:
+                    cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
+                                                                      cwl_path,
+                                                                      fp_yml.name)
+                else:
+                    cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
+                          '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
+            elif args.subcommand == 'lsf':
+                os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
+                if args.rerun:
+                    cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
+                        args.rerun, args.config_json)
+                else:
+                    cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
+                        args.config_json, args.output_dir, cwl_path, fp_yml.name)
             else:
-                cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
-                      '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
-        elif args.subcommand == 'lsf':
-            os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
-            if args.rerun:
-                cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
-                    args.rerun, args.config_json)
-            else:
-                cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
-                    args.config_json, args.output_dir, cwl_path, fp_yml.name)
-        else:
-            sys.exit('Error - invalid subcommand.')
-        logging.info(cmd)
-        run_shell_command_call(cmd)
+                sys.exit('Error - invalid subcommand.')
+    logging.info(cmd)
+    run_shell_command_call(cmd)
     logging.info('All done.')
 
 
@@ -131,3 +137,4 @@ def run_shell_command_call(cmd):
 
 if __name__ == "__main__":
     main()
+

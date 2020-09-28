@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Input file')
     parser.add_argument('-m', '--metric', metavar='STR', required=True, help='Metric used in calculation')
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     calc_scatter(args.input_file, args.metric.lower())
 
