@@ -117,8 +117,8 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 #### Rerun a failed workflow on an IBM LSF cluster
 For a failed workflow, e.g., due to memory limit, MICA supports rerunning the workflow starting from the failed step 
-with an input of the workflow ID using option `-r`. The default settings in the config file can be updated to 
-increase the memory limit for the failed step. 
+with an input of the workflow ID using option `-r`. The default settings in the config file `config_cwlexec.json` may 
+be updated to increase the memory limit for the failed step. 
 
 `mica lsf 
 -r c62fb0be-cdb0-4bf6-b17f-2758ac0b51d7 

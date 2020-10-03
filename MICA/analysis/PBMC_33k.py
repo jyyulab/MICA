@@ -93,3 +93,30 @@ adata.raw = adata
 #%% Save the pre-processed sparse matrix
 preprocessed_results = '/Users/lding/Documents/MICA/Datasets/filtered_gene_bc_matrices/hg19/pbmc33k_preprocessed.h5ad'
 adata.write(preprocessed_results)
+
+
+#%%
+adata = sc.read_h5ad('/Users/lding/Documents/MICA/Datasets/filtered_gene_bc_matrices/hg19/pbmc33k_preprocessed.h5ad')
+
+
+#%%
+import time
+start = time.time()
+sc.tl.pca(adata, svd_solver='arpack')
+end = time.time()
+print(end - start)
+
+#%%
+sc.pl.pca(adata, color='CST3')
+
+#%%
+start = time.time()
+sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
+end = time.time()
+print(end - start)
+
+#%%
+start = time.time()
+sc.tl.leiden(adata)
+end = time.time()
+print(end - start)
