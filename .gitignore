@@ -1,4 +1,4 @@
-cache/*
+cache/
 tests/inputs/*.tmp
 .idea/*
 *DS_Store
