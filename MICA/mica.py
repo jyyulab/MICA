@@ -74,56 +74,57 @@ def main():
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
-    if args.rerun:      # only supported in LSF option
+    if args.subcommand == 'local':
+        fp_yml = create_input_yml(args)
+        if args.serial:
+            cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
+                                                              cwl_path,
+                                                              fp_yml.name)
+        else:
+            cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
+                  '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
+    elif args.subcommand == 'lsf':
         os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
         if args.rerun:
             cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
                    args.rerun, args.config_json)
+        else:
+            fp_yml = create_input_yml(args)
+            cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
+                   args.config_json, args.output_dir, cwl_path, fp_yml.name)
     else:
-        with open(pathlib.PurePath(args.output_dir).joinpath('mica.yml'), 'w') as fp_yml:
-            logging.info(fp_yml.name)
-            contents = 'infile:\n  class: File\n  path: {}\n' \
-                       'project_name: {}\n' \
-                       'k: {}\n' \
-                       'visualization: {}\n' \
-                       'dim_reduction: {}\n' \
-                       'iterations_km: {}\n' \
-                       'dims_km: {}\n' \
-                       'dims_plot: {}\n' \
-                       'perplexity: {}\n' \
-                       'min_dist: {}\n' \
-                       'slice_size: {}\n' \
-                       'thread_number: {}\n' \
-                       'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
-                                                   args.visualization, args.dim_reduction, args.bootstrap,
-                                                   args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
-                                                   args.slice_size, args.thread_number, args.dist)
-            logging.info(contents)
-            fp_yml.write(contents)
-            fp_yml.flush()
-            fp_yml.seek(0)
+        sys.exit('Error - invalid subcommand.')
 
-            if args.subcommand == 'local':
-                if args.serial:
-                    cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                                      cwl_path,
-                                                                      fp_yml.name)
-                else:
-                    cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
-                          '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
-            elif args.subcommand == 'lsf':
-                os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
-                if args.rerun:
-                    cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
-                        args.rerun, args.config_json)
-                else:
-                    cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
-                        args.config_json, args.output_dir, cwl_path, fp_yml.name)
-            else:
-                sys.exit('Error - invalid subcommand.')
     logging.info(cmd)
     run_shell_command_call(cmd)
     logging.info('All done.')
+
+
+def create_input_yml(args):
+    """ Create input yml file. """
+    with open(pathlib.PurePath(args.output_dir).joinpath('mica.yml'), 'w') as fp_yml:
+        logging.info(fp_yml.name)
+        contents = 'infile:\n  class: File\n  path: {}\n' \
+                   'project_name: {}\n' \
+                   'k: {}\n' \
+                   'visualization: {}\n' \
+                   'dim_reduction: {}\n' \
+                   'iterations_km: {}\n' \
+                   'dims_km: {}\n' \
+                   'dims_plot: {}\n' \
+                   'perplexity: {}\n' \
+                   'min_dist: {}\n' \
+                   'slice_size: {}\n' \
+                   'thread_number: {}\n' \
+                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
+                                               args.visualization, args.dim_reduction, args.bootstrap,
+                                               args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
+                                               args.slice_size, args.thread_number, args.dist)
+        logging.info(contents)
+        fp_yml.write(contents)
+        fp_yml.flush()
+        fp_yml.seek(0)
+    return fp_yml
 
 
 def run_shell_command_call(cmd):
@@ -137,4 +138,3 @@ def run_shell_command_call(cmd):
 
 if __name__ == "__main__":
     main()
-

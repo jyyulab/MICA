@@ -5,13 +5,15 @@ from MICA.bin import utils
 
 
 def main():
-    """Handles arguments and calls the driver function"""
-    head_description = '' 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
-    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Merged matrix file')
-    parser.add_argument('-o', '--proj-name', metavar='STR', required=True, help='Project/output file name')
-    parser.add_argument('-t', '--transform', metavar='STR', required=True, help='Transform method')
-    parser.add_argument('-d', '--max-dimension', type=int, metavar='INT', required=True, help='Maximum number of dimensions in reduction')
+    """ Handles arguments and calls the driver function. """
+    head_description = 'Dimension reduction on a matrix'
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=head_description)
+    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Input matrix file in H5A')
+    parser.add_argument('-o', '--proj-name', metavar='STR', required=True, help='Output file name')
+    parser.add_argument('-t', '--transform', metavar='STR', required=True, help='Dimension reduction method')
+    parser.add_argument('-d', '--max-dimension', type=int, metavar='INT', required=True, help='Maximum number of '
+                                                                                              'dimensions in reduction')
     parser.add_argument('-m', '--metric', metavar='STR', required=True, help='Metric used in calculating distance')
     args = parser.parse_args()
 
@@ -19,8 +21,7 @@ def main():
 
 
 def transform(infile, proj_name, trans, max_dim, metric):
-    """Applies transform function to a matrix
-    
+    """ Applies transform function to a matrix.
     Args:
         infile    (str): path to input file
         proj_name (str): name of output file, ideally same as project name used in previous steps
@@ -28,7 +29,6 @@ def transform(infile, proj_name, trans, max_dim, metric):
         max_dir   (int): maximum numer of dimensions used in reduction
         method    (str): method used for distance calculation in previous steps
     """
-
     if trans == "MDS":
         utils.mds(infile, max_dim, proj_name, dist_method=metric)
     elif trans == "LPL":
@@ -42,8 +42,6 @@ def transform(infile, proj_name, trans, max_dim, metric):
         print("Transformation method not supported!")
 
     print("[PREP DONE] Method used for dimension reduce: " + trans)
-
-# def mds(fig_num, in_mat_file, max_dim, out_dir, out_file_name, perplexity=30, print_plot="True")
 
 
 if __name__ == '__main__':
