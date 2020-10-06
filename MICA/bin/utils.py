@@ -488,8 +488,9 @@ def aggregate(km_results, n_clusters, common_name):
     cclust = cclust.replace(to_replace={"label": map_back})
 
     out_file = common_name + "_k" + str(n_clusters)
-    # cclust.to_hdf(out_file, "cclust")
-    # mem.to_hdf(out_file, "membership")
+    out_file_hdf = out_file + "_cclust.h5"
+    cclust.to_hdf(out_file_hdf, "cclust")
+    mem.to_hdf(out_file_hdf, "membership")
     return cclust, out_file
 
 

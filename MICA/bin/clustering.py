@@ -8,12 +8,10 @@ from multiprocessing import Pool
 from functools import partial
 from MICA.bin import utils
 
-start_time = time.time()
-
 
 def main():
     """Handles arguments and calls the driver function"""
-    head_description = "Clusters reduced data"
+    head_description = "Clusters reduced data using consensus k-mean"
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Reduced matrix file in h5 format')
     parser.add_argument('-dr', '--merge-option', metavar='STR', required=True,
@@ -64,6 +62,7 @@ def km_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_proc
 
 def clustering(in_file, dr, k, n_bootstrap, out_name,
                plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
+    start_time = time.time()
     dim_km = map(int, dim_km)
     result = km_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
                              common_name=out_name, dims=dim_km, num_processes=n_processes)
