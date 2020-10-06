@@ -9,7 +9,7 @@ def main():
     head_description = 'Dimension reduction on a matrix'
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=head_description)
-    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Input matrix file in H5A')
+    parser.add_argument('-i', '--input-file', metavar='STR', required=True, help='Merged matrix file in h5 format')
     parser.add_argument('-o', '--proj-name', metavar='STR', required=True, help='Output file name')
     parser.add_argument('-t', '--transform', metavar='STR', required=True, help='Dimension reduction method')
     parser.add_argument('-d', '--max-dimension', type=int, metavar='INT', required=True, help='Maximum number of '

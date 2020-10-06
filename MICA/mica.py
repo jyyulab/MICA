@@ -22,6 +22,8 @@ def main():
                                help='Project name/ID.')
     parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=False, type=int,
                                help='Number of cluster to be specified in kmeans')
+    parent_parser.add_argument('-n', '--num-neighbor', metavar='INT', required=False, type=int,
+                               help='Number of neighbors of a cell for building k-nearest neighbor graph')
     parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=False,
                                help='Path to final output directory')
     parent_parser.add_argument('-b', '--bootstrap', metavar='INT', default=10, type=int,
@@ -41,7 +43,9 @@ def main():
                                help='Number of poolings used for multiple kmeans iterations,'
                                     'usually equals to iterations_km (default: 10)')
     parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19],
-                               help='Dimensions used in clustering, array inputs are supported (default: 19)')
+                               help='Dimensions used in k-mean clustering, array inputs are supported (default: 19)')
+    parent_parser.add_argument('--dims', metavar='INT', nargs='+', default=19,
+                               help='Dimensions used in graph clustering, array inputs are supported (default: 19)')
     parent_parser.add_argument('--dims-plot', metavar='INT', default=19, type=int,
                                help='Number of dimensions used in visualization (default: 19)')
     parent_parser.add_argument('--dist', metavar='STR', default="mi", type=str,
@@ -74,15 +78,20 @@ def main():
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
+    if args.num_neighbor:   # Use graph-based clustering
+        cwl_script = 'mica_g.cwl'
+    else:
+        cwl_script = 'mica.cwl'
+
     if args.subcommand == 'local':
         fp_yml = create_input_yml(args)
         if args.serial:
-            cmd = 'cwltool --outdir {} {}/mica.cwl {}'.format(args.output_dir,
-                                                              cwl_path,
+            cmd = 'cwltool --leave-tmpdir --outdir {} {}/{} {}'.format(args.output_dir,
+                                                              cwl_path, cwl_script,
                                                               fp_yml.name)
         else:
-            cmd = 'cwltool --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
-                  '--outdir {} {}/mica.cwl {}'.format(args.output_dir, cwl_path, fp_yml.name)
+            cmd = 'cwltool --leave-tmpdir --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
+                  '--outdir {} {}/{} {}'.format(args.output_dir, cwl_path, cwl_script, fp_yml.name)
     elif args.subcommand == 'lsf':
         os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
         if args.rerun:
@@ -90,8 +99,8 @@ def main():
                    args.rerun, args.config_json)
         else:
             fp_yml = create_input_yml(args)
-            cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/mica.cwl {}'.format(
-                   args.config_json, args.output_dir, cwl_path, fp_yml.name)
+            cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/{} {}'.format(
+                   args.config_json, args.output_dir, cwl_path, cwl_script, fp_yml.name)
     else:
         sys.exit('Error - invalid subcommand.')
 
@@ -107,18 +116,21 @@ def create_input_yml(args):
         contents = 'infile:\n  class: File\n  path: {}\n' \
                    'project_name: {}\n' \
                    'k: {}\n' \
+                   'num_neighbor: {}\n' \
                    'visualization: {}\n' \
                    'dim_reduction: {}\n' \
                    'iterations_km: {}\n' \
                    'dims_km: {}\n' \
+                   'dims: {}\n' \
                    'dims_plot: {}\n' \
                    'perplexity: {}\n' \
                    'min_dist: {}\n' \
                    'slice_size: {}\n' \
                    'thread_number: {}\n' \
                    'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.clusters,
-                                               args.visualization, args.dim_reduction, args.bootstrap,
-                                               args.dims_km, args.dims_plot, args.perplexity, args.min_dist,
+                                               args.num_neighbor,
+                                               args.visualization, args.dim_reduction.lower(), args.bootstrap,
+                                               args.dims_km, args.dims, args.dims_plot, args.perplexity, args.min_dist,
                                                args.slice_size, args.thread_number, args.dist)
         logging.info(contents)
         fp_yml.write(contents)
