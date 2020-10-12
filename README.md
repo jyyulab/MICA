@@ -20,6 +20,7 @@ MICA is a mutual information-based clustering algorithm that consists of followi
     * [h5py>=2.10.0](https://www.h5py.org/)
     * [anndata>=0.7.4](https://anndata.readthedocs.io/en/latest/index.html#)
     * [scanpy>=1.6.0](https://scanpy-tutorials.readthedocs.io/en/latest/index.html)
+    * [python-louvain>=0.14](https://github.com/taynaud/python-louvain)
 * [cwlexec>=0.2.2](https://github.com/IBMSpectrumComputing/cwlexec) (required for running on IBM LSF)
 
 Note: the pipeline is written in [common workflow language](https://www.commonwl.org/) for multi-platform compatibility.
@@ -97,7 +98,7 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 
 ## Examples
-#### Running on a single machine (Linux/OSX)
+#### Running on a single machine using k-mean clustering (Linux/OSX)
 `mica local 
 -i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
 -p "cwl_local" 
@@ -106,13 +107,22 @@ After the completion of the pipeline, `mica` will generate the following outputs
 --dist "spearman"`
 
 
-#### Running on an IBM LSF cluster
+#### Running on an IBM LSF cluster using k-mean clustering
 `mica lsf 
 -i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
 -p "cwl_lsf" 
 -k 3 4 
 -o ./test_data/outputs/cwl_lsf/ 
 -c ./MICA/config/config_cwlexec.json`
+
+
+#### Running on an IBM LSF clustering using graph-based clustering
+`mica lsf \
+-i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad \
+-p "cwl_lsf_graph" \
+-n 10 \
+-o ./test_data/outputs/cwl_lsf/ \
+-j ./MICA/config/config_cwlexec.json`
 
 
 #### Rerun a failed workflow on an IBM LSF cluster
