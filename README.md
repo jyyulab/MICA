@@ -58,7 +58,7 @@ $ mica -h                                       # Check if mica works correctly
 ## Usage
 ```
 $ mica -h
-usage: mica [-h] {local,lsf} ...
+usage: mica [-h] {local,batch} ...
 
 MICA is a scalable tool to perform unsupervised scRNA-seq clustering analysis.
 
@@ -68,21 +68,22 @@ optional arguments:
 Subcommands:
   {local,lsf}  platforms
     local      run cwltool in a local workstation
-    lsf        run cwlexec in a IBM LSF interface
+    batch      runs toil-cwl-runner for a given batch system
 ```
 `mica` workflow is implemented with CWL. It supports multiple computing platforms. 
-We have tested it locally using cwltool and on an IBM LSF cluster using cwlexec. 
+We have tested it locally using cwltool and on an IBM LSF cluster using cwlexec / toil. 
 For the convenience, a python wrapper is developed for you to choose computing platform 
 using subcommand.
 
 The local mode (sjaracne local) runs in parallel by default using cwltool's --parallel option. 
 To run it in serial, use --serial option.
 
-To use LSF mode, editing the LSF-specific configuration file (a copy of the file is MICA/config/config_cwlexec.json)
-to change the default queue and adjust memory reservation for each step is necessary. Consider 
-increasing memory reservation for bootstrap step and consensus step if the dimension of your expression 
-matrix file is large.
-
+To use MICA with a batch scheduler in an HPC environment, MICA implements toil with a variety of schedulers. The currently supported
+schedulers are lsf, grid_engine, htcondor, torque, and slurm. The memory requirements are baked into the cwl workflows. By passing
+the `-dm` flag, MICA will be run with memory doubling functionality on the systems using lsf as the scheduler. This will enable
+toil to automatically resubmit jobs with double memory which fail due to hitting memory limits.
+For all other schedulers, the cwl files `./cwl/mica.cwl` and `./cwl/mica_g.cwl` will need to be modified until toil supports the
+`--overrides` flag.
 
 #### Inputs
 The main input for MICA is a tab-separated cells/samples by genes/proteins (rows are cells/samples) expression 
