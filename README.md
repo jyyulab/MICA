@@ -108,13 +108,14 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 
 #### Running on an IBM LSF cluster using k-mean clustering
-`mica lsf 
+`mica batch
 -i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
 -p "cwl_lsf" 
 -k 3 4 
 -o ./test_data/outputs/cwl_lsf/ 
--c ./MICA/config/config_cwlexec.json`
-
+-s lsf
+-w wordir
+-js MICA_jobstore`
 
 #### Running on an IBM LSF clustering using graph-based clustering
 `mica lsf \
@@ -122,11 +123,12 @@ After the completion of the pipeline, `mica` will generate the following outputs
 -p "cwl_lsf_graph" \
 -n 10 \
 -o ./test_data/outputs/cwl_lsf/ \
--j ./MICA/config/config_cwlexec.json`
-
+-s lsf
+-w workdir
+-js MICA_jobstore`
 
 #### Rerun a failed workflow on an IBM LSF cluster
-For a failed workflow, e.g., due to memory limit, MICA supports rerunning the workflow starting from the failed step 
+**THIS IS CURRENTLY BEING REIMPLEMENTED.** For a failed workflow, e.g., due to memory limit, MICA supports rerunning the workflow starting from the failed step 
 with an input of the workflow ID using option `-r`. The default settings in the config file `config_cwlexec.json` may 
 be updated to increase the memory limit for the failed step. 
 

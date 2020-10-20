@@ -94,6 +94,9 @@ outputs:
 
 steps:
   prep:
+    requirements:
+      ResourceRequirement:
+        ramMax: 16000
     run: prep.cwl
     in:
       out_name: project_name
@@ -102,6 +105,9 @@ steps:
     out: [mat_pair_array]
 
   calc_pairwise_MI:
+    requirements:
+      ResourceRequirement:
+        ramMax: 2000
     run: calc_MI_pair.cwl
     in:
       h5tmp_file: prep/mat_pair_array
@@ -111,6 +117,9 @@ steps:
     out: [MI_files]
 
   mergeAndnorm:
+    requirements:
+      ResourceRequirement:
+        ramMax: 40000
     run: merge_and_norm.cwl     # merge requires large memory
     in:
       mi_pairs: calc_pairwise_MI/MI_files
@@ -120,6 +129,9 @@ steps:
     out: [MI_h5]
 
   dimension_reduce:
+    requirements:
+      ResourceRequirement:
+        ramMax: 40000
     run: dim_reduce.cwl
     in:
       out_name: project_name
@@ -130,6 +142,10 @@ steps:
     out: [reduced_mi, preview_plots]
 
   clustering:
+    requirements:
+      ResourceRequirement:
+        ramMax: 5000
+        coresMin: 8
     run: clustering.cwl
     in:
       input_file: dimension_reduce/reduced_mi

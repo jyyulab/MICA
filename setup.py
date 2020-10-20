@@ -24,6 +24,7 @@ setup(
         "anndata>=0.7.4",
         "scanpy>=1.6.0",
         "python-louvain>=0.14",
+        "toil[all]>=4.2.0",
         ],
     python_requires=">=3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

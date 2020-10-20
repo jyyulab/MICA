@@ -59,12 +59,15 @@ def main():
     subparser_local.add_argument('-s', '--serial', help='run cwltool in serial mode', action='store_false')
 
     # Create a sub parser for running cwlexec
-    subparser_lsf = subparsers.add_parser('lsf', parents=[parent_parser], help='run cwlexec in a IBM LSF interface')
-    subparser_lsf.add_argument('-j', '--config-json', metavar='FILE', required=True, help='LSF-specific configuration'
-                                                                                          'file in JSON format to be'
-                                                                                          'used for workflow execution')
-    subparser_lsf.add_argument('-r', '--rerun', metavar='STR', type=str, help='Rerun an exited workflow with the given'
-                                                                              'workflow ID.')
+    subparser_batch = subparsers.add_parser('batch', parents=[parent_parser], help='runs toil-cwl-runner for a given batch system')
+    subparser_batch.add_argument('-s', '--scheduler', metavar='STR', type=str, required=True,
+                                 choices=['lsf', 'grid_engine', 'htcondor', 'torque', 'slurm'],
+                                 help='the scheduler to use choices=[lsf, grid_engine, htcondor, torque, slurm]')
+    subparser_batch.add_argument('-dm', '--doublemem', metavar='BOOL',
+                                 help='run toil with memory doubling enabled for jobs which fail due to memory.')
+    subparser_batch.add_argument('-w', '--workdir', metavar='DIR', required=True, help='the working directory for toil to use.')
+    subparser_batch.add_argument('-js', '--jobstore', metavar='DIR', required=True, help='name of the jobstore for toil')
+    subparser_batch.add_argument('-r', '--rerun', metavar='BOOL', help='Rerun an exited workflow.')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -92,15 +95,30 @@ def main():
         else:
             cmd = 'cwltool --leave-tmpdir --parallel --preserve-environment HDF5_USE_FILE_LOCKING --leave-tmpdir ' \
                   '--outdir {} {}/{} {}'.format(args.output_dir, cwl_path, cwl_script, fp_yml.name)
-    elif args.subcommand == 'lsf':
+    elif args.subcommand == 'batch':
         os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
         if args.rerun:
-            cmd = 'cwlexec -r {} -pe PATH -pe HDF5_USE_FILE_LOCKING -c {}'.format(
-                   args.rerun, args.config_json)
+            fp_yml = create_input_yml(args)
+            cmd = 'toil-cwl-runner --restart --batchSystem {} --disableCaching --logFile {}/log.txt --jobStore {} ' \
+                  '--clean onSuccess --clusterStats {}/clusterstats.json --workDir {} --outdir {} --preserve-entire-environment ' \
+                  '{}/{} {}'.format(args.scheduler, args.output_dir, args.jobstore, args.output_dir, args.workdir, args.output_dir,
+                                    cwl_path, cwl_script, fp_yml.name)
         else:
             fp_yml = create_input_yml(args)
-            cmd = 'cwlexec -pe PATH -pe HDF5_USE_FILE_LOCKING -c {} --outdir {} {}/{} {}'.format(
-                   args.config_json, args.output_dir, cwl_path, cwl_script, fp_yml.name)
+            try:
+                os.makedirs(args.workdir)
+            except FileExistsError:
+                pass
+            if args.scheduler == 'lsf' and args.doublemem:
+                cmd = 'toil-cwl-runner --batchSystem {} --doubleMem --disableCaching --logFile {}/log.txt --jobStore {} ' \
+                      '--clean onSuccess --clusterStats {}/clusterstats.json --workDir {} --outdir {} --preserve-entire-environment ' \
+                      '{}/{} {}'.format(args.scheduler, args.output_dir, args.jobstore, args.output_dir, args.workdir, args.output_dir,
+                                        cwl_path, cwl_script, fp_yml.name)
+            else:
+                cmd = 'toil-cwl-runner --batchSystem {} --disableCaching --logFile {}/log.txt --jobStore {} ' \
+                      '--clean onSuccess --clusterStats {}/clusterstats.json --workDir {} --outdir {} --preserve-entire-environment ' \
+                      '{}/{} {}'.format(args.scheduler, args.output_dir, args.jobstore, args.output_dir, args.workdir, args.output_dir,
+                                        cwl_path, cwl_script, fp_yml.name)
     else:
         sys.exit('Error - invalid subcommand.')
 
