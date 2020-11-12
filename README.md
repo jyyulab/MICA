@@ -62,9 +62,9 @@ optional arguments:
   -h, --help   show this help message and exit
 
 Subcommands:
-  {local,lsf}  platforms
-    local      run cwltool in a local workstation
-    batch      runs toil-cwl-runner for a given batch system
+  {local,batch}  platforms
+    local        run cwltool in a local workstation
+    batch        runs toil-cwl-runner for a given batch system
 ```
 `mica` workflow is implemented with CWL. It supports multiple computing platforms. 
 We have tested it locally using cwltool and on an IBM LSF cluster using cwlexec / toil. 
@@ -133,10 +133,11 @@ mica batch \
 with an input of the workflow ID using option `-r`. The default settings in the config file `config_cwlexec.json` may 
 be updated to increase the memory limit for the failed step. 
 
-`mica lsf 
--r c62fb0be-cdb0-4bf6-b17f-2758ac0b51d7 
--j ./MICA/config/config_cwlexec.json`
-
+```
+mica lsf \
+-r c62fb0be-cdb0-4bf6-b17f-2758ac0b51d7 \
+-j ./MICA/config/config_cwlexec.json
+```
 
 ## Reference
 To be added
