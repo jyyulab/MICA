@@ -16,15 +16,13 @@ MICA is a mutual information-based clustering algorithm that consists of followi
     * [matplotlib==2.2.2](https://matplotlib.org/users/installing.html)
     * [scipy>=1.0.1](https://www.scipy.org/install.html)
     * [tables>=3.5.1](https://github.com/PyTables/PyTables)
-    * [cwltool>=1.0.2](https://github.com/common-workflow-language/cwltool)
     * [h5py>=2.10.0](https://www.h5py.org/)
     * [anndata>=0.7.4](https://anndata.readthedocs.io/en/latest/index.html#)
     * [scanpy>=1.6.0](https://scanpy-tutorials.readthedocs.io/en/latest/index.html)
     * [python-louvain>=0.14](https://github.com/taynaud/python-louvain)
-* [cwlexec>=0.2.2](https://github.com/IBMSpectrumComputing/cwlexec) (required for running on IBM LSF)
+    * [toil[cwl]@9af87a094f4a8b31b3c8a265e6dbcb2cc7595c91](https://toil.readthedocs.io/en/latest/running/cwl.html)
 
-Note: the pipeline is written in [common workflow language](https://www.commonwl.org/) for multi-platform compatibility.
-
+Note: the pipeline is written in [common workflow language](https://www.commonwl.org/) for multi-platform compatibility. Toil is used as the cwl-runner, which has batch scheduler implementation natively in python. It is installed at a specific git commit due to new implementation which is not yet in pypi.
 
 ## Installation
 #### Using conda to create a virtual environment (recommended)
@@ -37,10 +35,8 @@ $ conda install --file requirements.txt       # Install dependencies
 $ pip install cwlref-runner                   # cwltool is not available in conda, install with pip
 ```
 
-Note: cwlexec requires manual installation if needed.
-
-
 #### Install using pip
+Note: installation requires pip>20.0. You can easily upgrade to the latest version of pip using `pip install --upgrade pip`.
 ```
 $ pip install MICA
 ```
@@ -109,24 +105,28 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 
 #### Running on an IBM LSF cluster using k-mean clustering
-`mica batch
--i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
--p "cwl_lsf" 
--k 3 4 
--o ./test_data/outputs/cwl_lsf/ 
--s lsf
--w wordir
--js MICA_jobstore`
+```
+mica batch \
+-i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt \
+-p "cwl_lsf" \
+-k 3 4 \
+-o ./test_data/outputs/cwl_lsf/ \
+-s lsf \
+-w wordir \
+-js MICA_jobstore 
+```
 
 #### Running on an IBM LSF clustering using graph-based clustering
-`mica lsf \
+```
+mica batch \
 -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad \
 -p "cwl_lsf_graph" \
 -n 10 \
 -o ./test_data/outputs/cwl_lsf/ \
--s lsf
--w workdir
--js MICA_jobstore`
+-s lsf \
+-w workdir \
+-js MICA_jobstore
+```
 
 #### Rerun a failed workflow on an IBM LSF cluster
 **THIS IS CURRENTLY BEING REIMPLEMENTED.** For a failed workflow, e.g., due to memory limit, MICA supports rerunning the workflow starting from the failed step 
