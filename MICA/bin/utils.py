@@ -8,6 +8,7 @@ import sys
 import time
 
 # import umap as ump  # will pop up "joblib" deprecation warning message
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
 import numpy as np
 import pandas as pd
 import h5py
