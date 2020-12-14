@@ -4,6 +4,7 @@ This module contains helper functions, essential to the execution of MICA (Mutua
 clustering algorithm)
 """
 
+import os
 import sys
 import time
 
