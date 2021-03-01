@@ -78,7 +78,7 @@ def main():
 
     start = time.time()
     logging.info('Visualizing clustering results ...')
-    tsne(partition, frame.index, frame_dr, out_dir=args.output_dir)
+    tsne(partition, frame.index, frame_dr, dis_metric=args.dist_metric, out_dir=args.output_dir)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -100,10 +100,10 @@ def calc_mi_f(arr1, arr2, bins, m):
     """ Calculates bin-based calculation for mutual information (MI) in between two arrays. It builds a 2d histogram,
     which is used to calculate P(arr1, arr2)
     Args:
-        arr1 (pandas series):
-        arr2 (pandas series): gene expression for cell 2
-        bins           (int):
-        m              (int):
+        arr1 (pandas series): gene expression data for a given cell
+        arr2 (pandas series): gene expression for another cell
+        bins           (int): number of bins
+        m              (int): number of genes
     Return:
         MI value
     """
@@ -218,7 +218,7 @@ def tsne(partition, index, frame_dr, out_dir, dis_metric='mi', perplexity=30):
     """
     labels = [x + 1 for x in partition.values()]
     clustering_res = pd.DataFrame(data=labels, index=index, columns=["label"])
-    # perplexity = np.min([perplexity, np.max(clustering_res.groupby(["label"]).size())])
+    perplexity = np.min([perplexity, np.max(clustering_res.groupby(["label"]).size())])
     if dis_metric == 'mi':
         num_bins = int((frame_dr.shape[0]) ** (1 / 3.0))
         num_genes = frame_dr.shape[1]
