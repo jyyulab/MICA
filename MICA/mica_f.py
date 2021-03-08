@@ -100,7 +100,7 @@ def main():
 
     start = time.time()
     logging.info('Performing graph clustering ...')
-    partition = graph_clustering(G)
+    partition = graph_clustering(G, resolution=args.resolution)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
