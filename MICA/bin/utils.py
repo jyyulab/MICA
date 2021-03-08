@@ -337,7 +337,7 @@ def mds(
 ):
     hdf = pd.HDFStore(in_mat_file)
     if dist_method == "mi":
-        df = 1 - hdf["norm_mi"]
+        dlplf = 1 - hdf["norm_mi"]
     elif dist_method == "euclidean":
         df = hdf[dist_method]
     else:
