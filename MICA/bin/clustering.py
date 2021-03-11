@@ -6,7 +6,7 @@ import argparse
 import pandas as pd
 from multiprocessing import Pool
 from functools import partial
-from MICA.bin import utils
+from MICA.lib import utils
 
 
 def main():

@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.neighbors import kneighbors_graph
 import networkx as nx
 import community
-from MICA.bin import utils
+from MICA.lib import utils
 
 
 def main():
@@ -59,10 +59,10 @@ def louvein_clustering(G, in_file, dr, out_name, plot_method, umap_min_dist, tsn
     labels = [x + 1 for x in partition.values()]
     cclust = pd.DataFrame(data=labels, index=index, columns=["label"])
 
-    utils.visualization(cclust,     # consensus clustering result
-                        in_file,    # reduced_mi_file
-                        dr,         # transformation
-                        out_name,   # output file name
+    utils.visualization(cclust,  # consensus clustering result
+                        in_file,  # reduced_mi_file
+                        dr,  # transformation
+                        out_name,  # output file name
                         max_dim=plot_dim,
                         visualize=plot_method.lower(),
                         min_dist=umap_min_dist,
