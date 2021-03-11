@@ -6,7 +6,7 @@ import os
 import argparse
 import logging
 
-from MICA.bin import utils
+from MICA.lib import utils
 
 
 def main():

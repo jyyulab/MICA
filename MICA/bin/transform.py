@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from MICA.bin import utils
+from MICA.lib import utils
 
 
 def main():
