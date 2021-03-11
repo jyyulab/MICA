@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
 import argparse
-from MICA.bin import utils
+from MICA.lib import utils
 
 """
 This script is responsible for calculating calculating different metrics, used to compare gene 
