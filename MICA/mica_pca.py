@@ -4,6 +4,10 @@ import sys
 import numpy as np
 import anndata
 import logging
+from sklearn.manifold import MDS
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.neighbors import NearestNeighbors
 import networkx as nx
 import time
 import argparse
@@ -13,10 +17,9 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from sklearn.neighbors import NearestNeighbors
-from sklearn.manifold import TSNE
 from functools import partial
 import umap
+import numba
 
 
 def main():
@@ -28,11 +31,13 @@ def main():
                         help='Path to an input file (h5ad file or tab-delimited text file)')
     parser.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                         help='Path to final output directory')
-    parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=2, type=int,
+    parser.add_argument('-r', '--dr-method', metavar='STR', required=False, default='pca', type=str,
+                        help='Dimension reduction method [pca | mds | none] (default: pca)')
+    parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=100, type=int,
                         help='Number of dimensions to reduce features of the input matrix to')
     parser.add_argument('-m', '--dist-metric', metavar='STR', required=False, default="mi", type=str,
-                        help='Distance metric for UMAP dimension reduction [mi | euclidean] (default: mi)')
-    parser.add_argument('-n', '--num-neighbors', metavar='INT', required=False, default=30, type=int,
+                        help='Distance metric for calculating neighboring cells [mi | euclidean] (default: mi)')
+    parser.add_argument('-n', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors of building neighboring graph (default: 20)')
     parser.add_argument('-e', '--resolution', metavar='FLOAT', required=False, default=1.0, type=float,
                         help='Determines size of the communities. (default: 1.0)')
@@ -50,41 +55,65 @@ def main():
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     frame = read_preprocessed_mat(args.input_file)
-    # print(frame.iloc[500:4600,])
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
+    if args.dr_method == 'none':
+        logging.info('Skipping dimension reduction ... ')
+        frame_dr = frame.to_numpy()
+    else:
+        start = time.time()
+        logging.info('Dimension reduction to {} dimensions using {} method ...'.format(args.dr_dim, args.dr_method))
+        frame_dr = dim_reduce(frame, dim=args.dr_dim, out_dir=args.output_dir)
+        end = time.time()
+        runtime = end - start
+        logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    # start = time.time()
+    # logging.info('Calculating cell-by-cell distance matrix using {} method ...'.format(args.dist_metric))
+    # df_dr = pd.DataFrame(frame_dr, index=frame.index)
+    # num_bins = int((frame_dr.shape[0]) ** (1 / 3.0))
+    # num_genes = frame_dr.shape[1]
+    # dist_mat = calc_dis_mat(df_dr, df_dr, num_bins, num_genes)
+    # dist_mat.to_csv('{}/dist_mat_{}.csv'.format(args.output_dir, args.dist_metric))
+    # end = time.time()
+    # runtime = end - start
+    # logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    frame_dr = frame.to_numpy()
     start = time.time()
-    logging.info('Dimension reduction to {} dimensions using UMAP method and {} distance ...'.format(
-        args.dr_dim, args.dist_metric))
-    # frame = frame.iloc[500:4600,]
-    frame_dr = dim_reduce(frame, dist=args.dist_metric, dim=args.dr_dim, out_dir=args.output_dir)
+    logging.info('Calculating cell-by-cell distance matrix using {} method ...'.format(args.dist_metric))
+    num_bins = int((frame_dr.shape[0]) ** (1 / 3.0))
+    num_genes = frame_dr.shape[1]
+    dist_mat = calc_dis_mat_np(frame_dr, frame_dr, num_bins, num_genes, frame.index)
+    dist_mat.to_csv('{}/dist_mat_np_{}_{}.csv'.format(args.output_dir, args.dist_metric, args.dr_dim))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
-    start = time.time()
-    logging.info('Building {}-based {}-nearest neighbor graph ...'.format('euclidean', args.num_neighbors))
-    G = build_graph(frame_dr, num_jobs=args.num_jobs)
-    nx.write_gml(G, '{}/knn_{}_{}.gml'.format(args.output_dir, 'euclidean', args.num_neighbors))
-    end = time.time()
-    runtime = end - start
-    logging.info('Done. Runtime: {} seconds'.format(runtime))
-
-    start = time.time()
-    logging.info('Performing graph clustering ...')
-    partition = graph_clustering(G)
-    end = time.time()
-    runtime = end - start
-    logging.info('Done. Runtime: {} seconds'.format(runtime))
-
-    start = time.time()
-    logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
-    visual_embed(partition, frame.index, frame_dr, args.output_dir, embed_method=args.visual_method)
-    end = time.time()
-    runtime = end - start
-    logging.info('Done. Runtime: {} seconds'.format(runtime))
+    # start = time.time()
+    # logging.info('Building {}-based {}-nearest neighbor graph ...'.format(args.dist_metric, args.num_neighbors))
+    # G = build_graph(frame_dr, dis_metric=args.dist_metric, num_jobs=args.num_jobs)
+    # nx.write_gml(G, '{}/knn_{}_{}.gml'.format(args.output_dir, args.dist_metric, args.num_neighbors))
+    # end = time.time()
+    # runtime = end - start
+    # logging.info('Done. Runtime: {} seconds'.format(runtime))
+    #
+    # start = time.time()
+    # logging.info('Performing graph clustering ...')
+    # partition = graph_clustering(G, resolution=args.resolution)
+    # end = time.time()
+    # runtime = end - start
+    # logging.info('Done. Runtime: {} seconds'.format(runtime))
+    #
+    # start = time.time()
+    # logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
+    # visual_embed(partition, frame.index, frame_dr, args.output_dir, embed_method=args.visual_method,
+    #              dis_metric=args.dist_metric)
+    # end = time.time()
+    # runtime = end - start
+    # logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     logging.info('All done.')
 
@@ -99,65 +128,65 @@ def read_preprocessed_mat(in_file):
     return frame
 
 
-def calc_norm_mi(arr1, arr2, bins, m):
-    """ Calculates a normalized mutual information distance D(X, Y) = 1 - I(X, Y)/H(X, Y) using bin-based method
-
-    It takes gene expression data from single cells, and compares them using standard calculation for
-    mutual information and joint entropy. It builds a 2d histogram, which is used to calculate P(arr1, arr2).
-
+def calc_dis_mat(mat1, mat2, bins, m):
+    """ Wrapper of calc_mi for calculating mutual information for two matrices
     Args:
-        arr1 (pandas series): gene expression data for cell 1
-        arr2 (pandas series): gene expression data for cell 2
-        marginals  (ndarray): marginal probability matrix
-        index1         (int): index of cell 1
-        index2         (int): index of cell 2
+        mat1 (pandas dataframe): exp matrix of a slice of cells, with cells as rows from original file
+                                  and all gene expression attributes as columns
+        mat2 (pandas dataframe): exp matrix of another slice of cells
+        bins              (int): number of bins
+        m                 (int): number of genes
+    Returns:
+        df (pandas dataframe with dimension mat1.index * mat2.index)
+    """
+    df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
+    for c in mat2.index:
+        df.loc[mat1.index, c] = mat1.apply(numba_calc_mi_dis, axis=1, args=(mat2.loc[c, :], bins, m))
+    return df
+
+
+def calc_dis_mat_np(mat1, mat2, bins, m, index):
+    """ Wrapper of calc_mi for calculating mutual information for two matrices(numpy.ndarray)
+    Args:
+        mat1 (numpy.ndarray): exp matrix of a slice of cells, with cells as rows from original file
+                                  and all gene expression attributes as columns
+        mat2 (numpy.ndarray): exp matrix of another slice of cells
         bins           (int): number of bins
         m              (int): number of genes
+        index       (series): cell index
     Returns:
-        a float between 0 and 1
+        df (pandas dataframe with dimension mat1.index * mat2.index)
     """
-    fq = fast_histogram.histogram2d(arr1, arr2, range=[[arr1.min(), arr1.max()+1e-9], [arr2.min(), arr2.max()+1e-9]],
-                                    bins=(bins, bins)) / float(m)
-    sm = np.sum(fq * float(m), axis=1)
-    tm = np.sum(fq * float(m), axis=0)
-    sm = np.asmatrix(sm / float(sm.sum()))
-    tm = np.asmatrix(tm / float(tm.sum()))
-    sm_tm = np.matmul(np.transpose(sm), tm)
-    div = np.divide(fq, sm_tm, where=sm_tm != 0, out=np.zeros_like(fq))
-    ent = np.log(div, where=div != 0, out=np.zeros_like(div))
-    agg = np.multiply(fq, ent, out=np.zeros_like(fq), where=fq != 0)
-    joint_ent = -np.multiply(fq, np.log(fq, where=fq != 0, out=np.zeros_like(fq)),
-                             out=np.zeros_like(fq), where=fq != 0).sum()
-    return (joint_ent - agg.sum()) / joint_ent
+    df = pd.DataFrame(data=0, index=index, columns=index)
+    for i, c in enumerate(index):
+        df.loc[index, c] = np.apply_along_axis(calc_norm_mi, 1, mat1, mat2[i, :], bins, m)
+    return df
 
 
-def dim_reduce(frame, dim=2, n_neighbors=30, dist='mi', out_dir=None):
+def dim_reduce(df, dim=100, method='pca', num_jobs=None, out_dir=None):
     """ Dimension reduction on a n_obs * n_vars matrix.
     Args:
         df (dataframe): preprocessed expression matrix as a dataframe
         dim (int): dimension to reduce n_vars to
+        method (str): PCA or MDS
+        num_jobs (None or int): n_jobs parameter in sklearn.manifold.MDS
         out_dir (str): path to output directory
     Returns:
         n_obs * dim numpy.ndarray
     """
-    if dist == 'euclidean':
-        clusterable_embedding = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.0,
-                                          n_components=dim).fit_transform(frame.to_numpy())
-    elif dist == 'mi':
-        num_bins = int((frame.shape[0]) ** (1 / 3.0))
-        num_genes = frame.shape[1]
-        metric_params = {"bins": num_bins, "m": num_genes}
-        clusterable_embedding = umap.UMAP(n_neighbors=n_neighbors, min_dist=0.0,
-                                          n_components=dim, metric=calc_norm_mi, metric_kwds=metric_params
-                                          ).fit_transform(frame.to_numpy())
+    if method == 'pca':
+        embedding = PCA(n_components=dim)
+    elif method == 'mds':
+        embedding = MDS(n_components=dim, n_jobs=num_jobs)
     else:
-        sys.exit('Error - distance metric not supported: {}'.format(dist))
+        sys.exit('Error - invalid dimension reduction method: {}'.format(method))
+    frame_dr = embedding.fit_transform(df)
     if out_dir:
-        np.savetxt('{}/mat_dr.csv'.format(out_dir), clusterable_embedding, delimiter=',')
-    return clusterable_embedding
+        np.savetxt('{}/mat_dr.csv'.format(out_dir), frame_dr, delimiter=',')
+    return frame_dr
 
 
-def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=30, knn_algorithm='ball_tree', num_jobs=1):
+def build_graph(frame_dr, dis_metric='mi', num_neighbors=20, knn_algorithm='ball_tree', num_jobs=1):
     """Build a graph representation of the dimension reduced matrix.
     Args:
         frame_dr (numpy ndarray): dimension reduced n_obs * dim matrix
@@ -172,7 +201,7 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=30, knn_algorith
         num_bins = int((frame_dr.shape[0]) ** (1 / 3.0))
         num_genes = frame_dr.shape[1]
         metric_params = {"bins": num_bins, "m": num_genes}
-        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, metric=calc_norm_mi,
+        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, metric=numba_calc_mi_dis,
                                 metric_params=metric_params, n_jobs=num_jobs)
     elif dis_metric == 'euclidean':
         nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, n_jobs=num_jobs)
@@ -221,7 +250,7 @@ def scatter_plot(data, out_file, marker_size=20, marker="o"):
     plt.savefig(out_file, bbox_inches="tight")
 
 
-def visual_embed(partition, index, frame_dr, out_dir, embed_method='umap', dis_metric='euclidean', perplexity=30):
+def visual_embed(partition, index, frame_dr, out_dir, embed_method='umap', dis_metric='mi', perplexity=30):
     """ Visualize clustering results using tSNE.
     Args:
         partition (dict): clustering results, {index: cluster label}
@@ -246,8 +275,8 @@ def visual_embed(partition, index, frame_dr, out_dir, embed_method='umap', dis_m
             embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity, random_state=10,
                          metric=partial_calc_norm_mi, early_exaggeration=12.0).fit_transform(frame_dr)
         elif embed_method == 'umap':
-            res = umap.UMAP(random_state=42, metric=partial_calc_norm_mi, n_neighbors=20,
-                            min_dist=0.2).fit_transform(frame_dr)
+            res = umap.UMAP(random_state=30, metric=partial_calc_norm_mi, n_neighbors=20,
+                            min_dist=0.25).fit_transform(frame_dr)
             embed = pd.DataFrame(data=res, index=index, columns=["X", "Y"])
         else:
             sys.exit('Error - invalid embed method: {}'.format(embed_method))
@@ -256,7 +285,7 @@ def visual_embed(partition, index, frame_dr, out_dir, embed_method='umap', dis_m
             embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity, random_state=10,
                          early_exaggeration=12.0).fit_transform(frame_dr)
         elif embed_method == 'umap':
-            res = umap.UMAP(random_state=42, metric='euclidean', n_neighbors=20, min_dist=0.2).fit_transform(frame_dr)
+            res = umap.UMAP(random_state=30, metric='euclidean', n_neighbors=20, min_dist=0.25).fit_transform(frame_dr)
             embed = pd.DataFrame(data=res, index=index, columns=["X", "Y"])
         else:
             sys.exit('Error - invalid embed method: {}'.format(embed_method))
