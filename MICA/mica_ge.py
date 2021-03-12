@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Version that uses a graph embedding method for dimension reduction on MI-kNN graph.
+# MICA Version that uses a graph embedding method for dimension reduction on MI-kNN graph.
 
 import sys
 import logging
