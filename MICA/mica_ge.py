@@ -14,8 +14,8 @@ from MICA.lib import visualize as vs
 
 
 def main():
-    head_description = '''MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for 
-    scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.'''
+    head_description = 'MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for \
+scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.'
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
                         help='Path to an input file (h5ad file or tab-delimited text file)')
