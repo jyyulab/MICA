@@ -5,8 +5,33 @@ import numpy as np
 import umap
 import logging
 import node2vec
+from sklearn.decomposition import PCA
+from sklearn.manifold import MDS
 from .distance import numba_calc_mi_dis
 from .aux_utils import run_shell_command
+
+
+def dim_reduce_global(df, dim=50, method='pca', num_jobs=None, out_dir=None):
+    """ Dimension reduction on a n_obs * n_vars matrix.
+    Args:
+        df (dataframe): preprocessed expression matrix as a dataframe
+        dim (int): dimension to reduce n_vars to
+        method (str): PCA or MDS
+        num_jobs (None or int): n_jobs parameter in sklearn.manifold.MDS
+        out_dir (str): path to output directory
+    Returns:
+        n_obs * dim numpy.ndarray
+    """
+    if method == 'pca':
+        embedding = PCA(n_components=dim)
+    elif method == 'mds':
+        embedding = MDS(n_components=dim, n_jobs=num_jobs)
+    else:
+        sys.exit('Error - invalid dimension reduction method: {}'.format(method))
+    frame_dr = embedding.fit_transform(df)
+    if out_dir:
+        np.savetxt('{}/mat_dr.csv'.format(out_dir), frame_dr, delimiter=',')
+    return frame_dr
 
 
 def dim_reduce_umap(frame, dim=12, n_neighbors=30, dist='mi', out_dir=None):
