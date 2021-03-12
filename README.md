@@ -1,29 +1,20 @@
 # MICA
 [![Build Status](https://travis-ci.com/jyyulab/MICA.svg?token=HDr9KWz2yFUbD2psHJxJ&branch=master)](https://travis-ci.com/jyyulab/MICA)
 
-MICA is a mutual information-based clustering algorithm that consists of following steps:
-1. Mutual information calculation
-2. Dimension Reduction
-3. Ensemble Clustering
-4. Consensus Clustering
+MICA is a mutual information-based non-linear clustering algorithm for single-cell RNA-seq data 
+that consists of following steps:
+1. Mutual information-based k-nearest neighbor graph construction
+2. Graph embedding for dimension reduction
+3. Clustering on dimension reduced space
+4. UMAP or tSNE visualization
 
 
 ## Prerequisites
-* [python==3.6.1](https://www.python.org/downloads/)
-    * [pandas>=0.22.0](https://pandas.pydata.org/)
-    * [numpy>=1.17.0](https://www.scipy.org/scipylib/download.html)
-    * [scikit-learn>=0.19.1](http://scikit-learn.org/stable/install.html#)
-    * [matplotlib==2.2.2](https://matplotlib.org/users/installing.html)
-    * [scipy>=1.0.1](https://www.scipy.org/install.html)
-    * [tables>=3.5.1](https://github.com/PyTables/PyTables)
-    * [cwltool>=1.0.2](https://github.com/common-workflow-language/cwltool)
-    * [h5py>=2.10.0](https://www.h5py.org/)
-    * [anndata>=0.7.4](https://anndata.readthedocs.io/en/latest/index.html#)
-    * [scanpy>=1.6.0](https://scanpy-tutorials.readthedocs.io/en/latest/index.html)
-    * [python-louvain>=0.14](https://github.com/taynaud/python-louvain)
-* [cwlexec>=0.2.2](https://github.com/IBMSpectrumComputing/cwlexec) (required for running on IBM LSF)
-
-Note: the pipeline is written in [common workflow language](https://www.commonwl.org/) for multi-platform compatibility.
+* [python>=3.6.1](https://www.python.org/downloads/) (developed and tested on python 3.6.1)
+    * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other python library 
+    dependencies
+* [node2vec](https://github.com/snap-stanford/snap/tree/master/examples/node2vec) (default) or 
+[deepwalk](https://github.com/phanein/deepwalk) (Executable much be available in your environment)
 
 
 ## Installation
@@ -34,11 +25,7 @@ is to use the [conda](https://conda.io/docs/) dependency manager:
 $ conda create -n py36 python=3.6.1           # Create a python3.6 virtual environment
 $ source activate py36                        # Activate the virtual environment
 $ conda install --file requirements.txt       # Install dependencies
-$ pip install cwlref-runner                   # cwltool is not available in conda, install with pip
 ```
-
-Note: cwlexec requires manual installation if needed.
-
 
 #### Install using pip
 ```
@@ -57,82 +44,43 @@ $ mica -h                                       # Check if mica works correctly
 
 ## Usage
 ```
-$ mica -h
-usage: mica [-h] {local,lsf} ...
+usage: mica [-h] -i FILE -o DIR [-m STR] [-d INT] [-e FLOAT] [-v STR]
 
-MICA is a scalable tool to perform unsupervised scRNA-seq clustering analysis.
+MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.
 
 optional arguments:
-  -h, --help   show this help message and exit
-
-Subcommands:
-  {local,lsf}  platforms
-    local      run cwltool in a local workstation
-    lsf        run cwlexec in a IBM LSF interface
+  -h, --help            show this help message and exit
+  -i FILE, --input-file FILE
+                        Path to an input file (h5ad file or tab-delimited text
+                        file)
+  -o DIR, --output-dir DIR
+                        Path to final output directory
+  -m STR, --dr-method STR
+                        Dimension reduction method [node2vec | deepwalk]
+                        (default: node2vec)
+  -d INT, --dr-dim INT  Number of dimensions to reduce to (default: 12)
+  -e FLOAT, --resolution FLOAT
+                        Determines size of the communities. (default: 1.0)
+  -v STR, --visual-method STR
+                        Visualization embedding method [umap | tsne] (default:
+                        umap)
 ```
-`mica` workflow is implemented with CWL. It supports multiple computing platforms. 
-We have tested it locally using cwltool and on an IBM LSF cluster using cwlexec. 
-For the convenience, a python wrapper is developed for you to choose computing platform 
-using subcommand.
-
-The local mode (sjaracne local) runs in parallel by default using cwltool's --parallel option. 
-To run it in serial, use --serial option.
-
-To use LSF mode, editing the LSF-specific configuration file (a copy of the file is MICA/config/config_cwlexec.json)
-to change the default queue and adjust memory reservation for each step is necessary. Consider 
-increasing memory reservation for bootstrap step and consensus step if the dimension of your expression 
-matrix file is large.
-
 
 #### Inputs
 The main input for MICA is a tab-separated cells/samples by genes/proteins (rows are cells/samples) expression 
-matrix and a list of cluster sizes to be specified in multiple runs of K-means.
+matrix or an [adata](https://anndata.readthedocs.io/en/latest/index.html) file after preprocessing.
 
 
 #### Outputs
 After the completion of the pipeline, `mica` will generate the following outputs:
-1. Cell-cell mutual information matrix 
-2. Dimension reduced distance matrix 
-3. Clustering results plot with clustering label mapped to each cluster
-4. Clustering results txt file with visualization coordinates and clustering label
+* Clustering results plot with clustering label mapped to each cluster
+* Clustering results txt file with visualization coordinates and clustering label
 
 
 ## Examples
-#### Running on a single machine using k-mean clustering (Linux/OSX)
-`mica local 
--i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
--p "cwl_local" 
--k 3 4 
--o ./test_data/outputs/cwl_local/ 
---dist "spearman"`
-
-
-#### Running on an IBM LSF cluster using k-mean clustering
-`mica lsf 
--i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt 
--p "cwl_lsf" 
--k 3 4 
--o ./test_data/outputs/cwl_lsf/ 
--c ./MICA/config/config_cwlexec.json`
-
-
-#### Running on an IBM LSF clustering using graph-based clustering
-`mica lsf \
--i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad \
--p "cwl_lsf_graph" \
--n 10 \
--o ./test_data/outputs/cwl_lsf/ \
--j ./MICA/config/config_cwlexec.json`
-
-
-#### Rerun a failed workflow on an IBM LSF cluster
-For a failed workflow, e.g., due to memory limit, MICA supports rerunning the workflow starting from the failed step 
-with an input of the workflow ID using option `-r`. The default settings in the config file `config_cwlexec.json` may 
-be updated to increase the memory limit for the failed step. 
-
-`mica lsf 
--r c62fb0be-cdb0-4bf6-b17f-2758ac0b51d7 
--j ./MICA/config/config_cwlexec.json`
+#### Running MICA graph embedding version
+`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad 
+-o ./test_data/outputs -d 12 -e 1.0`
 
 
 ## Reference
