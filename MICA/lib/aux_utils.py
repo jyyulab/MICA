@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-""" This module contains "auxiliary" functions. """
+""" This module contains "auxiliary" functions.
+"""
 
 import os
 import sys
