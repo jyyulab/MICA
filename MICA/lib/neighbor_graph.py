@@ -24,7 +24,7 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=30, knn_algorith
         num_bins = int((frame_dr.shape[0]) ** (1 / 3.0))
         num_genes = frame_dr.shape[1]
         metric_params = {"bins": num_bins, "m": num_genes}
-        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, metric=calc_norm_mi,
+        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, metric=numba_calc_mi_dis,
                                 metric_params=metric_params, n_jobs=num_jobs)
     elif dis_metric == 'euclidean':
         nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, n_jobs=num_jobs)
