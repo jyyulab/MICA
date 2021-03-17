@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 This module contains helper functions, essential to the execution of MICA (Mutual Information-based
-clustering algorithm)
+clustering algorithm).
 """
 
 import sys

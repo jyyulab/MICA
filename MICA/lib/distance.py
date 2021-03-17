@@ -3,6 +3,7 @@
 import numpy as np
 import numba
 import fast_histogram
+import pandas as pd
 
 
 @numba.jit(nopython=True, fastmath=True)
@@ -132,3 +133,38 @@ def calc_norm_mi(arr1, arr2, bins, m):
     joint_ent = -np.multiply(fq, np.log(fq, where=fq != 0, out=np.zeros_like(fq)),
                              out=np.zeros_like(fq), where=fq != 0).sum()
     return (joint_ent - agg.sum()) / joint_ent
+
+
+def calc_dis_mat(mat1, mat2, bins, m):
+    """ Wrapper of calc_mi for calculating mutual information for two matrices
+    Args:
+        mat1 (pandas dataframe): exp matrix of a slice of cells, with cells as rows from original file
+                                  and all gene expression attributes as columns
+        mat2 (pandas dataframe): exp matrix of another slice of cells
+        bins              (int): number of bins
+        m                 (int): number of genes
+    Returns:
+        df (pandas dataframe with dimension mat1.index * mat2.index)
+    """
+    df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
+    for c in mat2.index:
+        df.loc[mat1.index, c] = mat1.apply(numba_calc_mi_dis, axis=1, args=(mat2.loc[c, :], bins, m))
+    return df
+
+
+def calc_dis_mat_np(mat1, mat2, bins, m, index):
+    """ Wrapper of calc_mi for calculating mutual information for two matrices(numpy.ndarray)
+    Args:
+        mat1 (numpy.ndarray): exp matrix of a slice of cells, with cells as rows from original file
+                                  and all gene expression attributes as columns
+        mat2 (numpy.ndarray): exp matrix of another slice of cells
+        bins           (int): number of bins
+        m              (int): number of genes
+        index       (series): cell index
+    Returns:
+        df (pandas dataframe with dimension mat1.index * mat2.index)
+    """
+    df = pd.DataFrame(data=0, index=index, columns=index)
+    for i, c in enumerate(index):
+        df.loc[index, c] = np.apply_along_axis(calc_norm_mi, 1, mat1, mat2[i, :], bins, m)
+    return df
