@@ -12,6 +12,7 @@ install:
 before_script:
   - eggpath='/home/travis/virtualenv/python3.7.6/lib/python3.7/site-packages/MICA-1.0.0-py3.7.egg/MICA/bin/'
   - chmod -R 755 $eggpath
+  - chmod -R 755 .
 
 script:
   - travis_wait 60 ./tests/test_MICA_ge_Kolod.sh
