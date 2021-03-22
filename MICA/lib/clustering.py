@@ -5,7 +5,7 @@ import logging
 import community
 
 
-def graph_clustering(G, method='louvein', resolution=0.8):
+def graph_clustering(G, method='louvein', resolution=1.0):
     """ Perform graph-based clustering.
     Args:
         G (nx graph): G to perform community detection

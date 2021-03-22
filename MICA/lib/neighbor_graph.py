@@ -6,10 +6,9 @@ import networkx as nx
 from sklearn.neighbors import NearestNeighbors
 import umap
 from .distance import numba_calc_mi_dis
-from .distance import calc_norm_mi
 
 
-def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=30, knn_algorithm='ball_tree', num_jobs=1):
+def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorithm='ball_tree', num_jobs=1):
     """Build a graph representation of the dimension reduced matrix.
     Args:
         frame_dr (numpy ndarray): dimension reduced n_obs * dim matrix
@@ -36,7 +35,7 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=30, knn_algorith
     return nx.from_numpy_matrix(kneighbor_graph)
 
 
-def nearest_neighbors_umap(mat, num_neighbors=30, angular=False, random_state=None):
+def nearest_neighbors_umap(mat, num_neighbors=40, angular=False, random_state=None):
     """ Build a graph representation of the dimension reduced matrix.
     Args:
         mat (numpy ndarray): n_obs * n_var matrix
