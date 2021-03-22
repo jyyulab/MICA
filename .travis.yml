@@ -16,7 +16,7 @@ before_script:
   - git clone https://github.com/snap-stanford/snap
   - cd snap/examples/node2vec
   - make
-  - cp node2vec $eggpath
+  - cp node2vec ~/virtualenv/python3.7.6/bin
   - cd -
 
 script:
