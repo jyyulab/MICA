@@ -17,6 +17,7 @@ before_script:
   - cd snap/examples/node2vec
   - make
   - cp node2vec $eggpath
+  - cd -
 
 script:
   - travis_wait 30 ./tests/test_MICA_ge_Kolod.sh
