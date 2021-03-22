@@ -1,11 +1,12 @@
 dist: xenial
 language: python
 python:
-  - "3.7"
+  - "3.7.6"
 
 install:
   - pip install -r requirements.txt
   - pip install tables
+  - pip install importlib-metadata --upgrade
   - python setup.py install
 
 before_script:
