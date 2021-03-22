@@ -13,3 +13,15 @@ predict_label = predict_label['label']
 
 ari = adjusted_rand_score(true_label, predict_label)
 print('Kolod dataset ARI: {}'.format(ari))
+
+
+true_label_file = './tests/answerkey/clustering/yan_true_label_1.txt'
+true_label = pd.read_csv(true_label_file, delimiter='\t', dtype=int, header=0)
+true_label = true_label.iloc[0]
+
+predict_label_file = './test_data/outputs/clustering_umap_euclidean_16.txt'
+predict_label = pd.read_csv(predict_label_file, delimiter='\t')
+predict_label = predict_label['label']
+
+ari = adjusted_rand_score(true_label, predict_label)
+print('Yan dataset ARI: {}'.format(ari))
