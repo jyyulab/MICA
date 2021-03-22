@@ -1,7 +1,7 @@
 dist: xenial
 language: python
 python:
-  - "3.6"
+  - "3.7"
 
 install:
   - pip install -r requirements.txt
@@ -9,17 +9,17 @@ install:
   - python setup.py install
 
 before_script:
-  - eggpath='/home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages/MICA-0.1.2-py3.6.egg/MICA/bin/'
-  - chmod 755 $eggpath/prep.py $eggpath/calc_scatter.py $eggpath/merge_and_norm.py $eggpath/transform.py $eggpath/clustering.py $eggpath/utils.py
+  - eggpath='/home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages/MICA-1.0.0-py3.7.egg/MICA/bin/'
+  - chmod -R 755 $eggpath
 
 script:
-  - travis_wait 60 python -m pytest -v
+  - travis_wait 60 ./tests/test_MICA_ge_Kolod.sh
 
 #safelist
 branches:
   only:
     - master
-    - develop
+    - million
 
 notifications:
   email: false
