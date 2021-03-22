@@ -13,9 +13,14 @@ before_script:
   - eggpath='/home/travis/virtualenv/python3.7.6/lib/python3.7/site-packages/MICA-1.0.0-py3.7.egg/MICA/bin/'
   - chmod -R 755 $eggpath
   - chmod -R 755 .
+  - git clone https://github.com/snap-stanford/snap
+  - cd snap/examples/node2vec
+  - make
+  - cp node2vec $eggpath
 
 script:
-  - travis_wait 60 ./tests/test_MICA_ge_Kolod.sh
+  - travis_wait 30 ./tests/test_MICA_ge_Kolod.sh
+  - travis_wait 10 ./tests/test_calc_ARI_Kolod.py
 
 #safelist
 branches:
