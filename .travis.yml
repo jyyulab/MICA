@@ -21,7 +21,8 @@ before_script:
 
 script:
   - travis_wait 30 ./tests/test_MICA_ge_Kolod.sh
-  - travis_wait 10 ./tests/test_calc_ARI_Kolod.py
+  - travis_wait 20 ./tests/test_MICA_ge_Yan.sh
+  - travis_wait 10 ./tests/test_calc_ARI.py
 
 #safelist
 branches:
