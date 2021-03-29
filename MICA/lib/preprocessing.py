@@ -5,10 +5,6 @@ import pandas as pd
 import anndata
 import numpy as np
 from natsort import natsorted
-from anndata import AnnData
-from typing import Union, Optional, Mapping
-from typing import Iterable, Iterator, Generator
-from os import PathLike, fspath
 
 
 def read_preprocessed_mat(in_file):
@@ -33,8 +29,8 @@ def write_h5(adata, out_h5_file, partition, resolution):
         categories=natsorted(map(str, np.unique(labels))),
     )
     # store information on the clustering parameters
-    adata.uns['leiden'] = {}
-    adata.uns['leiden']['params'] = dict(
+    adata.uns['louvain'] = {}
+    adata.uns['louvain']['params'] = dict(
         resolution=resolution,
     )
     adata.write(out_h5_file)
