@@ -106,6 +106,7 @@ def dim_reduce_deepwalk(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walk
     Returns:
         out_emb_file (txt file): output embedding file
     """
+    format = 'edgelist'
     cmd = 'deepwalk --input {} --format {} --output {} --representation-size {} --number-walks {} ' \
           '--walk-length {}'.format(edgelist_file, format, out_emb_file, dim, n_walks, walk_len)
     logging.info(cmd)
