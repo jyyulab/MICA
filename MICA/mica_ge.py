@@ -6,6 +6,7 @@ import logging
 import time
 import argparse
 import numpy as np
+import pandas as pd
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
@@ -38,7 +39,8 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
 
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
-    frame = pp.read_preprocessed_mat(args.input_file)
+    adata = pp.read_preprocessed_mat(args.input_file)
+    frame = adata.to_df()
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -70,9 +72,12 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
 
     start = time.time()
     logging.info('Performing clustering ...')
-    mat_dr = np.loadtxt(emb_file, skiprows=1, usecols=np.arange(1, args.dr_dim+1))
+    mat_dr_df = pd.read_csv(emb_file, delimiter=' ', skiprows=1, index_col=0, names=np.arange(1, args.dr_dim+1))
+    mat_dr_df.sort_index(inplace=True)
+    mat_dr = mat_dr_df.to_numpy()
     G = ng.build_graph(mat_dr, dis_metric='euclidean')
     partition = cl.graph_clustering(G, resolution=args.resolution)
+    # partition = cl.graph_clustering(knn_graph, resolution=args.resolution)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -80,6 +85,15 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     start = time.time()
     logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
     vs.visual_embed(partition, frame.index, mat_dr, args.output_dir, embed_method=args.visual_method)
+    # vs.visual_embed(partition, frame.index, frame, args.output_dir, embed_method=args.visual_method)
+    end = time.time()
+    runtime = end - start
+    logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    start = time.time()
+    out_h5_file = '{}/clustered.h5ad'.format(args.output_dir)
+    logging.info('Write h5ad file {} ...'.format(out_h5_file))
+    pp.write_h5(adata, out_h5_file, partition, args.resolution)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
