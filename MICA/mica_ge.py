@@ -61,7 +61,9 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     logging.info('Performing dimension reduction using {} method ...'.format(args.dr_method))
     emb_file = '{}/knn_graph.{}.emb.txt'.format(args.output_dir, args.dr_method)
     if args.dr_method == 'node2vec':
-        dr.dim_reduce_node2vec_hp(edgelist_file, emb_file, dim=args.dr_dim)
+        dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim)
+        # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
+        # print(wv)
     elif args.dr_method == 'deepwalk':
         dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
     else:
