@@ -25,6 +25,7 @@ setup(
         "python-louvain>=0.14",
         "fast_histogram>=0.9",
         "node2vec>=0.4.1",
+        "pecanpy>=0.0.1",
         "numba>=0.52.0",
         "anndata>=0.7.4",
         "umap-learn>=0.5.1",
