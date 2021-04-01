@@ -60,24 +60,43 @@ def dim_reduce_umap(frame, dim=12, n_neighbors=30, dist='mi', out_dir=None):
     return clusterable_embedding
 
 
-def dim_reduce_node2vec(graph, dim=12, walk_len=30, n_walks=40, n_workers=1):
+def dim_reduce_node2vec(graph, out_emb_file, dim=12, walk_len=60, n_walks=120, n_workers=1):
     """ Dimension reduction on a n_obs * n_vars matrix using node2vec python implementation.
     Args:
         graph (Networkx Graph)
+        out_emb_file (txt file): path ot output embedding file
         dim (int): dimension to reduce nodes to (default: 12)
-        walk_len (str): path to output directory (default: 30)
-        n_walks (str): number of random walks per node (default: 40)
+        walk_len (str): path to output directory (default: 60)
+        n_walks (str): number of random walks per node (default: 120)
         n_workers (str): Number of workers for parallel execution (default: 1)
     Returns:
-
+        out_emb_file (txt file): output embedding file
     """
     n2v = node2vec.Node2Vec(graph, dimensions=dim, walk_length=walk_len, num_walks=n_walks, workers=n_workers,
                             weight_key='MI')
     model = n2v.fit(window=10, min_count=1, batch_words=4)
-    return model.wv
+    model.wv.save_word2vec_format(out_emb_file)
 
 
-def dim_reduce_node2vec_hp(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walks=120):
+def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walks=120):
+    """ Dimension reduction on a n_obs * n_vars matrix using node2vec pecanpy implementation.
+    Args:
+        edgelist_file (txt file): path to a graph edgelist file,
+                                  (format: node1_id_int node2_id_int <weight_float, optional>)
+        out_emb_file (txt file): path ot output embedding file
+        dim (int): dimension to reduce nodes to (default: 12)
+        walk_len (str): path to output directory (default: 60)
+        n_walks (str): number of random walks per node (default: 120)
+    Returns:
+        out_emb_file (txt file): output embedding file
+    """
+    cmd = 'pecanpy --input {} --output {} --dimensions {} --walk-length {} ' \
+          '--num-walks {}'.format(edgelist_file, out_emb_file, dim, walk_len, n_walks)
+    logging.info(cmd)
+    run_shell_command(cmd)
+
+
+def dim_reduce_node2vec_c(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walks=120):
     """ Dimension reduction on a n_obs * n_vars matrix using node2vec C++ implementation.
     Args:
         edgelist_file (txt file): path to a graph edgelist file,
