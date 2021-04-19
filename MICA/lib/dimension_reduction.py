@@ -78,20 +78,31 @@ def dim_reduce_node2vec(graph, out_emb_file, dim=12, walk_len=60, n_walks=120, n
     model.wv.save_word2vec_format(out_emb_file)
 
 
-def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walks=120):
+# def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', dim=20, walk_len=60, n_walks=120,
+#                                 context_size=10, num_jobs=10, hyper_p=1.0, hyper_q=1.0):
+def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', dim=20, walk_len=100, n_walks=120,
+                                context_size=20, num_jobs=10, hyper_p=0.5, hyper_q=0.5):
     """ Dimension reduction on a n_obs * n_vars matrix using node2vec pecanpy implementation.
     Args:
         edgelist_file (txt file): path to a graph edgelist file,
                                   (format: node1_id_int node2_id_int <weight_float, optional>)
+        mode (str): PreComp or SparseOTF or DenseOTF (default: SparseOTF)
         out_emb_file (txt file): path ot output embedding file
         dim (int): dimension to reduce nodes to (default: 12)
         walk_len (str): path to output directory (default: 60)
         n_walks (str): number of random walks per node (default: 120)
+        context_size (int): context size for optimization. (default: 10)
+        num_jobs (int): Number of parallel workers (default: 8)
+        hyper_p (float): Return hyperparameter. (default: 1.0)
+        hyper_q (float): Inout hyperparameter. (default: 1.0)
     Returns:
         out_emb_file (txt file): output embedding file
     """
-    cmd = 'pecanpy --input {} --output {} --dimensions {} --walk-length {} ' \
-          '--num-walks {}'.format(edgelist_file, out_emb_file, dim, walk_len, n_walks)
+    cmd = 'pecanpy --input {} --output {} --mode {} --dimensions {} --walk-length {} ' \
+          '--num-walks {} --window-size {} --workers {} --p {} --q {} --weighted'.format(edgelist_file, out_emb_file,
+                                                                                         mode, dim, walk_len, n_walks,
+                                                                                         context_size, num_jobs,
+                                                                                         hyper_p, hyper_q)
     logging.info(cmd)
     run_shell_command(cmd)
 

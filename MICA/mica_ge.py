@@ -21,12 +21,13 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
                         help='Path to an input file (h5ad file or tab-delimited text file)')
     parser.add_argument('-o', '--output-dir', metavar='DIR', required=True, help='Path to final output directory')
-    parser.add_argument('-m', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
-                        default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
+    # parser.add_argument('-m', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
+    #                     default='node2vec', help='Dimension reduction method [node2vec | deepwalk]
+    #                     (default: node2vec)')
     parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=12, type=int,
-                        help='Number of dimensions to reduce to (default: 12)')
+                        help='Number of dimensions to reduce to (default: 20)')
     parser.add_argument('-e', '--resolution', metavar='FLOAT', required=False, default=1.0, type=float,
-                        help='Determines size of the communities. (default: 1.0)')
+                        help='Determines size of the communities. (default: 1.4)')
     parser.add_argument('-v', '--visual-method', metavar='STR', required=False, default='umap', type=str,
                         choices=['umap', 'tsne'], help='Visualization embedding method [umap | tsne] (default: umap)')
 
@@ -47,12 +48,12 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
 
     start = time.time()
     logging.info('Building MI-based kNN graph ...')
-    knn_indices, knn_dists, forest = ng.nearest_neighbors_umap(frame.to_numpy())
+    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy())
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
     edgelist_file = '{}/knn_graph.edgelist.txt'.format(args.output_dir)
     with open(edgelist_file, 'w') as fout:
         for edge in knn_graph.edges():
-            fout.write('{} {} {}\n'.format(edge[0], edge[1], knn_graph.get_edge_data(edge[0], edge[1])['MI']))
+            fout.write('{}\t{}\t{}\n'.format(edge[0], edge[1], knn_graph.get_edge_data(edge[0], edge[1])['MI']))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -86,8 +87,10 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
 
     start = time.time()
     logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
-    vs.visual_embed(partition, frame.index, mat_dr, args.output_dir, embed_method=args.visual_method)
-    # vs.visual_embed(partition, frame.index, frame, args.output_dir, embed_method=args.visual_method)
+    vs.visual_embed_louvain(partition, args.resolution, frame.index, mat_dr, args.output_dir,
+                            embed_method=args.visual_method)
+    # vs.visual_embed_louvain(partition, args.resolution, frame.index, frame, args.output_dir,
+    #                         embed_method=args.visual_method)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))

@@ -12,10 +12,8 @@ def compute_bin(x, min, max, num_bins):
     """
     # special case to mirror NumPy behavior for last bin
     if x == max:
-        return num_bins - 1 # a_max always in last bin
-
+        return num_bins - 1     # a_max always in last bin
     bin = int(num_bins * (x - min) / (max - min))
-
     if bin < 0 or bin >= num_bins:
         return None
     else:
@@ -103,7 +101,8 @@ def numba_calc_mi_dis(arr1, arr2, bins, m):
     numba_inf_fill(ent)
     agg = np.multiply(fq, ent)
     joint_ent = -np.multiply(fq, numba_inf_fill(np.log(fq))).sum()
-    return (joint_ent - agg.sum()) / joint_ent
+    return (joint_ent - agg.sum()) / joint_ent    # normalized: D(X, Y) = 1 - I(X, Y)/H(X, Y)
+    # return joint_ent - agg.sum()                # unnormalized: D(X, Y) = H(X, Y) - I(X, Y)
 
 
 def calc_norm_mi(arr1, arr2, bins, m):
