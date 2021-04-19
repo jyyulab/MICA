@@ -4,12 +4,12 @@ import sys
 import logging
 import networkx as nx
 from sklearn.neighbors import NearestNeighbors
-import umap
+from pynndescent import NNDescent
 from .distance import numba_calc_mi_dis
 
 
 def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorithm='ball_tree', num_jobs=1):
-    """Build a graph representation of the dimension reduced matrix.
+    """ Build a graph representation of the dimension reduced matrix.
     Args:
         frame_dr (numpy ndarray): dimension reduced n_obs * dim matrix
         dis_metric (str): 'MI' or 'euclidean'
@@ -35,32 +35,43 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorith
     return nx.from_numpy_matrix(kneighbor_graph)
 
 
-def nearest_neighbors_umap(mat, num_neighbors=40, angular=False, random_state=None):
+# def nearest_neighbors_NNDescent(mat, num_neighbors=40, pruning_degree_multi=1.5, diversify_p=1.0, num_jobs=-1):
+def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0, diversify_p=0.0, num_jobs=-1):
     """ Build a graph representation of the dimension reduced matrix.
     Args:
         mat (numpy ndarray): n_obs * n_var matrix
-        num_neighbors (int): number of neighbors
-        angular (bool): whether to use angular rp trees in NN approximation (default: False)
-        random_state (np.random): the random state to use for approximate NN computations (default: None)
-            If int, random_state is the seed used by the random number generator;
-            If RandomState instance, random_state is the random number generator;
-            If None, the random number generator is the RandomState instance used
-            by `np.random`.
+        n_neighbors: int (optional, default=30)
+            The number of neighbors to use in k-neighbor graph graph_data structure
+            used for fast approximate nearest neighbor search. Larger values
+            will result in more accurate search results at the cost of
+            computation time.
+        pruning_degree_multiplier: float (optional, default=1.5)
+            How aggressively to prune the graph. Since the search graph is undirected
+            (and thus includes nearest neighbors and reverse nearest neighbors) vertices
+            can have very high degree -- the graph will be pruned such that no
+            vertex has degree greater than pruning_degree_multiplier * n_neighbors.
+        diversify_prob: float (optional, default=1.0)
+            The search graph get "diversified" by removing potentially unnecessary
+            edges. This controls the volume of edges removed. A value of 0.0 ensures
+            that no edges get removed, and larger values result in significantly more
+            aggressive edge removal. A value of 1.0 will prune all edges that it can.
+        n_jobs: int or None, optional (default=None)
+            The number of parallel jobs to run for neighbors index construction.
+            ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
+            ``-1`` means using all processors.
     Returns:
         knn_indices: array of shape (n_samples, n_neighbors)
             The indices on the ``n_neighbors`` closest points in the dataset.
         knn_dists: array of shape (n_samples, n_neighbors)
             The distances to the ``n_neighbors`` closest points in the dataset.
-        rp_forest: list of trees
-            The random projection forest used for searching (if used, None otherwise)
     """
     num_bins = int((mat.shape[0]) ** (1 / 3.0))
     num_genes = mat.shape[1]
     metric_params = {"bins": num_bins, "m": num_genes}
-    knn_indices, knn_dists, forest = umap.umap_.nearest_neighbors(X=mat, n_neighbors=num_neighbors,
-                                                                  metric=numba_calc_mi_dis, metric_kwds=metric_params,
-                                                                  angular=angular, random_state=random_state)
-    return knn_indices, knn_dists, forest
+    knn_indices, knn_dists = NNDescent(mat, n_neighbors=num_neighbors, metric=numba_calc_mi_dis,
+                                       metric_kwds=metric_params, pruning_degree_multiplier=pruning_degree_multi,
+                                       diversify_prob=diversify_p, n_jobs=num_jobs).neighbor_graph
+    return knn_indices, knn_dists
 
 
 def build_graph_from_indices(knn_indices, knn_dists):
