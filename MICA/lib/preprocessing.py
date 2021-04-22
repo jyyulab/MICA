@@ -11,7 +11,7 @@ def read_preprocessed_mat(in_file):
     """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe."""
     if in_file.endswith('.txt'):
         adata = anndata.read_csv(in_file, delimiter='\t', first_column_names=True)
-        adata = adata[1:, :]    # 1st row used as header
+        adata = adata[0:, :]    # 1st row used as header
     elif in_file.endswith('.csv'):
         adata = anndata.read_csv(in_file)
     elif in_file.endswith('.h5ad') or in_file.endswith('.h5'):
