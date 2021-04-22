@@ -21,8 +21,9 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
                         help='Path to an input file (h5ad file or tab-delimited text file)')
     parser.add_argument('-o', '--output-dir', metavar='DIR', required=True, help='Path to final output directory')
-    parser.add_argument('-m', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
-                        default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
+    # parser.add_argument('-m', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
+    #                     default='node2vec', help='Dimension reduction method [node2vec | deepwalk]
+    #                     (default: node2vec)')
     parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=12, type=int,
                         help='Number of dimensions to reduce to (default: 20)')
     parser.add_argument('-e', '--resolution', metavar='FLOAT', required=False, default=1.0, type=float,
