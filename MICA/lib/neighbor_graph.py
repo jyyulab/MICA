@@ -35,27 +35,26 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorith
     return nx.from_numpy_matrix(kneighbor_graph)
 
 
-# def nearest_neighbors_NNDescent(mat, num_neighbors=40, pruning_degree_multi=1.5, diversify_p=1.0, num_jobs=-1):
 def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0, diversify_p=0.0, num_jobs=-1):
     """ Build a graph representation of the dimension reduced matrix.
     Args:
         mat (numpy ndarray): n_obs * n_var matrix
-        n_neighbors: int (optional, default=30)
+        num_neighbors: int (optional, default=30)
             The number of neighbors to use in k-neighbor graph graph_data structure
             used for fast approximate nearest neighbor search. Larger values
             will result in more accurate search results at the cost of
             computation time.
-        pruning_degree_multiplier: float (optional, default=1.5)
+        pruning_degree_multi: float (optional, default=1.5)
             How aggressively to prune the graph. Since the search graph is undirected
             (and thus includes nearest neighbors and reverse nearest neighbors) vertices
             can have very high degree -- the graph will be pruned such that no
             vertex has degree greater than pruning_degree_multiplier * n_neighbors.
-        diversify_prob: float (optional, default=1.0)
+        diversify_p: float (optional, default=1.0)
             The search graph get "diversified" by removing potentially unnecessary
             edges. This controls the volume of edges removed. A value of 0.0 ensures
             that no edges get removed, and larger values result in significantly more
             aggressive edge removal. A value of 1.0 will prune all edges that it can.
-        n_jobs: int or None, optional (default=None)
+        num_jobs: int or None, optional (default=None)
             The number of parallel jobs to run for neighbors index construction.
             ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
             ``-1`` means using all processors.
