@@ -95,6 +95,22 @@ def PBMC20k(dim, reso):
     return adjusted_rand_score(true_label['label'], predict_label['label'])
 
 
+def PBMC20k_MDS():
+    for dim in range(7, 14):
+        true_label_file = '{}/datasets/PBMC_20k/PBMC_sorted_20K_true_label.txt'.format(mica_data_path)
+        true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+        cell_type_label_dict = dict()
+        for i, v in enumerate(set(true_label['type'])):
+            cell_type_label_dict[v] = i
+        labels = [cell_type_label_dict[ct] for ct in true_label['type']]
+        true_label['label'] = labels
+        PBMC20k_out = '{}/outputs/PBMC_20k_MDS/mica-9a7645e0-5db0-4e37-8a2a-1a68d3471395'.format(mica_data_path)
+        predict_label_file = '{}/cwl_lsf_k{}_tsne_ClusterMem.txt'.format(PBMC20k_out, dim)
+        predict_label = pd.read_csv(predict_label_file, delimiter='\t')
+        print(dim)
+        print(adjusted_rand_score(true_label['label'], predict_label['label']))
+
+
 def create_cmds():
     for dim in range(8, 100, 4):
         for reso in np.arange(0.2, 10.0, 0.4):
@@ -164,3 +180,4 @@ if __name__ == "__main__":
     # create_cmds()
     summary()
     # summary_no_ge()
+    # PBMC20k_MDS()
