@@ -16,8 +16,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
 import anndata
-# import numba
-# from numba import jit
+
+import numba
+from numba import jit
 
 # from sklearn.metrics import mutual_info_score
 from sklearn import cluster        # for kmeanmerge_dist_matss
@@ -36,11 +37,28 @@ def read_file(in_file, out_file_name):
         out_file_name (str): user-defined name for output file
     """
     if in_file.endswith('.txt'):
+        #read in csv text file and convert to pandas dataframe
         frame = pd.read_csv(in_file, sep="\t", index_col=0).iloc[:, 0:]
     if in_file.endswith('.h5ad'):
         adata = anndata.read_h5ad(in_file)
+        #if read in as anndata form, convert to pandas dataframe
         frame = adata.to_df()
+    #write dataframe to hdf
     frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
+    
+    
+def read_anndata_file(in_file):
+    """ Reads text file and stores data in a temporary HDF5-format file.
+
+    Args:
+        in_file_name  (str): path to input text file
+        out_file_name (str): user-defined name for output file
+    """
+    if in_file.endswith('.h5ad'):
+        adata = anndata.read_h5ad(in_file)
+    #write dataframe to hdf
+    #adata.to_hdf(out_file_name + ".h5.tmp", "slice_0")
+    return adata
 
 
 def slice_file(df_file,  out_file_name, slice_size="1000"):
@@ -65,12 +83,16 @@ def slice_file(df_file,  out_file_name, slice_size="1000"):
         slice_name = str(i).zfill(digit)
         start = i * slice_size
         end = np.min([(i + 1) * slice_size, df.shape[0]])
+        #create dataframe from selected set of rows, and all columns
         slice_ = pd.DataFrame(
             data=df.iloc[start:end, :].values,
             index=df.index[start:end],
             columns=df.columns,
         )
+        # write slice of original dataframe to file
         slice_.to_hdf(out_file_name + ".sliced.h5", "slice_" + slice_name)
+        
+        
     pd.DataFrame(data=np.array(df.shape + (b,)), index=["row", "col", "slice"]).to_hdf(
         out_file_name + ".sliced.h5", "attr"
     )
@@ -120,6 +142,8 @@ def calc_prep(in_file, project_name):
         project_name (str): project name used to generate path for final outputs
     """
 
+    #input file is full input that has been segmented into b blocks of rows
+    
     in_ = pd.HDFStore(in_file, "r")  # slice.h5
     bins = int(np.floor(in_["attr"].loc["row"] ** (1 / 3.0)))  # number of bins
     b = in_["attr"].loc["slice", 0]  # number of sliced matrix
@@ -127,6 +151,7 @@ def calc_prep(in_file, project_name):
     digit = int(np.floor(np.log10(b)) + 1)  # some unique identifier
     total = int((b * (b + 1)) / 2)  # total number of calc jobs execute
     digit1 = int(np.floor(np.log10(total)) + 1)
+    
     for i in range(b):
         key1 = "slice_" + str(i).zfill(digit)  # location of sliced matrix 1
         mat1 = in_[key1]  # sliced matrix 1def
@@ -138,12 +163,16 @@ def calc_prep(in_file, project_name):
             mat_tmp = (project_name + "_" + name + ".h5.tmp")  # tmp directory as MIE_out/.tmp
             mat1.to_hdf(mat_tmp, key1)  # key: slice_00x
             mat2.to_hdf(mat_tmp, key2)
+            
             pd.DataFrame(data=np.array([key1, key2, bins, m, name,  project_name, b]),
                          index=["key1", "key2",
                                 "num_bins", "n_genes",
                                 "MI_indx", "project_name", "num_slices"]).to_hdf(mat_tmp, "params")
     in_.close()
 
+    
+    
+    
 
 def vpearson(X, y):
     X_mean = np.reshape(np.mean(X, axis=1), (X.shape[0], 1))
@@ -152,6 +181,9 @@ def vpearson(X, y):
     r_den = np.sqrt(np.sum((X-X_mean)**2, axis=1)*np.sum((y-y_mean)**2))
     r = r_num/r_den
     return r
+
+
+
 
 
 def calc_mi(arr1, arr2, bins, m):
@@ -179,6 +211,231 @@ def calc_mi(arr1, arr2, bins, m):
     agg = np.multiply(fq, ent, out=np.zeros_like(fq), where=fq != 0)
     return agg.sum()
 
+
+
+
+
+@numba.jit(nopython=True, fastmath=True)
+def compute_bin(x, min, max, num_bins):
+    """ Compute bin index for a give number.
+    """
+    # special case to mirror NumPy behavior for last bin
+    if x == max:
+        return num_bins - 1 # a_max always in last bin
+
+    bin = int(num_bins * (x - min) / (max - min))
+
+    if bin < 0 or bin >= num_bins:
+        return None
+    else:
+        return bin
+    
+    
+@numba.jit(nopython=True, fastmath=True)
+def compute_bin_upperbound(x, max, num_bins):
+    """ Compute bin index for a give number.
+        Assume that min is always zero
+    """
+    # special case to mirror NumPy behavior for last bin
+    if x == max:
+        return num_bins - 1 # a_max always in last bin
+
+    bin = int(num_bins * x / max)
+
+    if bin >= num_bins:
+        return None
+    else:
+        return bin
+
+    
+#ceb create csr version of numba_histogram2d, also compute_bin with knowledge that minx will always be zero
+@numba.jit(nopython=True, fastmath=True)
+def numba_histogram2d_csr(arr1, cols1, arr2, cols2, ncols, num_bins):
+    """ Compute the bi-dimensional histogram of two data samples.
+    Args:
+        arr1 (array_like, shape (N,)): An array containing the x coordinates of the points to be histogrammed.
+        arr2 (array_like, shape (N,)): An array containing the y coordinates of the points to be histogrammed.
+        num_bins (int): int
+    Return:
+        hist (2D ndarray)
+    """
+    #for csr arrays we have to compute zero bins ahead of time 
+        
+    bin_indices1 = np.zeros((ncols,), dtype=np.int16)
+    max1 = arr1.max()
+    #note that bin_indices has same size/indices as full array x and y
+    for i, x in enumerate(arr1.flat):
+        #assume zero min
+        bin_indices1[cols1[i]] = compute_bin_upperbound(x, max1, num_bins)
+        #bin_indices1[cols1[i]] = compute_bin(x, 0, max1, num_bins)
+
+    bin_indices2 = np.zeros((ncols,), dtype=np.int16)
+    max2 = arr2.max()
+    for i, y in enumerate(arr2.flat):
+        #assume zero min
+        bin_indices2[cols2[i]] = compute_bin_upperbound(y, max2, num_bins)
+        #bin_indices2[cols2[i]] = compute_bin(y, 0, max2, num_bins)
+
+    hist = np.zeros((num_bins, num_bins), dtype=np.int16)
+    for i, b in enumerate(bin_indices1):
+        hist[b, bin_indices2[i]] += 1
+        
+    return hist
+
+
+
+@numba.jit(nopython=True)
+def numba_nan_fill(x):
+    shape = x.shape
+    x = x.ravel()
+    x[np.isnan(x)] = 0.0
+    x = x.reshape(shape)
+    return x
+
+@numba.jit(nopython=True)
+def numba_inf_fill(x):
+    shape = x.shape
+    x = x.ravel()
+    x[np.isinf(x)] = 0.0
+    x = x.reshape(shape)
+    return x
+
+@numba.jit(nopython=True, fastmath=True)
+def numba_calc_mi_dis(arr1, arr2, bins, m):
+    """ Calculates a mutual information distance D(X, Y) = H(X, Y) - I(X, Y) using bin-based method
+
+    It takes gene expression data from single cells, and compares them using standard calculation for
+    mutual information and joint entropy. It builds a 2d histogram, which is used to calculate P(arr1, arr2).
+
+    Args:
+        arr1 (pandas series): gene expression data for cell 1
+        arr2 (pandas series): gene expression data for cell 2
+        marginals  (ndarray): marginal probability matrix
+        index1         (int): index of cell 1
+        index2         (int): index of cell 2
+        bins           (int): number of bins
+        m              (int): number of genes
+    Returns:
+        a float between 0 and 1
+    """
+    hist = numba_histogram2d(arr1, arr2, bins)
+    sm = np.sum(hist, axis=1)
+    tm = np.sum(hist, axis=0)
+    sm = sm / float(sm.sum())
+    tm = tm / float(tm.sum())
+
+    sm_tm = np.zeros((bins, bins), dtype=np.float32)
+    for i, s in enumerate(sm):
+        for j, t in enumerate(tm):
+            sm_tm[i, j] = s * t
+
+    fq = hist / float(m)
+    div = np.true_divide(fq, sm_tm)
+    numba_nan_fill(div)
+    ent = np.log(div)
+    numba_inf_fill(ent)
+    agg = np.multiply(fq, ent)
+    joint_ent = -np.multiply(fq, numba_inf_fill(np.log(fq))).sum()
+    return joint_ent - agg.sum()
+
+
+
+@numba.jit(nopython=True, fastmath=True)
+def numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, ncols, bins, m):
+    """ Calculates a mutual information distance D(X, Y) = H(X, Y) - I(X, Y) using bin-based method
+
+    It takes gene expression data from single cells, and compares them using standard calculation for
+    mutual information and joint entropy. It builds a 2d histogram, which is used to calculate P(arr1, arr2).
+
+    Args:
+        arr1 (pandas series): gene expression data for cell 1
+        arr2 (pandas series): gene expression data for cell 2
+        marginals  (ndarray): marginal probability matrix
+        index1         (int): index of cell 1
+        index2         (int): index of cell 2
+        bins           (int): number of bins
+        m              (int): number of genes
+    Returns:
+        a float between 0 and 1
+    """
+    hist = numba_histogram2d_csr(arr1, cols1, arr2, cols2, ncols, bins)
+    sm = np.sum(hist, axis=1)
+    tm = np.sum(hist, axis=0)
+    sm = sm / float(sm.sum())
+    tm = tm / float(tm.sum())
+
+    sm_tm = np.zeros((bins, bins), dtype=np.float32)
+    for i, s in enumerate(sm):
+        for j, t in enumerate(tm):
+            sm_tm[i, j] = s * t
+
+    fq = hist / float(m)
+    div = np.true_divide(fq, sm_tm)
+    numba_nan_fill(div)
+    ent = np.log(div)
+    numba_inf_fill(ent)
+    agg = np.multiply(fq, ent)
+    joint_ent = -np.multiply(fq, numba_inf_fill(np.log(fq))).sum()
+    return joint_ent - agg.sum()
+
+
+
+"""
+#@numba.jit(nopython=True, fastmath=True)
+def calc_distance_mat_csr(mat1, mat2, paras, method):
+    #Calculates a distance metric in between two matrices (slices)
+
+    #Calculates a distance metric using the preferred method of comparison. Iterates over each cell's
+    #gene expression data and populates a new matrix with rows and columns as cells from the input
+    #matrices. The resulting matrix is then converted to an HDF5-format file.
+
+    #Args:
+    #    mat1  (anndata dataframe): a sliced part of the original matrix, with some fraction of the
+    #                              total cells as rows from original file and all gene expression
+    #                              attributes as columns
+    #    mat2  (anndata dataframe): similar to mat1
+    #    paras (anndata dataframe): a dataframe that holds an array of parameters from the whole dataset
+    #    method             (str): the method to be used for the distance calculation (
+                                        mutual information: "mi")
+    
+
+    bins = int(paras.loc["num_bins", 0])
+    m = int(paras.loc["n_genes", 0])
+    key = paras.loc["MI_indx", 0]
+
+    project_name = paras.loc["project_name", 0]
+    out_file_name = project_name + "_" + key + ".h5"
+    print(out_file_name)
+
+    if method == "mi":
+
+        df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index) 
+        start = time.time()
+
+        for 
+        numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, ncols, bins, m)
+        
+        #for c in mat2.index:
+        #    df.loc[mat1.index, c] = mat1.apply(
+        #        calc_mi, axis=1, args=(mat2.loc[c, :], bins, m)
+        #    )
+            
+        end = time.time()
+
+    else:
+        sys.exit("Distance Metrics not supported!\n")
+
+        
+    df.to_hdf(out_file_name, str(key))  # key: MI_indx
+    paras.to_hdf(out_file_name, "params")
+"""
+    
+    
+    
+   
+    
+    
+    
 
 def calc_distance_mat(mat1, mat2, paras, method):
     """ Calculates a distance metric in between two matrices (slices)
@@ -232,6 +489,11 @@ def calc_distance_mat(mat1, mat2, paras, method):
 
     df.to_hdf(out_file_name, str(key))  # key: MI_indx
     paras.to_hdf(out_file_name, "params")
+    
+    
+    
+    
+
 
 
 def merge_dist_mats(mi_slices, in_common_name, metrics):
