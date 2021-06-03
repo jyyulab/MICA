@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import pandas as pd
 import scanpy as sc
 import anndata as ad
@@ -18,7 +17,7 @@ pbmc20k_h5ad = '/Users/lding/Documents/MICA/Datasets/with_true_labels/SilverStd/
 adata = ad.read_h5ad(filename=pbmc20k_h5ad)
 
 #%%
-sc.pl.highest_expr_genes(adata, n_top=20, )
+sc.pl.highest_expr_genes(adata, n_top=20)
 
 #%%
 sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'],
