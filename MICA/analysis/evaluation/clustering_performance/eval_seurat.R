@@ -41,9 +41,11 @@ pbmc <- FindClusters(pbmc, resolution = 0.5)
 head(Idents(pbmc), 5)
 write.csv(Idents(pbmc), file='/Users/lding/Documents/MICA/Datasets/with_true_labels/SilverStd/PBMC_20k/seurat_predicted_label.csv')
 
-
 pbmc <- RunUMAP(pbmc, dims = 1:10)
 DimPlot(pbmc, reduction = "umap")
+write.csv(pbmc@reductions$umap@cell.embeddings, file='/Users/lding/Documents/MICA/Datasets/with_true_labels/SilverStd/PBMC_20k/seurat_umap.csv')
+
+pbmc <- RunTSNE(pbmc, dims = 1:10)
+DimPlot(pbmc, reduction = "tsne")
 
 saveRDS(pbmc, file = "/Users/lding/Documents/MICA/Datasets/with_true_labels/SilverStd/PBMC_20k/Filtered_DownSampled_SortedPBMC_data.rds")
-

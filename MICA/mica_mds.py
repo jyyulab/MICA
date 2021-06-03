@@ -16,15 +16,15 @@ def main():
 
     # Create a parent parser with common arguments for every sub parser
     parent_parser = argparse.ArgumentParser(description='Parser for common arguments', add_help=False)
-    parent_parser.add_argument('-i', '--input-file', metavar='FILE', required=False,
+    parent_parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
                                help='Path to an input file (h5ad file or tab-delimited text file)')
-    parent_parser.add_argument('-p', '--project-name', metavar='STR', required=False, type=str,
+    parent_parser.add_argument('-p', '--project-name', metavar='STR', required=True, type=str,
                                help='Project name/ID.')
-    parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=False, type=int,
+    parent_parser.add_argument('-k', '--clusters', metavar='INT', nargs='+', required=True, type=int,
                                help='Number of cluster to be specified in kmeans')
     parent_parser.add_argument('-n', '--num-neighbor', metavar='INT', required=False, type=int,
                                help='Number of neighbors of a cell for building k-nearest neighbor graph')
-    parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=False,
+    parent_parser.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                                help='Path to final output directory')
     parent_parser.add_argument('-b', '--bootstrap', metavar='INT', default=10, type=int,
                                help='Maximum number of iterations per dimension (default: 10)')
@@ -42,7 +42,7 @@ def main():
     parent_parser.add_argument('-t', '--thread-number', metavar='INT', default=10, type=int,
                                help='Number of poolings used for multiple kmeans iterations,'
                                     'usually equals to iterations_km (default: 10)')
-    parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19],
+    parent_parser.add_argument('--dims-km', metavar='INT', nargs='+', default=[19], type=int, required=False,
                                help='Dimensions used in k-mean clustering, array inputs are supported (default: 19)')
     parent_parser.add_argument('--dims', metavar='INT', nargs='+', default=19,
                                help='Dimensions used in graph clustering, array inputs are supported (default: 19)')
