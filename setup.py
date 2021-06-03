@@ -23,7 +23,7 @@ setup(
         "h5py>=2.10.0",
         "scanpy>=1.6.0",
         "python-louvain>=0.14",
-        "Cython>=0.29.21",
+        # "Cython>=0.29.21",
         "fast_histogram>=0.9",
         "node2vec>=0.4.1",
         "pecanpy>=0.0.1",
