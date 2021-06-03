@@ -44,7 +44,8 @@ $ mica -h                                       # Check if mica works correctly
 
 ## Usage
 ```
-usage: mica [-h] -i FILE -o DIR [-m STR] [-d INT] [-e FLOAT] [-v STR]
+usage: mica [-h] -i FILE -o DIR [-m STR] [-d INT] [-ir FLOAT] [-ar FLOAT]
+            [-ss FLOAT] [-w INT] [-v STR] [-s FLOAT]
 
 MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.
 
@@ -58,12 +59,23 @@ optional arguments:
   -m STR, --dr-method STR
                         Dimension reduction method [node2vec | deepwalk]
                         (default: node2vec)
-  -d INT, --dr-dim INT  Number of dimensions to reduce to (default: 12)
-  -e FLOAT, --resolution FLOAT
-                        Determines size of the communities. (default: 1.0)
+  -d INT, --dr-dim INT  Number of dimensions to reduce to (default: 20)
+  -ir FLOAT, --min-resolution FLOAT
+                        Determines the minimum size of the communities
+                        (default: 0.4)
+  -ar FLOAT, --max-resolution FLOAT
+                        Determines the maximum size of the communities
+                        (default: 3.4)
+  -ss FLOAT, --step-size FLOAT
+                        Determines the step size to sweep resolution from
+                        min_resolution to max_resolution (default: 0.4)
+  -w INT, --num-workers INT
+                        Number of works to run in parallel (default: 10)
   -v STR, --visual-method STR
-                        Visualization embedding method [umap | tsne] (default:
-                        umap)
+                        Visualization method UMAP or t-SNE (default: UMAP)
+  -s FLOAT, --min-dist FLOAT
+                        min_dist parameter in UMAP, minimum distance of points
+                        in the embedded space (default: 0.6)
 ```
 
 #### Inputs
@@ -79,8 +91,7 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 ## Examples
 #### Running MICA graph embedding version
-`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad 
--o ./test_data/outputs -d 12 -e 1.0`
+`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs`
 
 
 ## Reference

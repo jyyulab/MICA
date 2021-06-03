@@ -7,11 +7,11 @@ import numpy as np
 from natsort import natsorted
 
 
-def read_preprocessed_mat(in_file):
+def read_preprocessed_mat(in_file, start_row=1):
     """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe."""
     if in_file.endswith('.txt'):
         adata = anndata.read_csv(in_file, delimiter='\t', first_column_names=True)
-        adata = adata[0:, :]    # 1st row used as header
+        adata = adata[start_row:, :]    # 1st row used as header by default
     elif in_file.endswith('.csv'):
         adata = anndata.read_csv(in_file)
     elif in_file.endswith('.h5ad') or in_file.endswith('.h5'):
@@ -21,8 +21,13 @@ def read_preprocessed_mat(in_file):
     return adata
 
 
-def write_h5(adata, out_h5_file, partition, resolution):
+def write_h5(adata, out_h5_file):
     """ Output annData as a h5ad file in the given output dir. """
+    adata.write(out_h5_file)
+
+
+def write_h5_clustering(adata, out_h5_file, partition, resolution):
+    """ Output annData with clustering information as a h5ad file in the given output dir. """
     labels = [x + 1 for x in partition.values()]
     adata.obs['louvain'] = pd.Categorical(
         values=labels,
