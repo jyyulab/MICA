@@ -10,11 +10,9 @@ that consists of following steps:
 
 
 ## Prerequisites
-* [python>=3.6.1](https://www.python.org/downloads/) (developed and tested on python 3.6.1)
+* [python>=3.7.0](https://www.python.org/downloads/) (developed and tested on python 3.7.4)
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other python library 
     dependencies
-* [node2vec](https://github.com/snap-stanford/snap/tree/master/examples/node2vec) (default) or 
-[deepwalk](https://github.com/phanein/deepwalk) (Executable much be available in your environment)
 
 
 ## Installation
@@ -22,8 +20,8 @@ that consists of following steps:
 The recommended method of setting up the required Python environment and dependencies 
 is to use the [conda](https://conda.io/docs/) dependency manager:
 ```
-$ conda create -n py36 python=3.6.1           # Create a python3.6 virtual environment
-$ source activate py36                        # Activate the virtual environment
+$ conda create -n py374 python=3.7.4          # Create a python3.7 virtual environment
+$ source activate py37                        # Activate the virtual environment
 $ conda install --file requirements.txt       # Install dependencies
 ```
 
