@@ -7,6 +7,7 @@ import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 from MICA.lib import utils
+from MICA.lib import consensus
 
 
 def main():
@@ -48,7 +49,6 @@ def km_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_proc
     for trans in hdf.keys():
         df = hdf[trans]
 
-        # def utils.kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id)
         km_iterable = partial(utils.kmeans, df, n_cluster, common_name)
         iterations = itertools.product(dims, range(n_iter))
 
@@ -67,8 +67,7 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
     result = km_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
                              common_name=out_name, dims=dim_km, num_processes=n_processes)
 
-    # def aggregate(result, n_clusters, common_name):
-    agg, out_f = utils.aggregate(result, k, out_name)
+    agg, out_f = consensus.consensus_sc3(result, k, out_name)
 
     utils.visualization(agg,  # consensus clustering result
                         in_file,  # reduced_mi_file
