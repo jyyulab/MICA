@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # MICA Version that uses a graph embedding method for dimension reduction on MI-kNN graph.
 
+import os
 import sys
 import logging
 import time
@@ -59,6 +60,8 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     logging.info('Building MI-based kNN graph ...')
     knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy())
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
+    if not os.path.isdir(args.output_dir):
+        os.mkdir(args.output_dir)
     edgelist_file = '{}/knn_graph_edgelist_{}.txt'.format(args.output_dir, args.dr_dim)
     with open(edgelist_file, 'w') as fout:
         for edge in knn_graph.edges():

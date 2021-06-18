@@ -7,7 +7,7 @@ clustering algorithm).
 import sys
 import time
 
-# import umap as ump  # will pop up "joblib" deprecation warning message
+import umap as ump  # will pop up "joblib" deprecation warning message
 import numpy as np
 import pandas as pd
 import h5py
@@ -20,7 +20,7 @@ import anndata
 # from numba import jit
 
 # from sklearn.metrics import mutual_info_score
-from sklearn import cluster        # for kmeanmerge_dist_matss
+from sklearn import cluster        # for kmeans
 from sklearn import manifold       # for tsne
 from sklearn import decomposition  # for PCA, etc
 from scipy.cluster.hierarchy import dendrogram  # for heatmap
@@ -119,9 +119,13 @@ def calc_prep(in_file, project_name):
         in_file      (str): path to sliced HDF5-format file
         project_name (str): project name used to generate path for final outputs
     """
-
     in_ = pd.HDFStore(in_file, "r")  # slice.h5
-    bins = int(np.floor(in_["attr"].loc["row"] ** (1 / 3.0)))  # number of bins
+    # Use n^{1/3} as the bin size, where n is the number of genes.
+    gene_count = int(in_["attr"].loc["col"])
+    bins = int(np.floor(gene_count ** (1 / 3.0)))
+    print('Number of genes: {}'.format(gene_count))
+    print('Number of bins for estimating MI: {}'.format(bins))
+
     b = in_["attr"].loc["slice", 0]  # number of sliced matrix
     m = in_["attr"].loc["col", 0]  # number of genes
     digit = int(np.floor(np.log10(b)) + 1)  # some unique identifier
@@ -201,6 +205,7 @@ def calc_distance_mat(mat1, mat2, paras, method):
     """
 
     bins = int(paras.loc["num_bins", 0])
+    print('bins: {}'.format(bins))
     m = int(paras.loc["n_genes", 0])
     key = paras.loc["MI_indx", 0]
 
@@ -210,12 +215,12 @@ def calc_distance_mat(mat1, mat2, paras, method):
 
     if method == "mi":
         df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index) 
-        start = time.time()
+        # start = time.time()
         for c in mat2.index:
             df.loc[mat1.index, c] = mat1.apply(
                 calc_mi, axis=1, args=(mat2.loc[c, :], bins, m)
             )
-        end = time.time()
+        # end = time.time()
     elif method == "euclidean":
         dist = distance.cdist(mat1, mat2, method)
         df = pd.DataFrame(data=dist, index=mat1.index, columns=mat2.index, dtype="float")
@@ -302,9 +307,7 @@ def norm_mi_mat(in_mat_file, out_file_name):
     hdf.close()
 
 
-def tsne(
-         data, max_dim, out_file_name, tag, perplexity=30, plot="True"
-):
+def tsne(data, max_dim, out_file_name, tag, perplexity=30, plot="True"):
     embed = manifold.TSNE(
         n_components=2,
         n_iter=5000,
@@ -318,9 +321,7 @@ def tsne(
     return res
 
 
-def umap(
-        data, max_dim, min_dist=0.25
-):
+def umap(data, max_dim, min_dist=0.25):
     embed = ump.UMAP(
         random_state=30,
         metric="euclidean",
@@ -330,12 +331,10 @@ def umap(
     return res
 
 
-def mds(
-        in_mat_file, max_dim, out_file_name, perplexity=30, print_plot="True", dist_method="mi",
-):
+def mds(in_mat_file, max_dim, out_file_name, perplexity=30, print_plot="True", dist_method="mi"):
     hdf = pd.HDFStore(in_mat_file)
     if dist_method == "mi":
-        dlplf = 1 - hdf["norm_mi"]
+        df = 1 - hdf["norm_mi"]
     elif dist_method == "euclidean":
         df = hdf[dist_method]
     else:
@@ -372,9 +371,7 @@ def mds(
         vis.to_hdf(out_file_name + "_reduced", "mds_tsne")  # save preview in key "mds_tsne"
 
 
-def lpl(
-         in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi",
-):
+def lpl(in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi"):
     hdf = pd.HDFStore(in_mat_file)
 
     if dist_method == "mi":
@@ -396,19 +393,10 @@ def lpl(
     )
     Y.to_hdf(out_file_name + "_reduced.h5", "lpl")
     if plot == "True":
-        tsne(
-            Y,
-            max_dim,
-            out_file_name,
-            "lpl",
-            perplexity,
-            plot,
-        )
+        tsne(Y, max_dim, out_file_name, "lpl", perplexity, plot)
 
 
-def pca(
-         in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi",
-):
+def pca(in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi"):
     hdf = pd.HDFStore(in_mat_file)
 
     if dist_method == "mi":
@@ -428,14 +416,7 @@ def pca(
     )
     Y.to_hdf(out_file_name + "_reduced.h5", "pca")
     if plot == "True":
-        tsne(
-            Y,
-            max_dim,
-            out_file_name,
-            "pca",
-            perplexity,
-            plot,
-        )
+        tsne(Y, max_dim, out_file_name, "pca", perplexity, plot,)
 
 
 def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
@@ -452,59 +433,51 @@ def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     return km_res
 
 
-def aggregate(km_results, n_clusters, common_name):
-    n_iter = len(km_results)
-    if n_iter == 0:
-        return None
-    mem = None
-    for i in range(n_iter):
-        df = km_results[i]
-        dff = pd.DataFrame(data=df.values@df.T.values, index=df.index, columns=df.index)
-        dff_div = pd.DataFrame(
-            data=np.array((np.diag(dff),) * dff.shape[0]).T,
-            index=dff.index,
-            columns=dff.columns,
-        )
-        mem_mat = pd.DataFrame(
-            data=dff / dff_div == 1,
-            index=dff.index,
-            columns=dff.columns,
-            dtype=np.float32,
-        )
-        mem = mem_mat if i == 0 else mem + mem_mat.loc[mem.index, mem.columns]
-        mem = mem / n_iter if i == n_iter - 1 else mem
+# Deprecated, replaced by consensus.consensus_sc3
+# def aggregate(km_results, n_clusters, common_name):
+#     n_iter = len(km_results)
+#     if n_iter == 0:
+#         return None
+#     mem = None
+#     for i in range(n_iter):
+#         df = km_results[i]
+#         dff = pd.DataFrame(data=df.values@df.T.values, index=df.index, columns=df.index)
+#         dff_div = pd.DataFrame(
+#             data=np.array((np.diag(dff),) * dff.shape[0]).T,
+#             index=dff.index,
+#             columns=dff.columns,
+#         )
+#         mem_mat = pd.DataFrame(
+#             data=dff / dff_div == 1,
+#             index=dff.index,
+#             columns=dff.columns,
+#             dtype=np.float32,
+#         )
+#         mem = mem_mat if i == 0 else mem + mem_mat.loc[mem.index, mem.columns]
+#         mem = mem / n_iter if i == n_iter - 1 else mem
+#
+#     clust = cluster.AgglomerativeClustering(
+#         linkage="ward", n_clusters=n_clusters, affinity="euclidean"
+#     )
+#     clust.fit(mem)
+#
+#     cclust = pd.DataFrame(data=clust.labels_, index=mem.index, columns=["label"])
+#     index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+#     label_map = {index[i]: i + 1000 for i in range(len(index))}
+#     cclust = cclust.replace(to_replace={"label": label_map})
+#     index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+#     map_back = {index[i]: i + 1 for i in range(len(index))}
+#     cclust = cclust.replace(to_replace={"label": map_back})
+#
+#     out_file = common_name + "_k" + str(n_clusters)
+#     out_file_hdf = out_file + "_cclust.h5"
+#     cclust.to_hdf(out_file_hdf, "cclust")
+#     mem.to_hdf(out_file_hdf, "membership")
+#     return cclust, out_file
 
-    clust = cluster.AgglomerativeClustering(
-        linkage="ward", n_clusters=n_clusters, affinity="euclidean"
-    )
-    clust.fit(mem)
 
-    cclust = pd.DataFrame(data=clust.labels_, index=mem.index, columns=["label"])
-    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
-    label_map = {index[i]: i + 1000 for i in range(len(index))}
-    cclust = cclust.replace(to_replace={"label": label_map})
-    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
-    map_back = {index[i]: i + 1 for i in range(len(index))}
-    cclust = cclust.replace(to_replace={"label": map_back})
-
-    out_file = common_name + "_k" + str(n_clusters)
-    out_file_hdf = out_file + "_cclust.h5"
-    cclust.to_hdf(out_file_hdf, "cclust")
-    mem.to_hdf(out_file_hdf, "membership")
-    return cclust, out_file
-
-
-def visualization(
-        agg_mtx,   # 1
-        reduced_mi_file,  # 2
-        transformation,   # 3
-        out_file_name,
-        max_dim=0,
-        visualize="umap",  # 5
-        min_dist=0.25,  # 6
-        perplexity=30,  # 7
-):
-
+def visualization(agg_mtx, reduced_mi_file, transformation, out_file_name, max_dim=0,
+                  visualize="umap", min_dist=0.25, perplexity=30,):
     cclust = agg_mtx
     hdf = pd.HDFStore(reduced_mi_file)
     transformation = "pca" if transformation == "lpca" else transformation
@@ -599,15 +572,7 @@ def heatmap2(data, labels, out_dir, out_file_name, tag):
     plt.savefig(out_dir + out_file_name + "_" + tag + ".pdf", bbox_inches="tight")
 
 
-def scatter(
-        df,
-        out_file_name,
-        tag,
-        facecolor="none",
-        edgecolor="r",
-        marker="o",
-        marker_size=20,
-):
+def scatter(df, out_file_name, tag, facecolor="none", edgecolor="r", marker="o", marker_size=20,):
     fig = plt.figure(figsize=(16, 16), dpi=300)
     plt.scatter(
         df[:, 0],

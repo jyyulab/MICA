@@ -134,8 +134,8 @@ def calc_norm_mi(arr1, arr2, bins, m):
     return (joint_ent - agg.sum()) / joint_ent
 
 
-def calc_dis_mat(mat1, mat2, bins, m):
-    """ Wrapper of calc_mi for calculating mutual information for two matrices
+def calc_dis_mat_numba(mat1, mat2, bins, m):
+    """ Wrapper of numba_calc_mi_dis for calculating mutual information for two matrices
     Args:
         mat1 (pandas dataframe): exp matrix of a slice of cells, with cells as rows from original file
                                   and all gene expression attributes as columns
@@ -146,16 +146,33 @@ def calc_dis_mat(mat1, mat2, bins, m):
         df (pandas dataframe with dimension mat1.index * mat2.index)
     """
     df = pd.DataFrame(data=0, index=mat1.index, columns=mat2.index)
-    for c in mat2.index:
-        df.loc[mat1.index, c] = mat1.apply(numba_calc_mi_dis, axis=1, args=(mat2.loc[c, :], bins, m))
+    for c1 in mat1.index:
+        for c2 in mat2.index:
+            # Can speed up calculation by only calculating half of the matrix
+            df.loc[c1, c2] = numba_calc_mi_dis(mat1.loc[c1,:].to_numpy(), mat2.loc[c2, :].to_numpy(), bins, m)
     return df
+
+
+def calc_dis_mat_paras(mat1, mat2, paras):
+    """ Wrapper of calc_dis_mat_numba """
+    bins = int(paras.loc["num_bins", 0])
+    m = int(paras.loc["n_genes", 0])
+    key = paras.loc["MI_indx", 0]
+
+    project_name = paras.loc["project_name", 0]
+    out_file_name = project_name + "_" + key + ".h5"
+    print(out_file_name)
+
+    df = calc_dis_mat_numba(mat1, mat2, bins, m)
+    df.to_hdf(out_file_name, str(key))          # key: MI_indx
+    paras.to_hdf(out_file_name, "params")
 
 
 def calc_dis_mat_np(mat1, mat2, bins, m, index):
     """ Wrapper of calc_mi for calculating mutual information for two matrices(numpy.ndarray)
     Args:
         mat1 (numpy.ndarray): exp matrix of a slice of cells, with cells as rows from original file
-                                  and all gene expression attributes as columns
+                              and all gene expression attributes as columns
         mat2 (numpy.ndarray): exp matrix of another slice of cells
         bins           (int): number of bins
         m              (int): number of genes
