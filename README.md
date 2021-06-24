@@ -42,38 +42,79 @@ $ mica -h                                       # Check if mica works correctly
 
 ## Usage
 ```
-usage: mica [-h] -i FILE -o DIR [-m STR] [-d INT] [-ir FLOAT] [-ar FLOAT]
-            [-ss FLOAT] [-w INT] [-v STR] [-s FLOAT]
+usage: mica [-h] -i FILE -o DIR -pn STR -nc INT [INT ...] [-pl STR] [-sr]
+            [-cj FILE] [-rr STR] [-bs INT] [-df STR] [-dm STR] [-sn INT]
+            [-tn INT] [-dk INT [INT ...]] [-dp INT] [-nn INT]
+            [-dg INT [INT ...]] [-vm STR] [-md FLOAT] [-pp INT]
 
-MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.
+MICA - Mutual Information-based Clustering Analysis tool. This version uses a 
+    multidimensional scaling method for dimension reduction.
 
 optional arguments:
   -h, --help            show this help message and exit
+
+required arguments:
   -i FILE, --input-file FILE
                         Path to an input file (h5ad file or tab-delimited text
                         file)
   -o DIR, --output-dir DIR
                         Path to final output directory
-  -m STR, --dr-method STR
-                        Dimension reduction method [node2vec | deepwalk]
-                        (default: node2vec)
-  -d INT, --dr-dim INT  Number of dimensions to reduce to (default: 20)
-  -ir FLOAT, --min-resolution FLOAT
-                        Determines the minimum size of the communities
-                        (default: 0.4)
-  -ar FLOAT, --max-resolution FLOAT
-                        Determines the maximum size of the communities
-                        (default: 3.4)
-  -ss FLOAT, --step-size FLOAT
-                        Determines the step size to sweep resolution from
-                        min_resolution to max_resolution (default: 0.4)
-  -w INT, --num-workers INT
-                        Number of works to run in parallel (default: 10)
-  -v STR, --visual-method STR
+  -pn STR, --project-name STR
+                        Project name/ID.
+  -nc INT [INT ...], --num-clusters INT [INT ...]
+                        Number of cluster to be specified in kmeans
+
+platform arguments:
+  -pl STR, --platform STR
+                        Platform local (cwltool) or lsf (cwlexec) (default:
+                        local)
+  -sr, --serial-run     run cwltool in serial mode
+  -cj FILE, --config-json FILE
+                        [Required if use lsf platform] LSF-specific
+                        configuration file in JSON format to be used for
+                        workflow execution
+  -rr STR, --rerun STR  Rerun an exited workflow with the given cwlexec
+                        workflow ID.
+
+additional arguments:
+  -bs INT, --bootstrap INT
+                        Maximum number of iterations per dimension (default:
+                        10)
+  -df STR, --dist-func STR
+                        Method for distance matrix calculation [mi | euclidean
+                        | spearman | pearson](default:mi)
+  -dm STR, --dr-method STR
+                        Transformation method used for dimension reduction
+                        [MDS | PCA | LPL | LPCA] (default: MDS)
+  -sn INT, --slice-size INT
+                        Number of cells in each MI sub-matrix (default: 1000)
+  -tn INT, --thread-number INT
+                        Number of poolings used for multiple kmeans
+                        iterations,usually equals to iterations_km (default:
+                        10)
+  -dk INT [INT ...], --dims-km INT [INT ...]
+                        Dimensions used in k-mean clustering, array inputs are
+                        supported (default: [19])
+  -dp INT, --dims-plot INT
+                        Number of dimensions used in visualization (default:
+                        19)
+
+graph clustering arguments:
+  -nn INT, --num-neighbor INT
+                        Number of neighbors of a cell for building k-nearest
+                        neighbor graph
+  -dg INT [INT ...], --dims-graph INT [INT ...]
+                        Dimensions used in graph clustering, array inputs are
+                        supported (default: 19)
+
+visualization arguments:
+  -vm STR, --visual-method STR
                         Visualization method UMAP or t-SNE (default: UMAP)
-  -s FLOAT, --min-dist FLOAT
+  -md FLOAT, --min-dist FLOAT
                         min_dist parameter in UMAP, minimum distance of points
                         in the embedded space (default: 0.6)
+  -pp INT, --perplexity INT
+                        Perplexity parameter for tSNE visualization
 ```
 
 #### Inputs
@@ -88,8 +129,9 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 
 ## Examples
-#### Running MICA graph embedding version
-`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs`
+#### Running MICA MDS version
+`mica -pl lsf -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs/cwl_lsf
+-pn "cwl_lsf" -nc 3 4 -cj ./MICA/config/config_cwlexec.json`
 
 
 ## Reference
