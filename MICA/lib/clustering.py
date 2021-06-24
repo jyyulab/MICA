@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import logging
 import numpy as np
 import community
 from multiprocessing import Pool

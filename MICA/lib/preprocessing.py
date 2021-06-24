@@ -21,6 +21,15 @@ def read_preprocessed_mat(in_file, start_row=1):
     return adata
 
 
+def read_write_mat(in_file, out_file_name, start_row=1):
+    """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe
+    and write the entire matrix as slice_0 for further slicing.
+    """
+    adata = read_preprocessed_mat(in_file, start_row)
+    frame = adata.to_df()
+    frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
+
+
 def write_h5(adata, out_h5_file):
     """ Output annData as a h5ad file in the given output dir. """
     adata.write(out_h5_file)

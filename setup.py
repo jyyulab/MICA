@@ -9,7 +9,7 @@ setup(
     version=version["__version__"],
     description="Mutual Information-based Clustering Analysis tool designed for scRNA-seq data",
     url="https://github.com/jyyulab/MICA",
-    author="Liang Ding, Hao Shi, Chenxi Qian, Joao P. Veloso",
+    author="Liang Ding, Hao Shi",
     author_email="liang.ding@stjude.org",
     license="See LICENSE.md",
     install_requires=[
@@ -36,5 +36,5 @@ setup(
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     include_package_data=True,
     test_suite="tests",
-    entry_points={"console_scripts": ["mica=MICA.mica_ge:main"]},
+    entry_points={"console_scripts": ["mica=MICA.mica_mds:main"]},
 )
