@@ -3,13 +3,15 @@ infile:
   path: /research/rgs01/home/clusterHome/lding/Git/MICA/test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad
 project_name: cwl_lsf
 k: [3, 4]
-visualization: tsne
+num_neighbor: None
+visualization: UMAP
 dim_reduction: MDS
 iterations_km: 10
 dims_km: [19]
+dims: 19
 dims_plot: 19
 perplexity: 30
-min_dist: 0.01
+min_dist: 0.6
 slice_size: 1000
 thread_number: 10
 dist_metrics: mi

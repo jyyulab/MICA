@@ -1,17 +1,17 @@
 infile:
   class: File
-  path: /Users/lding/Git/MICA/test_data/inputs/PBMC_Demo_MICA_input_mini.txt
+  path: /research/rgs01/home/clusterHome/lding/Git/MICA/test_data/inputs/PBMC_Demo_MICA_input_mini.txt
 project_name: cwl_local
 k: [3, 4]
 num_neighbor: None
-visualization: tsne
-dim_reduction: mds
+visualization: UMAP
+dim_reduction: MDS
 iterations_km: 10
-dims_km: [19]
+dims_km: [12, 13, 14, 15, 16, 17, 18, 19]
 dims: 19
 dims_plot: 19
 perplexity: 30
-min_dist: 0.01
+min_dist: 0.6
 slice_size: 1000
 thread_number: 10
 dist_metrics: mi

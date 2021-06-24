@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-mica local \
+mica -pl local \
 -i ./test_data/inputs/PBMC_Demo_MICA_input_mini.txt \
--p "cwl_local" \
--k 3 4 \
 -o ./test_data/outputs/cwl_local/ \
+-pn "cwl_local" \
+-nc 3 4

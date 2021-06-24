@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # MICA Version that uses a graph embedding method for dimension reduction on MI-kNN graph.
 
+import os
 import sys
 import logging
 import time
@@ -15,28 +16,16 @@ from MICA.lib import visualize as vs
 
 
 def main():
-    head_description = 'MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for \
-scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.'
+    head_description = 'MICA - Mutual Information-based Clustering Analysis tool. This version uses a graph ' \
+                       'embedding method for dimension reduction on MI-kNN graph.'
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=head_description)
     parser.add_argument('-i', '--input-file', metavar='FILE', required=True,
                         help='Path to an input file (h5ad file or tab-delimited text file)')
     parser.add_argument('-o', '--output-dir', metavar='DIR', required=True, help='Path to final output directory')
-    parser.add_argument('-m', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
-                        default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
-    parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=20, type=int,
-                        help='Number of dimensions to reduce to (default: 20)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.4, type=float,
-                        help='Determines the minimum size of the communities (default: 0.4)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=3.4, type=float,
-                        help='Determines the maximum size of the communities (default: 3.4)')
-    parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
-                        help='Determines the step size to sweep resolution from min_resolution to max_resolution '
-                             '(default: 0.4)')
-    parser.add_argument('-w', '--num-workers', metavar='INT', required=False, default=10, type=int,
-                        help='Number of works to run in parallel (default: 10)')
-    parser.add_argument('-v', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
+    parser = add_ge_arguments(parser)
+    parser.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                         help='Visualization method UMAP or t-SNE (default: UMAP)')
-    parser.add_argument('-s', '--min-dist', metavar='FLOAT', required=False, default=0.6, type=float,
+    parser.add_argument('-md', '--min-dist', metavar='FLOAT', required=False, default=0.6, type=float,
                         help='min_dist parameter in UMAP, minimum distance of points in the embedded space '
                              '(default: 0.6)')
 
@@ -46,7 +35,27 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
+    mica_ge(args)
 
+
+def add_ge_arguments(parser):
+    parser.add_argument('-dm', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
+                        default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
+    parser.add_argument('-dd', '--dr-dim', metavar='INT', required=False, default=20, type=int,
+                        help='Number of dimensions to reduce to (default: 20)')
+    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.4, type=float,
+                        help='Determines the minimum size of the communities (default: 0.4)')
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=3.4, type=float,
+                        help='Determines the maximum size of the communities (default: 3.4)')
+    parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
+                        help='Determines the step size to sweep resolution from min_resolution to max_resolution '
+                             '(default: 0.4)')
+    parser.add_argument('-nw', '--num-workers', metavar='INT', required=False, default=10, type=int,
+                        help='Number of works to run in parallel (default: 10)')
+    return parser
+
+
+def mica_ge(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
@@ -59,6 +68,8 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
     logging.info('Building MI-based kNN graph ...')
     knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy())
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
+    if not os.path.isdir(args.output_dir):
+        os.mkdir(args.output_dir)
     edgelist_file = '{}/knn_graph_edgelist_{}.txt'.format(args.output_dir, args.dr_dim)
     with open(edgelist_file, 'w') as fout:
         for edge in knn_graph.edges():
@@ -76,7 +87,7 @@ scRNA-seq data. This version uses a graph embedding method for dimension reducti
         # print(wv)
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
-        sys.exit('Error - dimension reduction method has not been tested: {}'.format(args.dr_method))
+        sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
     else:
         sys.exit('Error - invalid dimension reduction method: {}'.format(args.dr_method))
     end = time.time()
