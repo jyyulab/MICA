@@ -3,10 +3,10 @@ from MICA.analysis.evaluation.clustering_performance import utils
 
 
 root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
-level = 'SilverStd'
-author = 'Tasic'
+level = 'GoldernStd'
+author = 'Kolod'
 input_file = '{}_MICA_input.txt'.format(author)
-num_clusters = 8
+num_clusters = 3
 # utils.create_cmds_mds(root_dir, level, author, input_file, num_clusters)
 utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
 

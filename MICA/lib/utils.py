@@ -120,9 +120,9 @@ def calc_prep(in_file, project_name):
         project_name (str): project name used to generate path for final outputs
     """
     in_ = pd.HDFStore(in_file, "r")  # slice.h5
-    # Use n^{1/3} as the bin size, where n is the number of genes.
+    # Use n^{1/2} as the bin size, where n is the number of genes.
     gene_count = int(in_["attr"].loc["col"])
-    bins = int(np.floor(gene_count ** (1 / 3.0)))
+    bins = int(np.floor(gene_count ** (1 / 2.0)))
     print('Number of genes: {}'.format(gene_count))
     print('Number of bins for estimating MI: {}'.format(bins))
 
@@ -408,7 +408,8 @@ def pca(in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_me
 
     hdf.close()
     n = np.min(df.shape[0], 200)
-    pca_ = decomposition.PCA(n_components=n, random_state=10)
+    pca_ = decomposition.PCA(n_components=n, random_state=10)   # PCA on cell-cell distance matrix
+                                                                # works for scRNA-seq data by SC3
     Y = pd.DataFrame(
         data=np.transpose(pca_.fit(df).components_),
         index=df.index,
