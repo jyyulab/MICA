@@ -34,7 +34,7 @@ inputs:
   dist_metrics:
     type: string
     default: "mi"
-    doc: "Method for distance matrix calculation [mi | euclidean | spearman | pearson](default:mi)"
+    doc: "Method for distance matrix calculation [mi | euclidean | spearman | pearson] (default:mi)"
 
   iterations_km:
     type: int
