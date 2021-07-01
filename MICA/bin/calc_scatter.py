@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
 import argparse
+from MICA.lib import distance
 from MICA.lib import utils
 
 """
@@ -28,7 +29,6 @@ def calc_scatter(input_file, metric):
         input_file (str): path to input HDF5-format file
         metric     (str): metric for calculation (mutual info, euclidean dist, pearson or spearman correlations
     """
-
     mat = pd.HDFStore(input_file)
     metrics = metric.lower()
 
@@ -36,8 +36,8 @@ def calc_scatter(input_file, metric):
     mat1 = mat[params.loc["key1", 0]]
     mat2 = mat[params.loc["key2", 0]]
     mat.close()
-
     utils.calc_distance_mat(mat1, mat2, params, method=metrics)
+    # distance.calc_dis_mat_paras(mat1, mat2, params)
 
 
 if __name__ == '__main__':

@@ -86,13 +86,13 @@ def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', d
                                   (format: node1_id_int node2_id_int <weight_float, optional>)
         mode (str): PreComp or SparseOTF or DenseOTF (default: SparseOTF)
         out_emb_file (txt file): path ot output embedding file
-        dim (int): dimension to reduce nodes to (default: 20)
-        walk_len (str): path to output directory (default: 100)
-        n_walks (str): number of random walks per node (default: 40)
-        context_size (int): context size for optimization. (default: 16)
-        num_jobs (int): Number of parallel workers (default: 10)
-        hyper_p (float): Return hyperparameter. (default: 0.5)
-        hyper_q (float): Inout hyperparameter. (default: 0.5)
+        dim (int): dimension to reduce nodes to (default: 12)
+        walk_len (str): path to output directory (default: 60)
+        n_walks (str): number of random walks per node (default: 100)
+        context_size (int): context size for optimization. (default: 10)
+        num_jobs (int): Number of parallel workers (default: 8)
+        hyper_p (float): Return hyperparameter. (default: 1.0)
+        hyper_q (float): Inout hyperparameter. (default: 1.0)
     Returns:
         out_emb_file (txt file): output embedding file
     """
