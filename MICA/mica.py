@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # MICA entry point for both GE and MDS versions
 
+import os
 import sys
 import logging
 import time
@@ -9,6 +10,15 @@ import argparse
 from MICA.lib import preprocessing as pp
 from MICA import mica_ge
 from MICA import mica_mds
+import numpy as np
+import pandas as pd
+import pathlib
+
+from MICA.lib import neighbor_graph as ng
+from MICA.lib import preprocessing as pp
+from MICA.lib import dimension_reduction as dr
+from MICA.lib import clustering as cl
+from MICA.lib import visualize as vs
 
 
 def main():
@@ -97,3 +107,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

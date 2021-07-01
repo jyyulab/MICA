@@ -26,7 +26,7 @@ def transform(infile, proj_name, trans, max_dim, metric):
         infile    (str): path to input file
         proj_name (str): name of output file, ideally same as project name used in previous steps
         trans     (str): method used for transformation
-        max_dir   (int): maximum numer of dimensions used in reduction
+        max_dir   (int): maximum number of dimensions used in reduction
         method    (str): method used for distance calculation in previous steps
     """
     if trans == "MDS":

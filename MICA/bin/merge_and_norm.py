@@ -13,10 +13,10 @@ def main():
     parser.add_argument('-m', '--metric', metavar='STR', required=True, help='Metric used in calculation')
     args = parser.parse_args()
 
-    merge_and_norm(args.mi_slices, args.proj_name, args.metric.lower())
+    merge_mats(args.mi_slices, args.proj_name, args.metric.lower())
 
 
-def merge_and_norm(mat_files, project_name, method):
+def merge_mats(mat_files, project_name, method):
     """ Merges matrices, and normalizes numeric data when distance metric is mutual information.
 
     Calls on utility functions to merge distance metrics that were calculated in between slices.
