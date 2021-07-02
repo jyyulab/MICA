@@ -20,8 +20,8 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorith
         networkx graph
     """
     if dis_metric == 'mi':
-        # Use n^{1/2} as the bin size, where n is the number of genes.
-        num_bins = int((frame_dr.shape[1]) ** (1 / 2.0))
+        # Use n^{1/3} as the bin size, where n is the number of genes.
+        num_bins = int((frame_dr.shape[1]) ** (1 / 3.0))
         logging.info('Number of bins for estimating MI: {}'.format(num_bins))
         num_genes = frame_dr.shape[1]
         metric_params = {"bins": num_bins, "m": num_genes}
@@ -67,7 +67,7 @@ def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0
             The distances to the ``n_neighbors`` closest points in the dataset.
     """
     # Use n^{1/2} as the bin size, where n is the number of genes.
-    num_bins = int((mat.shape[1]) ** (1 / 2.0))
+    num_bins = int((mat.shape[1]) ** (1 / 3.0))
     logging.info('Number of bins for estimating MI: {}'.format(num_bins))
     num_genes = mat.shape[1]
     metric_params = {"bins": num_bins, "m": num_genes}
