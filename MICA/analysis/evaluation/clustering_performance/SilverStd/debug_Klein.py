@@ -8,7 +8,7 @@ import anndata
 
 
 #%%
-infile = '/Users/lding/Documents/MICA/Datasets/with_true_labels/GoldernStd/pollen/Pollen_MICA_input.txt'
+infile = '/Users/lding/Documents/MICA/Datasets/with_true_labels/SilverStd/PBMC_20k/PBMC_sorted_20K_preprocessed.h5ad'
 adata3 = preprocessing.read_preprocessed_mat(infile)
 
 #%%

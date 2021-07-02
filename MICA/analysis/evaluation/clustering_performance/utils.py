@@ -53,7 +53,8 @@ def create_cmds_auto(root_dir, level, author, input_file):
 
 
 def calc_ARIs_ge(root_dir, level, author, num_clusters):
-    output_dir = '{}/outputs/{}/{}/ge_1_3'.format(root_dir, level, author)
+    output_dir = '{}/outputs/{}/{}/ge_1_2'.format(root_dir, level, author)
+    # output_dir = '{}/outputs/{}/{}/old'.format(root_dir, level, author)
     summary_file = '{}/summary_ge.txt'.format(output_dir)
     if os.path.isfile(summary_file):
         os.remove(summary_file)
@@ -64,15 +65,19 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
     with open(summary_file, 'w') as fout:
         for dim in range(8, 100, 4):
             clustering_out_dir = '{}/dim_{}'.format(output_dir, dim)
-            for reso in np.arange(0.4, 10.1, 0.4):
+            # for reso in np.arange(0.4, 10.1, 0.4):
+            for reso in np.arange(0.2, 10.0, 0.4):
                 reso_round = np.round(reso, 2)
+                # clustering_out_dir = '{}/{}_{}'.format(output_dir, dim, reso_round)
                 predict_label_file = '{}/clustering_UMAP_euclidean_{}_{}.txt'.format(clustering_out_dir, dim,
                                                                                      reso_round)
+                # predict_label_file = '{}/clustering_umap_euclidean_{}_{}.txt'.format(clustering_out_dir, dim,
+                #                                                                      reso_round)
                 predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
                 predict_num_clusters = len(set(predict_label['label']))
                 # print('dim_{}_reso_{}_numCluster_{}'.format(dim, reso_round, predict_num_clusters))
-                if predict_num_clusters != num_clusters:
-                   continue
+                # if predict_num_clusters != num_clusters:
+                #    continue
                 # new_index = [int(s.replace('V', '')) for s in predict_label.index]
                 # predict_label.index = new_index
                 merged = true_label.merge(predict_label, left_on='cell', right_index=True)
@@ -87,7 +92,7 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
 
 
 def calc_ARIs_mds(root_dir, level, author, num_clusters):
-    output_dir = '{}/outputs/{}/{}/mds'.format(root_dir, level, author)
+    output_dir = '{}/outputs/{}/{}/mds_1_2'.format(root_dir, level, author)
     summary_file = '{}/summary_mds.txt'.format(output_dir)
     if os.path.isfile(summary_file):
         os.remove(summary_file)

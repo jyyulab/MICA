@@ -43,8 +43,8 @@ def add_ge_arguments(parser):
                         default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
     parser.add_argument('-dd', '--dr-dim', metavar='INT', required=False, default=20, type=int,
                         help='Number of dimensions to reduce to (default: 20)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.4, type=float,
-                        help='Determines the minimum size of the communities (default: 0.4)')
+    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.2, type=float,
+                        help='Determines the minimum size of the communities (default: 0.2)')
     parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=3.4, type=float,
                         help='Determines the maximum size of the communities (default: 3.4)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
