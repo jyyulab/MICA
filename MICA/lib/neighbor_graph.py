@@ -66,7 +66,7 @@ def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0
         knn_dists: array of shape (n_samples, n_neighbors)
             The distances to the ``n_neighbors`` closest points in the dataset.
     """
-    # Use n^{1/2} as the bin size, where n is the number of genes.
+    # Use n^{1/3} as the bin size, where n is the number of genes.
     num_bins = int((mat.shape[1]) ** (1 / 3.0))
     logging.info('Number of bins for estimating MI: {}'.format(num_bins))
     num_genes = mat.shape[1]

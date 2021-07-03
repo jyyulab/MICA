@@ -31,7 +31,7 @@ def best_partition_wrapper(G, max_resolution):
     return community.best_partition(G, resolution=max_resolution)
 
 
-def graph_clustering_parallel(G, method='louvain', min_resolution=0.4, max_resolution=3.4, step_size=0.4,
+def graph_clustering_parallel(G, method='louvain', min_resolution=0.2, max_resolution=3.4, step_size=0.4,
                               num_workers=10):
     """ Perform graph-based clustering in parallel.
     Args:

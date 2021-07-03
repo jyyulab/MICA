@@ -76,8 +76,8 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
                 predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
                 predict_num_clusters = len(set(predict_label['label']))
                 # print('dim_{}_reso_{}_numCluster_{}'.format(dim, reso_round, predict_num_clusters))
-                # if predict_num_clusters != num_clusters:
-                #    continue
+                if predict_num_clusters != num_clusters:
+                   continue
                 # new_index = [int(s.replace('V', '')) for s in predict_label.index]
                 # predict_label.index = new_index
                 merged = true_label.merge(predict_label, left_on='cell', right_index=True)
@@ -102,6 +102,7 @@ def calc_ARIs_mds(root_dir, level, author, num_clusters):
     # print(true_label)
     with open(summary_file, 'w') as fout:
         predict_label_file = '{}/{}_k{}_umap_ClusterMem.txt'.format(output_dir, author, num_clusters)
+        print(predict_label_file)
         predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
         # print(predict_label)
         # new_index = [int(s.replace('V', '')) for s in predict_label.index]
