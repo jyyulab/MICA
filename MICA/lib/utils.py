@@ -190,14 +190,20 @@ def prep_dist(input_file, out_name, slice_unit):
     #Read in whole file stored in anndata csr format
     #adf=utils.read_anndata_file(input_file)
     adf=read_anndata_file(input_file)
+    #make sure the matrix is in csr format
+    from scipy.sparse import csr_matrix
+    adf.X = csr_matrix(adf.X)
+    
     #if adf==None :
     #    raise Exception("Input file ",input_file," not found.")
-    #print("initial data size=",adf.shape)
+    #print("prep_dist: initial data size=",adf.shape,flush=True)
     slice_size = int(slice_unit)
     #compute number of slices needed to break dataset in to slice_size row blocks
     b = int(np.ceil(float(adf.shape[0]) / float(slice_size)))
     #determine how many digits are in b so we can pad spaces for the string output
     digit = int(np.floor(np.log10(b)) + 1)
+    #print("prep_dist: slices=",b,flush=True)
+
     #loop over slice numbers
     for i in range(b):
         #slice name is equal to batch index
@@ -209,9 +215,9 @@ def prep_dist(input_file, out_name, slice_unit):
         adf_sub=adf[start:end,:]
         #write to file so we don't have to keep each slice in memory
         output_file_name = out_name + ".slice_" + slice_name +".h5ad"
-        print("output_file_name: ",output_file_name)
+        #print("output_file_name: ",output_file_name)
         adf_sub.write(output_file_name)
-    #return nrows and nslices
+    #return nrows, ncols, and nslices
     return adf.shape[0], adf.shape[1], b
 
 
@@ -344,6 +350,9 @@ def numba_histogram2d_csr(arr1, cols1, arr2, cols2, ncols, num_bins):
     Return:
         hist (2D ndarray)
     """
+    #ceb short circuit test
+    #return np.zeros((num_bins, num_bins), dtype=np.int16)
+
     #for csr arrays we have to compute zero bins ahead of time 
     bin_indices1 = np.zeros((ncols,), dtype=np.int16)
     max1 = arr1.max()
@@ -485,32 +494,6 @@ def numba_calc_mi_csr(arr1, cols1, arr2, cols2, bins, m):
 
     
 #numba compilation cannot interpret the creation of a 2d array inside of this function so we pass in and out SM_block instead of returning it
-#import numba
-
-#@numba.jit(nopython=True, fastmath=True)
-#def process_matrices_csr(Arows,Amat_data,Amat_indptr,Amat_indices,
-#                         Brows,Bmat_data,Bmat_indptr,Bmat_indices,
-#                         num_bins,num_genes,
-#                         SM_block, symmetric=False):
-#
-#    for i in range(Arows):
-#        Arowstart = Amat_indptr[i]
-#        Arowend   = Amat_indptr[i+1]
-#        Arow_cols = Amat_indices[Arowstart:Arowend]
-#        Arow_data = Amat_data[Arowstart:Arowend]
-#
-#        Bstart=0
-#        Bend=Brows
-#        if(symmetric):Bend=i+1 #lower triangular
-#        for j in range(Bstart,Bend): 
-#            Browstart = Bmat_indptr[j]
-#            Browend   = Bmat_indptr[j+1]
-#            Brow_cols = Bmat_indices[Browstart:Browend]
-#            Brow_data = Bmat_data[Browstart:Browend]               
-#            SM_block[i,j] = numba_calc_mi_csr(Arow_data, Arow_cols, Brow_data, Brow_cols, num_bins, num_genes)
-#    return #SM_block    
-   
-    
 @numba.jit(nopython=True, fastmath=True)
 def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
                      Brows,Bmat_data,Bmat_indptr,Bmat_indices,
@@ -534,96 +517,6 @@ def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
     return #SM_block
 
     
-#def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, nslices, SM):
-#    
-#    """ Prepares the already sliced input file for further calculation in MICA.
-#    Enters pairs of slices (matrices) into temporary HDF5-format files. It enters them
-#    individually, using their unique key. It also enters the parameter data for every single 
-#    pair into the key "params", which consists of: [key1, key2, num_bins, num_genes,
-#    pair_index, project_name, num_slices]
-#    Args:
-#        in_file      (str): path to sliced HDF5-format file
-#        project_name (str): project name used to generate path for final outputs
-#        nrows : number of rows in global matrix
-#        ncols : number of vars in global matrix
-#    """    
-#    #input file is full input that has been segmented into b blocks of rows
-#    
-#    #nranks would ideally be equal to  b(b+1)/2
-#    comm = MPI.COMM_WORLD
-#    size = comm.Get_size()
-#    myrank = comm.Get_rank()
-#    name = MPI.Get_processor_name()
-#    
-#    digit = int(np.floor(np.log10(nslices)) + 1)
-#
-#    num_bins = int(np.floor(nrows ** (1 / 3.0)))  # number of bins
-#    b = nslices #number of row blocks (cells)
-#    m = ncols  # number of cols per row (genes)
-#
-#    n_block_comparisons = int((b * (b + 1)) / 2)  # total number of row block comparisons needed to compute entire global similarity matrix
-#    n_jobs_per_rank = n_block_comparisons/size
-#    if (myrank == 0): print("block comparsons = %d. jobs per rank = %d\n" % (n_block_comparisons, n_jobs_per_rank))
-#
-#    #build list of row block comparisons that current mpi rank will process
-#    myslices=[]
-#    for i in range(b):
-#        for j in range(i,b): # j in range [i,b]
-#            idx = int(i * b + j - (i * (i + 1)) / 2)
-#            targetrank = idx//n_jobs_per_rank
-#            if (targetrank == myrank): myslices.append((i,j))            
-#
-#    #from list just generated, only do work assigned to your rank
-#    for index, tuple in enumerate(myslices):
-#        #print("tuple=",tuple)
-#        i=tuple[0] #block row
-#        j=tuple[1] #block col      
-#
-#        #get 1st slice (row block) file
-#        slice_name = str(i).zfill(digit)
-#        ##ceb we only want to read this once per i,j combination
-#        input_file = in_file_path + project_name + ".slice_" + slice_name +".h5ad"
-#        #print("infile seg1: ",input_file)
-#        mat1 = utils.read_anndata_file(input_file)
-#    
-#        #get 2nd slice (row block) file
-#        slice_name = str(j).zfill(digit)
-#        input_file = in_file_path + project_name + ".slice_" + slice_name +".h5ad"
-#        #print("infile seg2: ",input_file)
-#        mat2 = utils.read_anndata_file(input_file)    #
-#
-#        #check to see if block comparison will result in a symmetric SM matrix
-#        # so that we can reduce the number of computations in half
-#        symmetric=False
-#        if i==j: symmetric=True
-#        
-#        print("rank: ",myrank," comparison between segs:",i," x ",j," symmetric=",symmetric)
-#            
-#        #compute distance metrics between row blocks
-#        
-#        Arows = mat1.n_obs
-#        Brows = mat2.n_obs
-#        num_genes = mat1.n_vars #we will assume Acols==Bcols==num_genes
-#        
-#        #need SM for each block pair    
-#        #creates local array of zeros and assigns to global 2d list
-#        #create matrix of zeros with row order indexing
-#        SM[i][j] = np.zeros(shape=(Arows,Brows), dtype = float, order = 'C')
-# 
-#        #This numba function cannot create a numpy array internally so we return SM[i,j] as a variable
-#        process_matrices(mat1.n_obs,mat1.X.data,mat1.X.indptr,mat1.X.indices, 
-#                         mat2.n_obs,mat2.X.data,mat2.X.indptr,mat2.X.indices,
-#                         num_bins, num_genes, SM[i][j],
-#                         symmetric #if i==j we can eliminate half of computations
-#                        )
-#        #convert to csr
-#        #we may want to assign this to scalapack distributed matrix here
-#        #SM[i][j]=csr_matrix(SM[i][j])
-#    return    
-    
-    
-    
-
 
 def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, nslices, SM):
     
@@ -646,6 +539,7 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
     #input file is full input that has been segmented into b blocks of rows
     
     #nranks would ideally be equal to  b(b+1)/2
+    import math
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     myrank = comm.Get_rank()
@@ -658,8 +552,8 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
     m = ncols  # number of cols per row (genes)
 
     n_block_comparisons = int((b * (b + 1)) / 2)  # total number of row block comparisons needed to compute entire global similarity matrix
-    n_jobs_per_rank = n_block_comparisons/size
-    if (myrank == 0): print("block comparsons = %d. jobs per rank = %d\n" % (n_block_comparisons, n_jobs_per_rank))
+    n_jobs_per_rank = math.ceil(n_block_comparisons/size)
+    #if (myrank == 0): print("block comparsons = %d. jobs per rank = %d\n" % (n_block_comparisons, n_jobs_per_rank))
 
     #build list of row block comparisons that current mpi rank will process
     myslices=[]
@@ -693,7 +587,7 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         symmetric=False
         if i==j: symmetric=True
         
-        print("rank: ",myrank," comparison between segs:",i," x ",j," symmetric=",symmetric)
+        #print("rank: ",myrank," comparison between segs:",i," x ",j," symmetric=",symmetric,flush=True)
             
         #compute distance metrics between row blocks
         Arows = mat1.n_obs
@@ -703,6 +597,7 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         #need SM for each block pair    
         #creates local array of zeros and assigns to global 2d list
         #create matrix of zeros with row order indexing
+        #SM[i][j] = np.ones(shape=(Arows,Brows), dtype = float, order = 'C') #for testing only
         SM[i][j] = np.zeros(shape=(Arows,Brows), dtype = float, order = 'C')
  
         #This numba function cannot create a numpy array internally so we return SM[i,j] as a variable
@@ -711,7 +606,6 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
                          num_bins, num_genes, SM[i][j],
                          symmetric #if i==j we can eliminate half of computations
                         )
-
     return    
     
     
