@@ -42,32 +42,43 @@ comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 name = MPI.Get_processor_name()
+#comm.Barrier()
 print("MPI Check: {host}[{pid}]: {rank}/{size}".format(
+#print("MPI Check: {host}: {rank}/{size}".format(
     host=socket.gethostname(),
     pid=os.getpid(),
     rank=comm.rank,
-    size=comm.size,
-),flush=True)
+    size=comm.size,),flush=True)
 
+#time.sleep(20)#ceb
+
+#comm.Barrier()
 
 ## Begin execution of code
+#cwd=''
 cwd=os.getcwd()
 if rank==0:
-    print(cwd)
+    print(cwd,flush=True)
+
+#comm.Barrier()
 
 SMALL_TEST=False
+
 
 if SMALL_TEST:    
     data_file_path = cwd+'/test_data/inputs/10x/PBMC/3k/pre-processed/'
     input_file_name = data_file_path + 'pbmc3k_preprocessed.h5ad'
     project_name = 'pbmc3k'
 else:
-    data_file_path = cwd+'/test_data/inputs/80k/'
-    input_file_name = data_file_path + '/ecoCART_double_construct_bothdonor_MICAfilt_except_week19.h5ad'
     project_name = 'ecoCART'
+    data_file_path = "/home/cburdysh/MICA_Project/MICA_distributed/MICA/test_data/ecoCART/"
+    #data_file_path = cwd+'/test_data/inputs/80k/'
+    input_file_name = data_file_path + 'input/' + 'ecoCART_double_construct_bothdonor_MICAfilt_except_week19.h5ad'
+    generated_file_path = data_file_path + 'generated_files/'
+    plot_file_path = data_file_path + 'plots/'
 
-
-output_file_name = data_file_path+project_name
+#output_file_name = data_file_path+project_name
+output_file_name = generated_file_path+project_name
 
 #We should try to automate or suggest the appropriate slice size based on the number of cells and number of ranks
     #g_nrows, ncols, nslices = prep_dist(input_file_name, output_file_name, slice_size)
@@ -79,7 +90,16 @@ output_file_name = data_file_path+project_name
 #need to understand whay some values are causing segfault failures
 
 
+#ceb
+#b = slices = nrows/slice_size
+# N Comparisons = b(b+1)/2
+# Njobs/rank = Ncomparisons/nranks (ideally 1/rank)
+# So we want ncomparisons==nranks 
+# nranks = b(b+1)/2
 
+
+# Maybe, this might not be best for eigenval calculation but should be irrevelant as we can use (mostly) arbitrary ranks to create a process grid
+ 
 
 #there is a minimum slice size for selected ranks.
 #not sure what this value is
@@ -95,24 +115,39 @@ if SMALL_TEST :
     #slice_size = 1000 #min for 3480? ok rank=8 1. FAIL. Slice size must be power of 2?
     block_size=32
 else:
-    #slice_size = 16385 #min for 50497 ?
+    slice_size = 1000 #min for 50497 ?
     #slice_size = 8192 #ok for 50497?
     #slice_size = 12500 #ok for 50497 with ranks=16 (failure at 64 ranks)
     #slice_size = 12500 #ok for 50497 with ranks=32, 1 job per rank?
-    slice_size = 6250 #ok for 50497 with ranks=64, 1 job per rank?
+    #slice_size = 6250 #ok for 50497 with ranks=64, 1 job per rank?
+    if size==128:
+        slice_size = 3125 # for 50497 with ranks=128, 1 job per rank?
+    if size==256:
+        #slice_size = 3125 # for 50497 with ranks=128, 1 job per rank?
+        #slice_size = 1500 # for 50497 with ranks=256, 1 job per rank?
+        slice_size = 1000 # for 50497 with ranks=256, 1 job per rank?
+        #slice_size = 197 # for 50497 with ranks=256, 1 job per rank?
+
+    #Maybe divide rows by ranks to make sure we have a diagonal block for each rank
+
     #block_size=32
     #block_size=100
     block_size=64
 
 if rank==0:
-    print (input_file_name)
-
-
+    print (input_file_name,flush=True)
 
 #ceb should test to see if 
 #read initial file here to get dimensions
 #then check to see if mi file exists.
 #if so we can skip the prep_dist 
+
+##ceb
+#comm.Barrier()
+#if rank==0:
+#    print("checkpt 1",flush=True)
+#exit()
+#comm.Barrier()
 
 
 
@@ -145,7 +180,8 @@ if rank==0:
 
 #=========================================================================
 #if MI file already exists, then read it
-mi_filename = data_file_path+project_name+'_mi_distributed.scalapack'
+#mi_filename = data_file_path+project_name+'_mi_distributed.scalapack'
+mi_filename = output_file_name+'_mi_distributed.scalapack'
 
 if os.path.isfile(mi_filename): 
 
@@ -183,7 +219,6 @@ if os.path.isfile(mi_filename):
     if rank==0:
         print("rank:%s checkpt create empty distributed MI matrix Elapsed = %s" % (rank,end - start),flush=True)
 
-
     ## The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
     start=time.time()
     #Read MI matrix from file
@@ -194,7 +229,6 @@ if os.path.isfile(mi_filename):
     end=time.time()
     comm.Barrier()
     #print("Rank:%s Read distributed MI matrix from file Elapsed = %s" % (rank,end - start),flush=True)
-
     #print(dir(dMI))
     #print("rank=",rank," dMI_local: ",dMI.local_array,flush=True)
 
@@ -213,7 +247,8 @@ else: #file does not exist, so compute MI matrix and write
     SM = [[None for j in range(b)] for i in range(b)] 
 
     start = time.time()
-    utils.calc_distance_metric_distributed(data_file_path, project_name, g_nrows, ncols, nslices, SM)
+    #utils.calc_distance_metric_distributed(data_file_path, project_name, g_nrows, ncols, nslices, SM)
+    utils.calc_distance_metric_distributed(generated_file_path, project_name, g_nrows, ncols, nslices, SM)
     end = time.time()
     comm.Barrier()
 
@@ -268,6 +303,16 @@ else: #file does not exist, so compute MI matrix and write
         PR=size
         PC=1
 
+    #ceb best for 128 
+    # Need to write code to select the greatest 2 factors of comm.size for optimal process grid.
+    if comm.size==128:
+        PR=16
+        PC=8
+
+    if comm.size==256:
+        PR=16
+        PC=16
+
     #ceb Check to make sure that PR*PC == num_ranks
     assert(PR*PC == comm.size), print("Error, Size of process grid must match total number of ranks.") 
 
@@ -291,9 +336,7 @@ else: #file does not exist, so compute MI matrix and write
 
 
 
-
-
-
+    #=====================================================================
 
 
     ## Copy each SM block submatrix to distributed block cyclic matrix
@@ -388,7 +431,6 @@ else: #file does not exist, so compute MI matrix and write
     start=time.time()
     #Write MI matrix to file
     dMI.to_file(mi_filename)
-
     end=time.time()
     comm.Barrier()
     if rank==0:
@@ -401,12 +443,17 @@ else: #file does not exist, so compute MI matrix and write
     #end=time.time()
     #comm.Barrier()
 
-    print("rank=",rank," dMI_local: ",dMI.local_array,flush=True)
+    #print("rank=",rank," dMI_local: ",dMI.local_array,flush=True)
 
-    if rank==0:
-        print("Rank:%s Read distributed MI matrix from file %s Elapsed = %s" % (rank, mi_filename, end - start),flush=True)
+    #if rank==0:
+    #    print("Rank:%s Read distributed MI matrix from file %s Elapsed = %s" % (rank, mi_filename, end - start),flush=True)
 
-##------------------------------------------------------------------------------------------------------
+
+
+#============================================================================
+# End compute MI matrix and write
+
+
 
 
 
@@ -424,11 +471,15 @@ else: #file does not exist, so compute MI matrix and write
 
 
 #if MI file already exists, then read it
-mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
+#mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
+mi_normed_filename = output_file_name+'_mi_normed_distributed.scalapack'
 
 if os.path.isfile(mi_normed_filename): 
-
+    start=time.time()
     dMI_normed=core.DistributedMatrix.from_file(mi_normed_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
+    end=time.time()
+    if rank==0:
+        print("Rank:%s Read distributed normed MI matrix from file Elapsed = %s" % (rank,end - start),flush=True)
 
 else:
     ## Now we need to create a normalization matrix
@@ -567,6 +618,7 @@ else:
     del dMI_norm_root
     gc.collect()
 
+    #ceb write normed matrix
     start = time.time()
     #mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
     dMI_normed.to_file(mi_normed_filename)
@@ -579,247 +631,290 @@ else:
     comm.Barrier()
     if rank==0:
         print("rank: %s, Compute matrix norm Elapsed = %s" % (rank,block_end - block_start),flush=True)
+
+
+
 #================================================================================
 
 
 
 
+#ceb
+#Read eigenvalue matrix here if exists, else compute it
 
 
 
-## Now compute eigenvalues and eigenvectors of dissimmilarity matrix
-
-block_start = time.time()
-n= g_nrows
-
-#convert similarity matrix to dissimilarity matrix
-#df= 1-df
-subblock_start = time.time()
-
-start = time.time()
-MDS= core.DistributedMatrix.empty_like(dMI)
-#end = time.time()
-#print("rank: %s, checkpt 10.1 Elapsed = %s" % (rank,end - start),flush=True)
-#start = time.time()
-MDS.local_array[:]=1.0-dMI_normed.local_array[:]
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.2 Elapsed = %s" % (rank,end - start),flush=True)
-
-# H = I-Ones/n
-start = time.time()
-I= core.DistributedMatrix.identity(n=g_nrows)
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.3 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-Ones= core.DistributedMatrix.empty_like(dMI)
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.4 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-recipn=1.0/n
-Ones.local_array[:]=recipn
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.5 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-H = core.DistributedMatrix.empty_like(dMI)
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.6 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-H.local_array[:] = I.local_array[:] - Ones.local_array[:]
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.7 Elapsed = %s" % (rank,end - start),flush=True)
-
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-
-#remove I, Ones
-del I
-del Ones
-gc.collect()
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-
-# B = -H.dot(MDS**2).dot(H)/2
-start = time.time()
-negH= core.DistributedMatrix.empty_like(dMI)
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.8 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-negH.local_array[:]= -H.local_array[:]
-end = time.time()
-comm.Barrier()
-#if rank==0:
-#    print("rank: %s, checkpt 10.9 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-MDS2= core.DistributedMatrix.empty_like(dMI)
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.10 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-MDS2.local_array[:] = MDS.local_array[:]**2
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.11 Elapsed = %s" % (rank,end - start),flush=True)
-
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-del MDS
-gc.collect
-
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-
-start = time.time()
-#ceb test
-#C = core.DistributedMatrix.empty_like(dMI)#not necessary to create space here
-if rank==0:
-    print("rank: %s, checkpt 10.12.a " % (rank),flush=True)
-C = rt.dot(negH,MDS2)
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.12b Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-#ceb test
-#B = core.DistributedMatrix.empty_like(dMI)#not necessary to create space here
-B = rt.dot(C,H)
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.13 Elapsed = %s" % (rank,end - start),flush=True)
-
-start = time.time()
-B.local_array[:]=B.local_array[:]/2.0
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.14 Elapsed = %s" % (rank,end - start),flush=True)
-
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-del H
-del C
-del negH
-del MDS2
-del dMI
-gc.collect()
-
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-
-#dMI_norm=dMI_diag.T*dMI_diag
-#dMI_norm = rt.dot(dMI_diag,dMI_diag,transA='T')
-
-subblock_end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, Prep dissimilarity matrix Elapsed = %s" % (rank,subblock_end - subblock_start),flush=True)
 
 
-#ceb breaks after this point ----------
+#if MI file already exists, then read it
+#mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
+#processed_dissimilarity_matrix_filename = data_file_path+project_name+'_dissimilarity_matrix_distributed.scalapack'
+processed_dissimilarity_matrix_filename = output_file_name+'_dissimilarity_matrix_distributed.scalapack'
+if os.path.isfile(processed_dissimilarity_matrix_filename): 
+    if rank==0:
+        print("Reading preprocessed dissimilarity matrix from file: "+processed_dissimilarity_matrix_filename)
+    B=core.DistributedMatrix.from_file(processed_dissimilarity_matrix_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
+else:
+    if rank==0:
+        print("Preprocessing Dissimilarity Matrix")
 
-#start = time.time()
+    ## Now compute eigenvalues and eigenvectors of dissimmilarity matrix
+    block_start = time.time()
 
-#compute eigh(B,)
-#we want to pick out the top 200 eigenvalues/vectors from the matrix
+    #convert similarity matrix to dissimilarity matrix
+    #df= 1-df
+    subblock_start = time.time()
 
-start = time.time()
-evals, dZd = rt.eigh(B,eigvals=(n - np.min([n, 200]), n - 1)) 
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.15 Elapsed = %s" % (rank,end - start),flush=True)
+    start = time.time()
+    MDS= core.DistributedMatrix.empty_like(dMI)
+    #end = time.time()
+    #print("rank: %s, checkpt 10.1 Elapsed = %s" % (rank,end - start),flush=True)
+    #start = time.time()
+    MDS.local_array[:]=1.0-dMI_normed.local_array[:]
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.2 Elapsed = %s" % (rank,end - start),flush=True)
 
-#copy evecs to root
-start = time.time()
-evecs = dZd.to_global_array(rank=0)
-end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, checkpt 10.16 Elapsed = %s" % (rank,end - start),flush=True)
-#gZd = dZd.to_global_array(rank=0)
+    # H = I-Ones/n
+    start = time.time()
+    I = core.DistributedMatrix.identity(n=g_nrows)
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.3 Elapsed = %s" % (rank,end - start),flush=True)
 
-block_end = time.time()
-comm.Barrier()
-if rank==0:
-    print("rank: %s, Compute Eigenvalues: Elapsed = %s" % (rank,block_end - block_start),flush=True)  
+    start = time.time()
+    Ones= core.DistributedMatrix.empty_like(dMI)
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.4 Elapsed = %s" % (rank,end - start),flush=True)
+
+    start = time.time()
+    recipn=1.0/g_nrows
+    Ones.local_array[:]=recipn
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.5 Elapsed = %s" % (rank,end - start),flush=True)
+
+    start = time.time()
+    H = core.DistributedMatrix.empty_like(dMI)
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.6 Elapsed = %s" % (rank,end - start),flush=True)
+
+    start = time.time()
+    H.local_array[:] = I.local_array[:] - Ones.local_array[:]
+    end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.7 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+
+    #remove I, Ones
+    del I
+    del Ones
+    gc.collect()
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+
+    # B = -H.dot(MDS**2).dot(H)/2
+    #start = time.time()
+    negH= core.DistributedMatrix.empty_like(dMI)
+    #end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.8 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #start = time.time()
+    negH.local_array[:]= -H.local_array[:]
+    #end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.9 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #start = time.time()
+    MDS2= core.DistributedMatrix.empty_like(dMI)
+    #end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.10 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #start = time.time()
+    MDS2.local_array[:] = MDS.local_array[:]**2
+    #end = time.time()
+    comm.Barrier()
+    #if rank==0:
+    #    print("rank: %s, checkpt 10.11 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+    del MDS
+    gc.collect
+
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+
+    start = time.time()
+    #ceb test
+    if rank==0:
+        print("rank: %s, checkpt 10.12.a " % (rank),flush=True)
+    C = rt.dot(negH,MDS2)
+    end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, checkpt 10.12b [dot(negH,MDS2)] Elapsed = %s" % (rank,end - start),flush=True)
+
+    start = time.time()
+    #ceb test
+    B = rt.dot(C,H)
+    end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, checkpt 10.13 [dot(C,H)] Elapsed = %s" % (rank,end - start),flush=True)
+
+    start = time.time()
+    B.local_array[:]=B.local_array[:]/2.0
+    end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, checkpt 10.14 Elapsed = %s" % (rank,end - start),flush=True)
+
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+    del H
+    del C
+    del negH
+    del MDS2
+    del dMI
+    gc.collect()
+
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
+
+    #dMI_norm=dMI_diag.T*dMI_diag
+    #dMI_norm = rt.dot(dMI_diag,dMI_diag,transA='T')
+
+    subblock_end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, Prep dissimilarity matrix Elapsed = %s" % (rank,subblock_end - subblock_start),flush=True)
+
+    #ceb output dissimilarity matrix here prior to eigenvalue calculation as a checkpoint
+    #processed_dissimilarity_matrix_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
+    B.to_file(processed_dissimilarity_matrix_filename)
+##------------------------------------------------------------------------------------------------------
 
 
 
+
+#ceb read or compute reduced matrix
+#reduced_mi_filename = data_file_path+project_name+'_mi_reduced.h5'
+reduced_mi_filename = output_file_name+'_mi_reduced.h5'
+
+if os.path.isfile(reduced_mi_filename): 
+    if rank==0:
+        print("Reading existing eigenvalue file")
+else:
+    if rank==0:
+        print("Computing Eigenvalues of Preprocessed Dissimilarity Matrix")
+
+    block_start = time.time()
+
+    #compute eigh(B,)
+    #we want to pick out the top 200 eigenvalues/vectors from the matrix
+    start = time.time()
+    n= g_nrows
+    evals, dZd = rt.eigh(B,eigvals=(n - np.min([n, 200]), n - 1)) 
+    end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, checkpt 10.15 [eigh(B,eigvals)] Elapsed = %s" % (rank,end - start),flush=True)
+
+    #copy evecs to root
+    start = time.time()
+    evecs = dZd.to_global_array(rank=0)
+    end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, checkpt 10.16 Elapsed = %s" % (rank,end - start),flush=True)
+    #gZd = dZd.to_global_array(rank=0)
+
+    block_end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("rank: %s, Compute Eigenvalues: Elapsed = %s" % (rank,block_end - block_start),flush=True)  
 
 
 
 
 ## gather the top 200 eigenvalues on a single rank
-
-## Read in original dataframe to get labels to attach to results
-
-#get index names from original dataframe
 if rank==0:
-    #data_file_path = cwd+'/test_data/inputs/10x/PBMC/3k/pre-processed/'
-    #input_file_name = data_file_path + 'pbmc3k_preprocessed.h5ad'
-    adf=utils.read_anndata_file(input_file_name)
-    index=adf.obs.index
+    if os.path.isfile(reduced_mi_filename): 
+        Y = pd.read_hdf(reduced_mi_filename)
+    else:
 
-    ## Postprocess the eigenvalues by sorting and removing negative vals
+        ## Read in original dataframe to get labels to attach to results
+        #get index names from original dataframe
 
-    #if rank==0:
-    idx = np.argsort(evals)[::-1]
-    print(len(idx))
+        #data_file_path = cwd+'/test_data/inputs/10x/PBMC/3k/pre-processed/'
+        #input_file_name = data_file_path + 'pbmc3k_preprocessed.h5ad' #from initial file
+        adf=utils.read_anndata_file(input_file_name)
+        index=adf.obs.index
+
+        ## Postprocess the eigenvalues by sorting and removing negative vals
+        idx = np.argsort(evals)[::-1]
+        print(len(idx))
+        evals = evals[idx]
+        evecs = evecs[:, idx]
+        evals_pos = evals > 0
+        L = np.diag(np.sqrt(evals[evals_pos]))
+        V = evecs[:, evals_pos]
+        Y = pd.DataFrame(
+            data=V.dot(L),
+            index=index, #need to reattach index names to eigenvectors
+            columns=["mds_" + str(x) for x in np.arange(1, L.shape[0] + 1)],
+        )
     
-    evals = evals[idx]
-    evecs = evecs[:, idx]
-    evals_pos = evals > 0
-    L = np.diag(np.sqrt(evals[evals_pos]))
-    V = evecs[:, evals_pos]
-    #print(V)
-    
-    Y = pd.DataFrame(
-        data=V.dot(L),
-        index=index, #need to reattach index names to eigenvectors
-        columns=["mds_" + str(x) for x in np.arange(1, L.shape[0] + 1)],
-    )
-    
-    #Y.to_hdf(out_file_name + "_reduced.h5", "mds")  # save reduced mi in mds
+        ## Write reduced data to file
+        Y.to_hdf(reduced_mi_filename, "mds")  # save reduced mi in mds
+        print(reduced_mi_filename+" written to disk")
 
-    ## Write reduced data to file
-
-    #if rank==0:
-    data_file_path = cwd+'/test_data/inputs/10x/PBMC/3k/pre-processed/'
-    out_file_name = data_file_path + 'pbmc3k_preprocessed'    
-    Y.to_hdf(out_file_name + "_reduced.h5", "mds")  # save reduced mi in mds
-
-    #if rank==0:
     print(Y)
 
+#==============================================================
 
-#%%px
+plot_file_name = plot_file_path+project_name+"scatter"
+max_dim=200
+block_start = time.time()
+if rank==0:
+    #vis is dataframe
+    vis = utils.tsne(
+        Y, 
+        max_dim, 
+        plot_file_name, 
+        "mds",
+    )
+    vis.to_hdf(plot_file_name + "_reduced.h5", "mds_tsne")  # save preview in key "mds_tsne"
+
+block_end = time.time()
+comm.Barrier()
+if rank==0:
+    print("rank: %s, Plot TSNE Elapsed = %s" % (rank,block_end - block_start),flush=True)
+#gracefully end program
+exit()
+
+
+
+
+#%tpx
 #perplexity=30
 #max_dim=200
-#    Y.to_hdf(out_file_name + "_reduced.h5", "mds")  # save reduced mi in mds
 #
 #    if print_plot == "True":
 #        vis = tsne(

@@ -553,7 +553,7 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
 
     n_block_comparisons = int((b * (b + 1)) / 2)  # total number of row block comparisons needed to compute entire global similarity matrix
     n_jobs_per_rank = math.ceil(n_block_comparisons/size)
-    #if (myrank == 0): print("block comparsons = %d. jobs per rank = %d\n" % (n_block_comparisons, n_jobs_per_rank))
+    if (myrank == 0): print("block comparsons = %d. jobs per rank = %d\n" % (n_block_comparisons, n_jobs_per_rank))
 
     #build list of row block comparisons that current mpi rank will process
     myslices=[]
