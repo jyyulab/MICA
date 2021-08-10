@@ -13,16 +13,16 @@ import umap
 from .distance import numba_calc_mi_dis
 
 
-def visual_embed_louvain(partition, resolution, index, frame_dr, out_dir, dis_metric='euclidean',
-                         visual_method='UMAP', num_works=10, perplexity=30, min_dist=0.6):
-    """ Visualize clustering results using tSNE.
+def visual_embed(partition, index, frame_dr, out_dir, dis_metric='euclidean',
+                 visual_method='UMAP', resolution=None, num_works=10, perplexity=30, min_dist=0.6):
+    """ Visualize clustering results using tSNE for graph clustering results.
     Args:
         partition (dict): clustering results, {index: cluster label}
-        resolution (float): Determines size of the communities
         frame_dr (ndarray): matrix after dimension reduction
         out_dir (dir): path to output folder
         dis_metric (str): distance metric (default: mi)
         visual_method (str): t-SNE or UMAP (default: UMAP)
+        resolution (float): Determines size of the communities (default: None)
         perplexity (int): perplexity parameter in tSNE, Larger datasets usually require a larger
                           perplexity [default: 30]
         min_dist (float): min_dist parameter in UMAP, minimum distance of points in the embedded space
@@ -64,15 +64,19 @@ def visual_embed_louvain(partition, resolution, index, frame_dr, out_dir, dis_me
     clustering_res = pd.concat([clustering_res, embed_2d.loc[clustering_res.index, :]], axis=1)
     final_res = clustering_res.loc[:, ["X", "Y", "label"]]
     # save 2D embedding to txt file
-    out_txt_file = '{}/clustering_{}_{}_{}_{}.txt'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1],
-                                                          resolution)
+    if resolution:
+        out_txt_file = '{}/clustering_{}_{}_{}_{}.txt'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1],
+                                                              resolution)
+        out_png_file = '{}/clustering_{}_{}_{}_{}.png'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1],
+                                                              resolution)
+    else:
+        out_txt_file = '{}/clustering_{}_{}_{}.txt'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1])
+        out_png_file = '{}/clustering_{}_{}_{}.png'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1])
     final_res.to_csv(out_txt_file, sep="\t")
-    out_png_file = '{}/clustering_{}_{}_{}_{}.png'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1],
-                                                          resolution)
     scatter_plot(final_res, out_png_file, method=visual_method)
 
 
-def scatter_plot(data, out_file, marker_size=0.5, marker="o", method='UMAP'):
+def scatter_plot(data, out_file, marker_size=1.0, marker="o", method='UMAP'):
     if data is None:
         return
     plt.figure(figsize=(10, 10), dpi=400)

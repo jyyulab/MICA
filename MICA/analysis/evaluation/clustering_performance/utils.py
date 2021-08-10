@@ -4,7 +4,6 @@ import os
 import pathlib
 import pandas as pd
 import numpy as np
-import h5py
 from sklearn.metrics.cluster import adjusted_rand_score
 
 
@@ -53,13 +52,14 @@ def create_cmds_auto(root_dir, level, author, input_file):
 
 
 def calc_ARIs_ge(root_dir, level, author, num_clusters):
-    output_dir = '{}/outputs/{}/{}/ge_1_2'.format(root_dir, level, author)
+    output_dir = '{}/outputs/{}/{}/ge'.format(root_dir, level, author)
     # output_dir = '{}/outputs/{}/{}/old'.format(root_dir, level, author)
     summary_file = '{}/summary_ge.txt'.format(output_dir)
     if os.path.isfile(summary_file):
         os.remove(summary_file)
 
     true_label_file = '{}/datasets/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
+    print(true_label_file)
     true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
     best_ari = 0.0
     with open(summary_file, 'w') as fout:
@@ -75,13 +75,17 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
                 #                                                                      reso_round)
                 predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
                 predict_num_clusters = len(set(predict_label['label']))
+                # print(predict_num_clusters)
                 # print('dim_{}_reso_{}_numCluster_{}'.format(dim, reso_round, predict_num_clusters))
                 if predict_num_clusters != num_clusters:
                    continue
                 # new_index = [int(s.replace('V', '')) for s in predict_label.index]
                 # predict_label.index = new_index
                 merged = true_label.merge(predict_label, left_on='cell', right_index=True)
-                ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
+                # print(merged)
+                # ari = adjusted_rand_score(merged['cell'], merged['label_y'])
+                ari = adjusted_rand_score(merged['subclass_label'], merged['label'])
+                print('{} {} {} {}'.format(predict_num_clusters, dim, reso, ari))
                 if ari > best_ari:
                     best_ari = ari
                 fout.write('{}\t{}\t{}\t{}\n'.format(author, dim, reso_round, ari))
@@ -92,14 +96,18 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
 
 
 def calc_ARIs_mds(root_dir, level, author, num_clusters):
-    output_dir = '{}/outputs/{}/{}/mds_1_2'.format(root_dir, level, author)
+    output_dir = '{}/outputs/{}/{}'.format(root_dir, level, author)
     summary_file = '{}/summary_mds.txt'.format(output_dir)
     if os.path.isfile(summary_file):
         os.remove(summary_file)
 
-    true_label_file = '{}/datasets/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
+    # true_label_file = '{}/datasets/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
+    # true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+    # true_label_file = '/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/SilverStd/' \
+    #                   'Chung/scGNN/Chung_cell_label.csv'
+    true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_true_label.txt'
     true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
-    # print(true_label)
+    print(true_label)
     with open(summary_file, 'w') as fout:
         predict_label_file = '{}/{}_k{}_umap_ClusterMem.txt'.format(output_dir, author, num_clusters)
         print(predict_label_file)
@@ -107,8 +115,10 @@ def calc_ARIs_mds(root_dir, level, author, num_clusters):
         # print(predict_label)
         # new_index = [int(s.replace('V', '')) for s in predict_label.index]
         # predict_label.index = new_index
+        # merged = true_label.merge(predict_label, left_on='cell', right_index=True)
         merged = true_label.merge(predict_label, left_on='cell', right_index=True)
-        # print(merged)
+        print(merged)
+        # ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
         ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
         head_line = 'author\tnum_clusters\tARI\n'
         print('MDS')

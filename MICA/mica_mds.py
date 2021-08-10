@@ -71,7 +71,7 @@ def add_mds_arguments(parser):
                                  'usually equals to iterations_km (default: 10)')
     additional.add_argument('-dk', '--dims-km', metavar='INT', nargs='+', default=[19], type=int, required=False,
                             help='Dimensions used in k-mean clustering, array inputs are supported '
-                                 '(default: [19])')     # Use [12, 13, 14, 15, 16, 17, 18, 19] for robustness but slower
+                                 '(default: [19])')   # Use [12, 13, 14, 15, 16, 17, 18, 19] for robustness but slower
     additional.add_argument('-dp', '--dims-plot', metavar='INT', default=19, type=int, required=False,
                             help='Number of dimensions used in visualization (default: 19)')
 

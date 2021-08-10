@@ -14,7 +14,7 @@ from .aux_utils import run_shell_command
 def dim_reduce_global(df, dim=50, method='pca', num_jobs=None, out_dir=None):
     """ Dimension reduction on a n_obs * n_vars matrix.
     Args:
-        df (dataframe): preprocessed expression matrix as a dataframe
+        df (ndarray): preprocessed expression matrix as a dataframe
         dim (int): dimension to reduce n_vars to
         method (str): PCA or MDS
         num_jobs (None or int): n_jobs parameter in sklearn.manifold.MDS

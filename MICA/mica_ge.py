@@ -66,11 +66,11 @@ def mica_ge(args):
 
     start = time.time()
     logging.info('Building MI-based kNN graph ...')
-    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy())
+    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_jobs=args.num_workers)
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
     if not os.path.isdir(args.output_dir):
         os.mkdir(args.output_dir)
-    edgelist_file = '{}/knn_graph_edgelist_{}.txt'.format(args.output_dir, args.dr_dim)
+    edgelist_file = '{}/NNDescent_knn_graph_edgelist.txt'.format(args.output_dir)
     with open(edgelist_file, 'w') as fout:
         for edge in knn_graph.edges():
             fout.write('{}\t{}\t{}\n'.format(edge[0], edge[1], knn_graph.get_edge_data(edge[0], edge[1])['MI']))
@@ -111,7 +111,7 @@ def mica_ge(args):
     for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
         resolution_round = np.round(resolution, 2)
         logging.info('Louvain resolution: {}'.format(resolution_round))
-        vs.visual_embed_louvain(partitions[i], resolution_round, frame.index, mat_dr, args.output_dir,
+        vs.visual_embed_louvain(partitions[i], frame.index, mat_dr, args.output_dir, resolution=resolution_round,
                                 visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
     end = time.time()
     runtime = end - start

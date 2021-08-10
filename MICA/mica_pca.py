@@ -26,10 +26,10 @@ def main():
                         help='Number of dimensions to reduce features of the input matrix to')
     parser.add_argument('-n', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors of building neighboring graph (default: 20)')
-    parser.add_argument('-e', '--resolution', metavar='FLOAT', required=False, default=1.0, type=float,
-                        help='Determines size of the communities. (default: 1.0)')
-    parser.add_argument('-v', '--visual-method', metavar='STR', required=False, default='umap', type=str,
-                        choices=['umap', 'tsne'], help='Visualization embedding method [umap | tsne] (default: umap)')
+    parser.add_argument('-e', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
+                        help='Determines size of the communities. (default: 3.4)')
+    parser.add_argument('-v', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
+                        choices=['UMAP', 't-SNE'], help='Visualization embedding method [UMAP | t-SNE] (default: umap)')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -39,14 +39,16 @@ def main():
     logging.basicConfig(level=logging.INFO)
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
-    frame = pp.read_preprocessed_mat(args.input_file)
+    adata = pp.read_preprocessed_mat(args.input_file)
+    print(adata.shape)
+    ndarr = adata.X.toarray()
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     start = time.time()
     logging.info('Dimension reduction to {} dimensions using {} method ...'.format(args.dr_dim, args.dr_method))
-    frame_dr = dr.dim_reduce_global(frame, dim=args.dr_dim)
+    frame_dr = dr.dim_reduce_global(ndarr, dim=args.dr_dim)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -61,14 +63,15 @@ def main():
 
     start = time.time()
     logging.info('Performing graph clustering ...')
-    partition = cl.graph_clustering(G, resolution=args.resolution)
+    partitions = cl.graph_clustering(G, max_resolution=args.max_resolution)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     start = time.time()
     logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
-    vs.visual_embed(partition, frame.index, frame_dr, args.output_dir, embed_method=args.visual_method)
+    for partition in partitions:
+        vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, visual_method=args.visual_method)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
