@@ -120,9 +120,9 @@ def calc_prep(in_file, project_name):
         project_name (str): project name used to generate path for final outputs
     """
     in_ = pd.HDFStore(in_file, "r")  # slice.h5
-    # Use n^{1/2} as the bin size, where n is the number of genes.
+    # Use n^{1/3} as the bin size, where n is the number of genes.
     gene_count = int(in_["attr"].loc["col"])
-    bins = int(np.floor(gene_count ** (1 / 2.0)))
+    bins = int(np.floor(gene_count ** (1 / 3.0)))
     print('Number of genes: {}'.format(gene_count))
     print('Number of bins for estimating MI: {}'.format(bins))
 

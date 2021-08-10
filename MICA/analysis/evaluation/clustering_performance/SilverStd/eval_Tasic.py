@@ -13,3 +13,11 @@ utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
 # max_resolution = 10.0
 # utils.create_cmds_ge(root_dir, level, author, input_file, max_resolution)
 utils.calc_ARIs_ge(root_dir, level, author, num_clusters)
+
+
+#%%
+# from MICA.lib import preprocessing as pp
+# root_dir = '/Users/lding/Documents/MICA/Datasets/HPC/'
+# adata = pp.read_preprocessed_mat('{}/{}/{}/{}'.format(root_dir, level, author, input_file))
+# frame = adata.to_df()
+# frame.to_csv('{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author), sep='\t')

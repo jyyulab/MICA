@@ -49,3 +49,7 @@ def consensus_sc3(km_results, n_clusters, common_name=None):
     # conss_binary_mat.to_hdf(out_file_hdf, "membership")
     print('consensus_sc3 is done')
     return cclust, out_file
+
+
+def purify():
+    return

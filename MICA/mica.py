@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # MICA entry point for both GE and MDS versions
 
-import os
 import sys
 import logging
 import time
@@ -10,15 +9,6 @@ import argparse
 from MICA.lib import preprocessing as pp
 from MICA import mica_ge
 from MICA import mica_mds
-import numpy as np
-import pandas as pd
-import pathlib
-
-from MICA.lib import neighbor_graph as ng
-from MICA.lib import preprocessing as pp
-from MICA.lib import dimension_reduction as dr
-from MICA.lib import clustering as cl
-from MICA.lib import visualize as vs
 
 
 def main():
@@ -49,8 +39,9 @@ def main():
     # Create a sub parser for running auto mode
     subparser_auto = subparsers.add_parser('auto', parents=[parent_parser], help='automatic version')
     add_required_auto = subparser_auto.add_argument_group('additional required arguments')
-    add_required_auto.add_argument('-cc', '--cell-count', metavar='INT', required=False, default=2000, type=int,
-                                   help='Run MDS version if less than cell_count; otherwise, run GE version')
+    add_required_auto.add_argument('-cc', '--cell-count', metavar='INT', required=False, default=3000, type=int,
+                                   help='Run MDS version if less than cell_count; otherwise, run GE version '
+                                        '(default: 3000)')
     mica_ge.add_ge_arguments(subparser_auto)
 
     # Create a sub parser for running graph embedding version
@@ -107,4 +98,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
