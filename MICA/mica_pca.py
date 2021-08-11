@@ -28,8 +28,13 @@ def main():
                         help='Number of dimensions to reduce features of the input matrix to')
     parser.add_argument('-nn', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors of building neighboring graph (default: 20)')
+    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.2, type=float,
+                        help='Determines the minimum size of the communities (default: 0.2)')
     parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
                         help='Determines size of the communities. (default: 3.4)')
+    parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
+                        help='Determines the step size to sweep resolution from min_resolution to max_resolution '
+                             '(default: 0.4)')
     parser.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                         choices=['UMAP', 't-SNE'], help='Visualization embedding method [UMAP | t-SNE] (default: umap)')
 
@@ -79,6 +84,12 @@ def main():
     logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
     for partition in partitions:
         vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, visual_method=args.visual_method)
+
+    for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
+        resolution_round = np.round(resolution, 2)
+        logging.info('Louvain resolution: {}'.format(resolution_round))
+        vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, resolution=resolution_round,
+                        visual_method=args.visual_method)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
