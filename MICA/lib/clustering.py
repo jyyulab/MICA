@@ -12,7 +12,7 @@ def graph_clustering(G, method='louvain', min_resolution=0.2, max_resolution=3.4
     Args:
         G (nx graph): G to perform community detection
         method (str): Louvain algorithm
-        min_resolution (float): Determines minimum size of the communities. (default: 1.0)
+        min_resolution (float): Determines minimum size of the communities. (default: 0.2)
         max_resolution (float): Determines maximum size of the communities. (default: 3.4)
 
     Returns:
