@@ -4,6 +4,8 @@ import sys
 import argparse
 import time
 import logging
+import scipy
+import numpy as np
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
@@ -41,7 +43,12 @@ def main():
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
     print(adata.shape)
-    ndarr = adata.X.toarray()
+    if type(adata.X) is scipy.sparse.csr.csr_matrix:
+        ndarr = adata.X.toarray()
+    elif type(adata.X) is np.ndarray:
+        ndarr = adata.X
+    else:
+        sys.exit('Error - invalid adata.X type: {}'.format(type(adata.X)))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
