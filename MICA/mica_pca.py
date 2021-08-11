@@ -30,7 +30,7 @@ def main():
                         help='Number of neighbors of building neighboring graph (default: 20)')
     parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.2, type=float,
                         help='Determines the minimum size of the communities (default: 0.2)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=3.4, type=float,
                         help='Determines size of the communities. (default: 3.4)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
