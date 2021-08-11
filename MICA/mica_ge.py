@@ -111,8 +111,8 @@ def mica_ge(args):
     for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
         resolution_round = np.round(resolution, 2)
         logging.info('Louvain resolution: {}'.format(resolution_round))
-        vs.visual_embed_louvain(partitions[i], frame.index, mat_dr, args.output_dir, resolution=resolution_round,
-                                visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
+        vs.visual_embed(partitions[i], frame.index, mat_dr, args.output_dir, resolution=resolution_round,
+                        visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
