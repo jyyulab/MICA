@@ -20,15 +20,15 @@ def main():
                         help='Path to an input file (h5ad file or tab-delimited text file)')
     parser.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                         help='Path to final output directory')
-    parser.add_argument('-r', '--dr-method', metavar='STR', required=False, default='pca', type=str,
+    parser.add_argument('-dm', '--dr-method', metavar='STR', required=False, default='pca', type=str,
                         help='Dimension reduction method [pca | mds ] (default: pca)')
-    parser.add_argument('-d', '--dr-dim', metavar='INT', required=False, default=50, type=int,
+    parser.add_argument('-dd', '--dr-dim', metavar='INT', required=False, default=50, type=int,
                         help='Number of dimensions to reduce features of the input matrix to')
-    parser.add_argument('-n', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
+    parser.add_argument('-nn', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors of building neighboring graph (default: 20)')
-    parser.add_argument('-e', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
                         help='Determines size of the communities. (default: 3.4)')
-    parser.add_argument('-v', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
+    parser.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                         choices=['UMAP', 't-SNE'], help='Visualization embedding method [UMAP | t-SNE] (default: umap)')
 
     if len(sys.argv) == 1:
