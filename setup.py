@@ -36,5 +36,5 @@ setup(
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     include_package_data=True,
     test_suite="tests",
-    entry_points={"console_scripts": ["mica=MICA.mica_ge:main"]},
+    entry_points={"console_scripts": ["mica=MICA.mica:main"]},
 )

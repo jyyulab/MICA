@@ -42,38 +42,19 @@ $ mica -h                                       # Check if mica works correctly
 
 ## Usage
 ```
-usage: mica [-h] -i FILE -o DIR [-m STR] [-d INT] [-ir FLOAT] [-ar FLOAT]
-            [-ss FLOAT] [-w INT] [-v STR] [-s FLOAT]
+$ mica -h
+usage: mica [-h] {auto,ge,mds} ...
 
-MICA is a Mutual Information-based nonlinear Clustering Analysis tool designed for scRNA-seq data. This version uses a graph embedding method for dimension reduction on MI-kNN graph.
+MICA - Mutual Information-based Clustering Analysis tool.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -i FILE, --input-file FILE
-                        Path to an input file (h5ad file or tab-delimited text
-                        file)
-  -o DIR, --output-dir DIR
-                        Path to final output directory
-  -m STR, --dr-method STR
-                        Dimension reduction method [node2vec | deepwalk]
-                        (default: node2vec)
-  -d INT, --dr-dim INT  Number of dimensions to reduce to (default: 20)
-  -ir FLOAT, --min-resolution FLOAT
-                        Determines the minimum size of the communities
-                        (default: 0.4)
-  -ar FLOAT, --max-resolution FLOAT
-                        Determines the maximum size of the communities
-                        (default: 3.4)
-  -ss FLOAT, --step-size FLOAT
-                        Determines the step size to sweep resolution from
-                        min_resolution to max_resolution (default: 0.4)
-  -w INT, --num-workers INT
-                        Number of works to run in parallel (default: 10)
-  -v STR, --visual-method STR
-                        Visualization method UMAP or t-SNE (default: UMAP)
-  -s FLOAT, --min-dist FLOAT
-                        min_dist parameter in UMAP, minimum distance of points
-                        in the embedded space (default: 0.6)
+  -h, --help     show this help message and exit
+
+subcommands:
+  {auto,ge,mds}  versions
+    auto         automatic version
+    ge           graph embedding version
+    mds          MDS version
 ```
 
 #### Inputs
@@ -88,9 +69,14 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 
 ## Examples
-#### Running MICA graph embedding version
-`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs`
+#### Running MICA MDS version
+`mica mds -i /research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/GoldernStd/Yan/Yan_MICA_input.txt -o 
+/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/outputs/GoldernStd/Yan/mds_1_2 -pn Yan -nc 8 
+-dk 12 13 14 15 16 17 18 19`
 
+#### Running MICA GE version
+`mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs/cwl_lsf 
+-ar 10.0`
 
 ## Reference
 To be added

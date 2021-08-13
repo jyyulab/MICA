@@ -16,7 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
 import anndata
-# import numba
+# import numba# #
 # from numba import jit
 
 # from sklearn.metrics import mutual_info_score
@@ -28,19 +28,19 @@ from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
 
 
-def read_file(in_file, out_file_name):
-    """ Reads text file and stores data in a temporary HDF5-format file.
-
-    Args:
-        in_file_name  (str): path to input text file
-        out_file_name (str): user-defined name for output file
-    """
-    if in_file.endswith('.txt'):
-        frame = pd.read_csv(in_file, sep="\t", index_col=0).iloc[:, 0:]
-    if in_file.endswith('.h5ad'):
-        adata = anndata.read_h5ad(in_file)
-        frame = adata.to_df()
-    frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
+# def read_file(in_file, out_file_name):
+#     """ Reads text file and stores data in a temporary HDF5-format file.
+#
+#     Args:
+#         in_file_name  (str): path to input text file
+#         out_file_name (str): user-defined name for output file
+#     """
+#     if in_file.endswith('.txt'):
+#         frame = pd.read_csv(in_file, sep="\t", index_col=0).iloc[:, 0:]
+#     if in_file.endswith('.h5ad'):
+#         adata = anndata.read_h5ad(in_file)
+#         frame = adata.to_df()
+#     frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
 
 
 def slice_file(df_file,  out_file_name, slice_size="1000"):
@@ -408,7 +408,8 @@ def pca(in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_me
 
     hdf.close()
     n = np.min(df.shape[0], 200)
-    pca_ = decomposition.PCA(n_components=n, random_state=10)
+    pca_ = decomposition.PCA(n_components=n, random_state=10)   # PCA on cell-cell distance matrix
+                                                                # works for scRNA-seq data by SC3
     Y = pd.DataFrame(
         data=np.transpose(pca_.fit(df).components_),
         index=df.index,

@@ -10,15 +10,27 @@ from natsort import natsorted
 def read_preprocessed_mat(in_file, start_row=1):
     """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe."""
     if in_file.endswith('.txt'):
-        adata = anndata.read_csv(in_file, delimiter='\t', first_column_names=True)
-        adata = adata[start_row:, :]    # 1st row used as header by default
+        adata = anndata.read_text(in_file, delimiter='\t', first_column_names=True)
+        if adata.obs.index[0] == 'ID' or adata.var.index[0] == 0:
+            adata = adata[start_row:, :]    # 1st row used as header by default
     elif in_file.endswith('.csv'):
-        adata = anndata.read_csv(in_file)
+        adata = anndata.read_csv(in_file, first_column_names=True)
+        if adata.obs.index[0] == 'ID' or adata.var.index[0] == 0:
+            adata = adata[start_row:, :]    # 1st row used as header by default
     elif in_file.endswith('.h5ad') or in_file.endswith('.h5'):
         adata = anndata.read_h5ad(in_file)
     else:
         sys.exit('Error - invalid input file format: {}'.format(in_file))
     return adata
+
+
+def read_write_mat(in_file, out_file_name, start_row=1):
+    """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe
+    and write the entire matrix as slice_0 for further slicing.
+    """
+    adata = read_preprocessed_mat(in_file, start_row)
+    frame = adata.to_df()
+    frame.to_hdf(out_file_name + ".h5.tmp", "slice_0")
 
 
 def write_h5(adata, out_h5_file):
