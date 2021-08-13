@@ -31,4 +31,46 @@ sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method", style="met
 # plt.show()
 
 #%%
-plt.savefig('/Users/lding/Desktop/ARI_summary.pdf', dpi=500)
+plt.savefig('/Users/lding/Desktop/ARI_summary_lineplot.pdf', dpi=500)
+
+#%%
+plt.close()
+# plt.figure(figsize=(15, 5))
+# plt.rcParams["figure.figsize"] = (20, 5)
+# plt.rcParams["xtick.labelsize"] = 7
+# sns.set(rc={"figure.figsize": (20, 5)})
+sns.set(style="ticks")
+g = sns.catplot(x='dataset', y='ARI', hue='method', data=melt_ARI_table, kind='bar', height=4, aspect=3.5)
+plt.grid()
+# plt.show()
+
+#%%
+plt.savefig('/Users/lding/Desktop/ARI_summary_catplot.pdf', dpi=500)
+
+
+
+
+
+#%%
+cell_count_table = ARI_table.loc[['MICA', 'Seurat', 'SC3', 'Scanpy'],]
+cell_count_table.loc['#cells'] = ARI_table.loc['# cells']
+
+#%%
+cell_count_table_T = cell_count_table.T
+
+#%%
+melt_cell_count_table = pd.melt(cell_count_table_T, id_vars=['#cells'])
+
+#%%
+melt_cell_count_table = melt_cell_count_table.rename(columns={'variable': 'method', 'value': 'ARI'})
+melt_cell_count_table['ARI'] = melt_cell_count_table['ARI'].astype(float)
+
+
+#%%
+plt.close()
+sns.set(style="ticks")
+g2 = sns.catplot(x='#cells', y='ARI', hue='method', data=melt_cell_count_table, kind='bar', height=4, aspect=3.5)
+plt.grid()
+
+#%%
+plt.savefig('/Users/lding/Desktop/ARI_summary_catplot_cell_count.pdf', dpi=500)

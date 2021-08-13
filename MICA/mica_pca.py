@@ -36,7 +36,7 @@ def main():
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
                              '(default: 0.4)')
     parser.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
-                        choices=['UMAP', 't-SNE'], help='Visualization embedding method [UMAP | t-SNE] (default: umap)')
+                        choices=['UMAP', 't-SNE'], help='Visualization embedding method [UMAP | t-SNE] (default: UMAP)')
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -88,7 +88,7 @@ def main():
     for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
         resolution_round = np.round(resolution, 2)
         logging.info('Louvain resolution: {}'.format(resolution_round))
-        vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, resolution=resolution_round,
+        vs.visual_embed(partitions[i], adata.obs.index, frame_dr, args.output_dir, resolution=resolution_round,
                         visual_method=args.visual_method)
     end = time.time()
     runtime = end - start
