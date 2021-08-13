@@ -13,8 +13,10 @@ raw_counts_t <- transpose(raw_counts)
 rownames(raw_counts_t) <- colnames(raw_counts)
 colnames(raw_counts_t) <- rownames(raw_counts)
 
-pbmc <- CreateSeuratObject(counts = raw_counts_t, project = "pbmc20k", min.cells = 3, min.features = 200)
 
+
+
+pbmc <- CreateSeuratObject(counts = raw_counts_t, project = "pbmc20k", min.cells = 3, min.features = 200)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 
 VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)

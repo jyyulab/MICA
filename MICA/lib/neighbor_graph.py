@@ -37,7 +37,7 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorith
     return nx.from_numpy_matrix(kneighbor_graph)
 
 
-def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0, diversify_p=0.0, num_jobs=-1):
+def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0, diversify_p=0.0, num_jobs=10):
     """ Build a graph representation of the dimension reduced matrix.
     Args:
         mat (numpy ndarray): n_obs * n_var matrix

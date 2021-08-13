@@ -7,6 +7,7 @@ import argparse
 import logging
 
 from MICA.lib import utils
+from MICA.lib import preprocessing
 
 
 def main():
@@ -36,7 +37,8 @@ def prep(input_file, out_name, slice_unit):
         slice_unit (int): size of each slice of cell data in input text-file
     """
     logging.basicConfig(level=logging.INFO)
-    utils.read_file(input_file, out_name)
+    # utils.read_file(input_file, out_name)
+    preprocessing.read_write_mat(input_file, out_name)
 
     # prepare h5 files (whole)
     h5_tmp = out_name + ".h5.tmp"

@@ -69,10 +69,10 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
 
     agg, out_f = consensus.consensus_sc3(result, k, out_name)
 
-    utils.visualization(agg,  # consensus clustering result
-                        in_file,  # reduced_mi_file
-                        dr,  # transformation
-                        out_f,  # output file name
+    utils.visualization(agg,        # consensus clustering result
+                        in_file,    # reduced_mi_file
+                        dr,         # transformation
+                        out_f,      # output file name
                         max_dim=plot_dim,
                         visualize=plot_method.lower(),
                         min_dist=umap_min_dist,

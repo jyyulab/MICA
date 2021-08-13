@@ -70,31 +70,6 @@ def GSE75688_Chung(dim, reso):
     return adjusted_rand_score(true_label['label'], predict_label['label'])
 
 
-def PBMC20k(dim, reso):
-# def PBMC20k(reso):
-    true_label_file = '{}/datasets/PBMC_20k/PBMC_sorted_20K_true_label.txt'.format(mica_data_path)
-    true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
-    cell_type_label_dict = dict()
-    for i, v in enumerate(set(true_label['type'])):
-        cell_type_label_dict[v] = i
-    labels = [cell_type_label_dict[ct] for ct in true_label['type']]
-    true_label['label'] = labels
-    # PBMC20k = '{}/datasets/PBMC_20k/PBMC_sorted_20K_preprocessed.h5ad'.format(mica_data_path)
-    PBMC20k_out = '{}/outputs/PBMC_20k/{}_{}'.format(mica_data_path, dim, reso)
-    # PBMC20k_out = '{}/outputs/PBMC_20k_no_ge/{}'.format(mica_data_path, reso)
-    # if not os.path.isdir(PBMC20k_out):
-    #     os.makedirs(PBMC20k_out)
-    # cmd = 'mica -i {} -o {} -d {} -e {}'.format(PBMC20k, PBMC20k_out, dim, reso)
-    # cmd = 'mica -i {} -o {} -e {}'.format(PBMC20k, PBMC20k_out, reso)
-    # print(cmd)
-    # run_shell_command(cmd)
-    # print('Done')
-    predict_label_file = '{}/clustering_umap_euclidean_{}_{}.txt'.format(PBMC20k_out, dim, reso)
-    # predict_label_file = '{}/clustering_umap_euclidean_21952_{}.txt'.format(PBMC20k_out, reso)
-    predict_label = pd.read_csv(predict_label_file, delimiter='\t')
-    return adjusted_rand_score(true_label['label'], predict_label['label'])
-
-
 def PBMC20k_MDS():
     for dim in range(9, 14):
         true_label_file = '{}/datasets/PBMC_20k/PBMC_sorted_20K_true_label.txt'.format(mica_data_path)
@@ -158,9 +133,6 @@ def GSE75688_Chung_MDS():
         print('{}\t{}'.format(dim, adjusted_rand_score(true_label['label'], predict_label['label'])))
 
 
-
-
-
 def Buttner(dim, reso):
     true_label_file = '{}/datasets/GoldernStd/buettner/buettner_true_label.txt'.format(mica_data_path)
     true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
@@ -216,7 +188,6 @@ def create_cmds():
             # GSE71585_Tasic(dim, 10.0)
             # GSE60361_Ziesel(dim, 10.0)
             # GSE75688_Chung(dim, 10.0)
-            # PBMC20k(dim, reso_round)
             # PBMC20k(reso_round)
             # Yan(dim, reso_round)
             # Buttner(dim, reso_round)
@@ -254,13 +225,9 @@ def summary():
                 # print('ari: {}\n'.format(ari))
                 # fout.write('Chung\t{}\t{}\t{}\n'.format(dim, reso_round, ari))
 
-                # ari = PBMC20k(dim, reso_round)
+                # ari = Yan(dim, reso_round)
                 # print('ari: {}\n'.format(ari))
-                # fout.write('PBMC20k\t{}\t{}\t{}\n'.format(dim, reso_round, ari))
-
-                ari = Yan(dim, reso_round)
-                print('ari: {}\n'.format(ari))
-                fout.write('Yan\t{}\t{}\t{}\n'.format(dim, reso_round, ari))
+                # fout.write('Yan\t{}\t{}\t{}\n'.format(dim, reso_round, ari))
                 break
             break
 
@@ -273,16 +240,13 @@ def summary_no_ge():
         for reso in np.arange(0.2, 10.0, 0.4):
             reso_round = np.round(reso, 1)
 
-            ari = PBMC20k(reso_round)
-            print('ari: {}\n'.format(ari))
-            fout.write('PBMC20k\t{}\t{}\n'.format(reso_round, ari))
             # break
 
 
 if __name__ == "__main__":
     mica_data_path = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
-    # create_cmds()
-    summary()
+    create_cmds()
+    # summary()
     # summary_no_ge()
     # PBMC20k_MDS()
     # GSE71585_Tasic_MDS()

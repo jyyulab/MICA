@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 
 import sys
-import logging
 import numpy as np
 import community
 from multiprocessing import Pool
 from functools import partial
 
 
-def graph_clustering(G, method='louvain', max_resolution=3.4):
+def graph_clustering(G, method='louvain', min_resolution=0.2, max_resolution=3.4, step_size=0.4):
     """ Perform graph-based clustering.
     Args:
         G (nx graph): G to perform community detection
         method (str): Louvain algorithm
+        min_resolution (float): Determines minimum size of the communities. (default: 0.2)
         max_resolution (float): Determines maximum size of the communities. (default: 3.4)
+
     Returns:
         Clustering results
     """
     partitions = []
     if method == 'louvain':
-        for resolution in range(1.0, max_resolution+0.1, 0.4):
+        for resolution in np.arange(min_resolution, max_resolution+0.1, step_size):
             partition = community.best_partition(G, resolution=resolution)
             # logging.info('Clustering labels: {}'.format(set(partition.values())))
             partitions.append(partition)
@@ -32,7 +33,7 @@ def best_partition_wrapper(G, max_resolution):
     return community.best_partition(G, resolution=max_resolution)
 
 
-def graph_clustering_parallel(G, method='louvain', min_resolution=0.4, max_resolution=3.4, step_size=0.4,
+def graph_clustering_parallel(G, method='louvain', min_resolution=0.2, max_resolution=3.4, step_size=0.4,
                               num_workers=10):
     """ Perform graph-based clustering in parallel.
     Args:
