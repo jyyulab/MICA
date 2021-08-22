@@ -82,11 +82,13 @@ After the completion of the pipeline, `mica` will generate the following outputs
 MICA auto mode reduces the dimensionality using either the multidimensional scaling method (<= 3,000 cells) or 
 the graph embedding method (> 3,000 cells), where the number of cells cutoff was chosen based on performance
 evaluation of datasets of various sizes. 
+
 `mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs`
 
 #### Running MICA GE mode
 MICA GE mode reduces the dimensionality using the graph embedding method. It sweeps a range of resolutions
 of Louvain clustering algorithm. ```-ar``` parameter sets the upper bound of the range.
+
 `mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs
 -ar 10.0`
 
@@ -94,6 +96,7 @@ of Louvain clustering algorithm. ```-ar``` parameter sets the upper bound of the
 MICA MDS mode reduces the dimensionality using the multidimensional scaling method. ```-pn``` parameter sets the
 project name; ```-nc``` specifies the numbers of clusters (k in k-mean clustering algorithm); ```-dk``` is the
 the numbers of dimensions used in performing k-mean clusterings in the dimension reduced matrix.
+
 `mica mds -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
 ./test_data/outputs -pn Yan -nc 8 9 10 -dk 12 13 14 15 16 17 18 19`
 
