@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 #%%
 ARI_file = '/Users/lding/Documents/MICA/Manuscript/Tables/ARI/ARI_summary.xlsx'
 ARI_table = pd.read_excel(ARI_file, index_col=0)
+ARI_table = ARI_table.rename(columns={'Human_Motor_Cortex': 'H_Cortex'})
 
 #%%
 sub_table = ARI_table.loc[['MICA', 'Seurat', 'SC3', 'Scanpy'],]
@@ -25,7 +26,8 @@ melt_ARI_table['ARI'] = melt_ARI_table['ARI'].astype(float)
 
 #%%
 plt.close()
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(12, 6))
+sns.set(style="darkgrid", font='Arial')
 sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method", style="method",
              markers=True, markersize=10)
 # plt.show()
@@ -33,14 +35,22 @@ sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method", style="met
 #%%
 plt.savefig('/Users/lding/Desktop/ARI_summary_lineplot.pdf', dpi=500)
 
+
+
+
+
+
 #%%
 plt.close()
 # plt.figure(figsize=(15, 5))
 # plt.rcParams["figure.figsize"] = (20, 5)
 # plt.rcParams["xtick.labelsize"] = 7
+# plt.rcParams["font.family"] = 'Arial'
 # sns.set(rc={"figure.figsize": (20, 5)})
-sns.set(style="ticks")
+# sns.set_theme(style="darkgrid", font='Arial')
+sns.set(style="darkgrid", font='Arial')
 g = sns.catplot(x='dataset', y='ARI', hue='method', data=melt_ARI_table, kind='bar', height=4, aspect=3.5)
+plt.tight_layout()
 plt.grid()
 # plt.show()
 
@@ -68,7 +78,8 @@ melt_cell_count_table['ARI'] = melt_cell_count_table['ARI'].astype(float)
 
 #%%
 plt.close()
-sns.set(style="ticks")
+# sns.set(style="ticks")
+sns.set_theme(style="darkgrid", font='arial')
 g2 = sns.catplot(x='#cells', y='ARI', hue='method', data=melt_cell_count_table, kind='bar', height=4, aspect=3.5)
 plt.grid()
 

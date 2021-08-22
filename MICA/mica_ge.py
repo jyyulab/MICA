@@ -13,6 +13,7 @@ from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
 from MICA.lib import clustering as cl
 from MICA.lib import visualize as vs
+from MICA.lib import consensus as cs
 
 
 def main():
@@ -45,8 +46,8 @@ def add_ge_arguments(parser):
                         help='Number of dimensions to reduce to (default: 20)')
     parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.2, type=float,
                         help='Determines the minimum size of the communities (default: 0.2)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=3.4, type=float,
-                        help='Determines the maximum size of the communities (default: 3.4)')
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=4.2, type=float,
+                        help='Determines the maximum size of the communities (default: 4.2)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.4, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
                              '(default: 0.4)')
@@ -107,11 +108,20 @@ def mica_ge(args):
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     start = time.time()
+    logging.info('Group partitions based on number of clusters and consensus clustering ...')
+    cluster_dict = cs.group_partition(partitions, frame.index)
+    aggs = []
+    for num_cluster in cluster_dict.keys():
+        agg, out_f = cs.consensus_sc3(cluster_dict[num_cluster], num_cluster, 'consensus')
+        aggs.append((agg, num_cluster))
+    end = time.time()
+    runtime = end - start
+    logging.info('Done. Runtime: {} seconds'.format(runtime))
+
     logging.info('Visualizing clustering results using {}'.format(args.visual_method))
-    for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
-        resolution_round = np.round(resolution, 2)
-        logging.info('Louvain resolution: {}'.format(resolution_round))
-        vs.visual_embed(partitions[i], frame.index, mat_dr, args.output_dir, resolution=resolution_round,
+    for agg, num_cluster in aggs:
+        logging.info('Number of clusters: {}'.format(num_cluster))
+        vs.visual_embed(agg, mat_dr, args.output_dir, suffix=num_cluster,
                         visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
     end = time.time()
     runtime = end - start
