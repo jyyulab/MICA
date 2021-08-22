@@ -82,8 +82,8 @@ def main():
 
     start = time.time()
     logging.info('Visualizing clustering results using {} ...'.format(args.visual_method))
-    for partition in partitions:
-        vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, visual_method=args.visual_method)
+    # for partition in partitions:
+    #     vs.visual_embed(partition, adata.obs.index, frame_dr, args.output_dir, visual_method=args.visual_method)
 
     for i, resolution in enumerate(list(np.arange(args.min_resolution, args.max_resolution+0.1, args.step_size))):
         resolution_round = np.round(resolution, 2)

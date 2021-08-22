@@ -8,7 +8,7 @@ author = 'Zeisel'
 input_file = '{}_MICA_input.txt'.format(author)
 num_clusters = 7
 # utils.create_cmds_mds(root_dir, level, author, input_file, num_clusters)
-utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
+# utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
 
 # max_resolution = 10.0
 # utils.create_cmds_ge(root_dir, level, author, input_file, max_resolution)
