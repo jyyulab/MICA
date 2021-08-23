@@ -94,6 +94,8 @@ def mica_mds(args):
     else:
         cwl_script = 'mica.cwl'
 
+    pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+
     if args.platform == 'local':
         fp_yml = create_input_yml(args)
         if args.serial_run:
