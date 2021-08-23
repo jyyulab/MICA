@@ -22,7 +22,8 @@ before_script:
   - cd -
 
 script:
-  - travis_wait 20 ./tests/test_MICA_ge_Yan.sh
+  - travis_wait 10 ./tests/test_MICA_Yan.sh
+  - travis_wait 10 ./tests/test_MICA_Kolod.sh
   - travis_wait 10 ./tests/test_calc_ARI.py
 
 #safelist

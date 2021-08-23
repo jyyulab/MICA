@@ -53,7 +53,7 @@ def main():
     add_required_mds.add_argument('-pn', '--project-name', metavar='STR', required=True, type=str,
                                   help='Project name/ID.')
     add_required_mds.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=True, type=int,
-                                  help='Number of cluster to be specified in kmeans')
+                                  help='Number of clusters to be specified in kmeans')
     mica_mds.add_mds_arguments(subparser_mds)
 
     if len(sys.argv) == 1 or len(sys.argv) == 2:
