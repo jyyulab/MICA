@@ -8,6 +8,7 @@ import time
 import argparse
 import numpy as np
 import pandas as pd
+import pathlib
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
@@ -69,8 +70,9 @@ def mica_ge(args):
     logging.info('Building MI-based kNN graph ...')
     knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_jobs=args.num_workers)
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
-    if not os.path.isdir(args.output_dir):
-        os.mkdir(args.output_dir)
+
+    pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+
     edgelist_file = '{}/NNDescent_knn_graph_edgelist.txt'.format(args.output_dir)
     with open(edgelist_file, 'w') as fout:
         for edge in knn_graph.edges():

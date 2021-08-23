@@ -65,6 +65,7 @@ subcommands:
     ge           graph embedding version
     mds          MDS version
 ```
+Use ```mica ge -h``` and ```mica mds -h``` to check helps with subcommands.
 
 #### Inputs
 The main input for MICA is a tab-separated cells/samples by genes/proteins (rows are cells/samples) expression 
