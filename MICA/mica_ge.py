@@ -101,6 +101,7 @@ def mica_ge(args):
     mat_dr_df = pd.read_csv(emb_file, delimiter=' ', skiprows=1, index_col=0, names=np.arange(1, args.dr_dim+1))
     mat_dr_df.sort_index(inplace=True)
     mat_dr = mat_dr_df.to_numpy()
+    logging.info(mat_dr.shape)
     G = ng.build_graph(mat_dr, dis_metric='euclidean')
     partitions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution, max_resolution=args.max_resolution,
                                               step_size=args.step_size, num_workers=args.num_workers)

@@ -20,6 +20,7 @@ before_script:
   - make
   - cp node2vec ~/virtualenv/python3.7.6/bin
   - cd -
+  - wc -l test_data/inputs/Kolod_MICA_input.txt
 
 script:
   - travis_wait 30 ./tests/test_MICA_Kolod.sh
