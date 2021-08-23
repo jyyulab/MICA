@@ -63,6 +63,7 @@ def group_partition(partitions, index):
     print(len(partitions))
     cluster_dict = dict()
     for partition in partitions:
+        logging.info(len(partition.values()))
         labels = [x + 1 for x in partition.values()]
         num_cluster = len(set(labels))
         clustering_res = pd.DataFrame(data=labels, index=index, columns=["label"])
