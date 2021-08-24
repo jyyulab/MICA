@@ -70,7 +70,7 @@ def mica_ge(args):
     logging.info('Building MI-based kNN graph ...')
     knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_jobs=args.num_workers)
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
-    logging.info('kNN graph number of nodes: {}'.format_map(len(knn_graph.nodes())))
+    logging.info('kNN graph number of nodes: {}'.format(len(knn_graph.nodes())))
 
     pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
