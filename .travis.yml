@@ -20,6 +20,7 @@ before_script:
   - make
   - cp node2vec ~/virtualenv/python3.7.6/bin
   - cd -
+  - python -c "import pynndescent; print(pynndescent.__version__)"
 
 script:
   - travis_wait 30 ./tests/test_MICA_Buettner.sh
