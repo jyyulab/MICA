@@ -24,7 +24,7 @@ def main():
     common_required.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                                  help='Path to final output directory')
 
-    common_optional = parent_parser.add_argument_group('common optional arguments')
+    common_optional = parent_parser.add_argument_group('visualization arguments')
     common_optional.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                                  help='Visualization method UMAP or t-SNE (default: UMAP)')
     common_optional.add_argument('-md', '--min-dist', metavar='FLOAT', required=False, default=0.6, type=float,
@@ -62,7 +62,6 @@ def main():
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-    # logging.info(args)
 
     if args.version == 'auto':
         start = time.time()
@@ -76,11 +75,15 @@ def main():
 
         if num_cells >= args.cell_count:    # Run GE version
             logging.info('More than {} cells. Use GE version...'.format(args.cell_count))
+            mica_ge.add_ge_arguments(subparser_auto)
+            args = parser.parse_args()
             mica_ge.mica_ge(args)
         else:                               # Run MDS version
             if args.platform == 'lsf' and args.config_json is None:
                 sys.exit('Error: --config-json must be specified for lsf platform.')
             logging.info('Less than {} cells. Use MDS version...'.format(num_cells))
+            mica_mds.add_mds_arguments(subparser_auto)
+            args = parser.parse_args()
             mica_mds.mica_mds(args)
     elif args.version == 'ge':
         logging.info('Start GE mode...')
@@ -89,7 +92,7 @@ def main():
         if args.platform == 'lsf' and args.config_json is None:
             sys.exit('Error: --config-json must be specified for lsf platform.')
         logging.info('Start MDS mode...')
-        print(args)
+        # print(args)
         mica_mds.mica_mds(args)
     else:
         sys.exit('Error - invalid running version')

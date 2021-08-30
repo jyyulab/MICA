@@ -10,7 +10,7 @@ root_dir = '/Users/lding/Documents/MICA/Datasets/HPC'
 level = 'SilverStd'
 author = 'Zeisel'
 input_file = '{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author)
-num_clusters = 8
+num_clusters = 7
 
 #%%
 adata = preprocessing.read_preprocessed_mat(input_file)
