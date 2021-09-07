@@ -50,13 +50,12 @@ name = MPI.Get_processor_name()
 
 
 ## Begin execution of code
-#cwd=''
 cwd=os.getcwd()
 if rank==0:
     print(cwd,flush=True)
 
-SMALL_TEST=False
-#SMALL_TEST=True
+#SMALL_TEST=False
+SMALL_TEST=True
 
 if SMALL_TEST:    
     project_name = 'pbmc3k'
@@ -236,30 +235,12 @@ if os.path.isfile(mi_filename):
     #sets default context and block_shape
     core.initmpi([PR, PC],block_shape=[block_size,block_size])
 
-    ##ceb
-    #comm.Barrier()
-    #exit() #ceb
-
-    #start=time.time()
-    #create empty distributed MI matrix
-    #dMI=core.DistributedMatrix(global_shape=[g_nrows,g_nrows],dtype=np.float64)
-    #end=time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt create empty distributed MI matrix Elapsed = %s" % (end - start),flush=True)
-
     ## The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
-    #start=time.time()
     #Read MI matrix from file
     #mi_filename = data_file_path+project_name+'_mi_distributed.scalapack'
     if rank==0:
         print("reading computed MI matrix from file: ",mi_filename)
     dMI=core.DistributedMatrix.from_file(mi_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
-    #end=time.time()
-    #comm.Barrier()
-    #print("Rank:%s Read distributed MI matrix from file Elapsed = %s" % (rank,end - start),flush=True)
-    #print(dir(dMI))
-    #print("rank=",rank," dMI_local: ",dMI.local_array,flush=True)
 
 #============================================================================
 else: #file does not exist, so compute MI matrix and write
@@ -429,18 +410,6 @@ else: #file does not exist, so compute MI matrix and write
     if rank==0:
         print("Write distributed MI matrix to file Elapsed = %s" % (end - start),flush=True)
 
-    ### The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
-    #istart=time.time()
-    ##Read MI matrix from file
-    #dMI=core.DistributedMatrix.from_file(mi_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
-    #end=time.time()
-    #comm.Barrier()
-
-    #print("rank=",rank," dMI_local: ",dMI.local_array,flush=True)
-
-    #if rank==0:
-    #    print("Rank:%s Read distributed MI matrix from file %s Elapsed = %s" % (rank, mi_filename, end - start),flush=True)
-
 
 
 #============================================================================
@@ -448,23 +417,7 @@ else: #file does not exist, so compute MI matrix and write
 
 
 
-
-
-### The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
-#istart=time.time()
-##Read MI matrix from file
-#mi_filename = data_file_path+project_name+'_mi_distributed.scalapack'
-#dMI.from_file(mi_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
-#end=time.time()
-#comm.Barrier()
-#if rank==0:
-#    print("Rank:%s Read distributed MI matrix from file Elapsed = %s" % (rank,end - start),flush=True)
-
-
-
-
 #if MI file already exists, then read it
-#mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
 mi_normed_filename = output_file_name+'_mi_normed_distributed.scalapack'
 
 if os.path.isfile(mi_normed_filename): 
@@ -479,61 +432,27 @@ else:
     ### We start with an empty matrix but add the the diagonal as the first column
     ### Then we multiply by its transpose to get a dense matrix
     block_start = time.time()
-    #start = time.time()
     #get global indices for diagonal
     gi, lri, lci = dMI.local_diagonal_indices()
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post get diagonal indicies Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     #create matrix to store diagonal row
     dMI_diag=core.DistributedMatrix.empty_like(dMI)
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post create empty matrix for diag Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     dMI_row1=core.DistributedMatrix.empty_like(dMI)
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post create empty matrix for row1 Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     dgi, dlri, dlci = dMI_diag.local_diagonal_indices()
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post get local indices Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     dMI_diag.local_array[dlri,dlci]=dMI.local_array[lri,lci]
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post get local array Elapsed = %s" % (end - start),flush=True)
-    #dMI_diag.local_array[0,dlci]=dMI.local_array[lri,lci]
-    #my_diag[comm.rank]=dMI.local_array[lri,lci]
 
 
     ## Create a matrix with ones in the first row and zeros elsewhere
 
-    #start = time.time()
     ri, ci = dMI_row1.indices()
     dMI_row1.local_array[:]= ((ri==0).astype(int)).astype(float)
-    #end = time.time()
-    #print(dMI_row1.local_array)
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post convert array to float Elapsed = %s" % (end - start),flush=True)
 
     start = time.time()
     ## Multiply the matrices to get diagonal values on first row of distributed matrix
     dMI_norm = rt.dot(dMI_row1,dMI_diag)
-    #dMI_norm = dMI_diag.dot(dMI_row1)
     end = time.time()
     comm.Barrier()
     if rank==0:
@@ -547,16 +466,12 @@ else:
 
     start = time.time()
     ## Multiply the matrix with its transpose to get a dense matrix for normalization
-    #CEB taking long time, probably due to transpose
-    #dMI_norm=dMI_diag.T*dMI_diag
-    #dMI_normT = dMI_norm.copy()
     dMI_normT = dMI_norm.transpose()
     end = time.time()
     comm.Barrier()
     if rank==0:
         print("checkpt test transpose Elapsed = %s" % (end - start),flush=True)
     start = time.time()
-    #dMI_norm2 = rt.dot(dMI_norm,dMI_norm,transA='T')
     dMI_norm2 = rt.dot(dMI_normT,dMI_norm)
     end = time.time()
     comm.Barrier()
@@ -574,36 +489,14 @@ else:
     ## Compute the square root of the normalization matrix
 
     #compute sqrt of each element
-    #start = time.time()
     dMI_norm_root=core.DistributedMatrix.empty_like(dMI)
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post create empty squared matrix Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     dMI_norm_root.local_array[:] = np.sqrt(dMI_norm2.local_array[:])
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post compute square of matrix Elapsed = %s" % (end - start),flush=True)
 
     ## Now we can finally compute the norm of the MI matrix
-    #start = time.time()
     dMI_normed=core.DistributedMatrix.empty_like(dMI)
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post create empty norm matrix Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     dMI_normed.local_array[:] = dMI.local_array[:] / dMI_norm_root.local_array[:]
-    #ceb
-    #dMI_normed.local_array[:] = dMI.local_array[:] / 1.0 #ceb test
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post divide local array by norm array Elapsed = %s" % (end - start),flush=True)
 
     #Have other ranks wait until prep_dist has completed
     comm.Barrier()
@@ -612,13 +505,7 @@ else:
     gc.collect()
 
     #ceb write normed matrix
-    #start = time.time()
-    #mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
     dMI_normed.to_file(mi_normed_filename)
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("checkpt post write normed MI matrix to file Elapsed = %s" % (end - start),flush=True)
 
     block_end = time.time()
     comm.Barrier()
@@ -640,8 +527,6 @@ else:
 
 
 #if MI file already exists, then read it
-#mi_normed_filename = data_file_path+project_name+'_mi_normed_distributed.scalapack'
-#processed_dissimilarity_matrix_filename = data_file_path+project_name+'_dissimilarity_matrix_distributed.scalapack'
 processed_dissimilarity_matrix_filename = output_file_name+'_dissimilarity_matrix_distributed.scalapack'
 if os.path.isfile(processed_dissimilarity_matrix_filename): 
     if rank==0:
@@ -682,20 +567,15 @@ else:
     del Ones
     gc.collect()
     #Have other ranks wait until prep_dist has completed
-    #comm.Barrier()
 
     # B = -H.dot(MDS**2).dot(H)/2
     negH= core.DistributedMatrix.empty_like(dMI)
-    #comm.Barrier()
 
     negH.local_array[:]= -H.local_array[:]
-    #comm.Barrier()
 
     MDS2= core.DistributedMatrix.empty_like(dMI)
-    #comm.Barrier()
 
     MDS2.local_array[:] = MDS.local_array[:]**2
-    #comm.Barrier()
 
     #Have other ranks wait until prep_dist has completed
     comm.Barrier()
@@ -721,12 +601,7 @@ else:
     if rank==0:
         print("checkpt 10.13 [dot(C,H)] Elapsed = %s" % (end - start),flush=True)
 
-    #start = time.time()
     B.local_array[:]=B.local_array[:]/2.0
-    #end = time.time()
-    #comm.Barrier()
-    #if rank==0:
-    #    print("rank: %s, checkpt 10.14 Elapsed = %s" % (rank,end - start),flush=True)
 
     #Have other ranks wait until prep_dist has completed
     comm.Barrier()
@@ -756,7 +631,6 @@ else:
 
 
 #ceb read or compute reduced matrix
-#reduced_mi_filename = data_file_path+project_name+'_mi_reduced.h5'
 reduced_mi_filename = output_file_name+'_mi_reduced.h5'
 
 if os.path.isfile(reduced_mi_filename): 
@@ -827,7 +701,7 @@ if rank==0:
 
 
 #====================================================================================
-
+#        Post dimensionality reduction Clustering and Visualization
 
 import itertools
 #import time
@@ -844,78 +718,120 @@ from functools import partial
 from sklearn import cluster        # for kmeanmerge_dist_matss
 from sklearn import manifold       # for tsne
 
+
 def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     out_file_name = project_name + "_kmeans_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
     km = cluster.KMeans(n_clusters=n_clusters, max_iter=1000, n_init=1000)
-
     km_res = pd.DataFrame(
         data=np.transpose(km.fit_predict(in_mat.iloc[:, 0:dim])),
         index=in_mat.index,
         columns=["label"],
     )
     # km_res.to_hdf(out_file_name, "kmeans")
-    print("Executing kmeans:" + out_file_name)
+    print("Executing kmeans:" + out_file_name,flush=True)
     return km_res
 
 
+import faiss
+#https://github.com/facebookresearch/faiss
+def faiss_kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
+    out_file_name = project_name + "_faiss_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
+    max_iter=500
+    n_init=1
+    verbosity=False
+    x=in_mat.values
+    x=np.ascontiguousarray(x, dtype=np.float32)
+    km = faiss.Kmeans( x.shape[1] , n_clusters, niter=max_iter, nredo=n_init, verbose=verbosity)
+    km.train(x)
+    D, membership = km.index.search(x,1)
+    #km_res = pd.DataFrame(
+    #    data=I,
+    #    index=in_mat.index,
+    #    columns=["label"],
+    #)
+    # km_res.to_hdf(out_file_name, "kmeans")
+    print("Executing faiss kmeans:" + out_file_name,flush=True)
+    #return km_res
+    return np.array(membership)
 
 
 #shared memory kmeans 
 def cluster_method_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_processes=1):
+   #Create a thread pool of num_processes size
     pool = Pool(processes=num_processes)
     hdf = pd.HDFStore(mi_file)
     r = []
     #ceb not sure what these "keys" are
     # but kmeans is being run independently on each key
     for trans in hdf.keys():
-        print("mc clustering trans=%s" % (trans),flush=True)
+        print("mc clustering trans=[%s]" % (trans),flush=True)
         df = hdf[trans]
-        # def utils.kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id)
-        method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
+        #method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
+        method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
+        #n_iter is the number of bootstrap cases we want to execute for kmeans
         iterations = itertools.product(dims, range(n_iter))
+        print("cluster_method_multiprocess checkpt 3",flush=True)
+        #ceb run n_iter kmeans functions on thread pool 
         res = pool.starmap(method_iterable, iterations)
         r = r + res
     pool.close()
     hdf.close()
+    print("cluster_method_multiprocess checkpt 6",flush=True)
     return r
 
 #https://github.com/DmitryUlyanov/Multicore-TSNE
-from MulticoreTSNE import MulticoreTSNE as mcTSNE
+#shared memory kmeans
+def cluster_method_distributed(mi_file, n_cluster, n_iter, common_name, dims=[19], num_processes=1):
+    #Run on all mpi ranks
+    comm = MPI.COMM_WORLD
+    myrank = comm.Get_rank()
+    nranks = comm.Get_size()
+    root = 0
+    #All ranks read input file
+    hdf = pd.HDFStore(mi_file)
+    r = []
+    #ceb not sure what these "keys" are
+    # but kmeans is being run independently on each key
+    for trans in hdf.keys():
+        print("mc clustering trans=[%s]" % (trans),flush=True)
+        df = hdf[trans]
+        ncells = df.shape[0]
+        print("n_cells=%s" % (ncells))
 
+        #we will distribute a kmeans to each rank 
+        # we will send numpy array clusters to root rank
+        clusters = faiss_kmeans(df, n_cluster, common_name, dim=ncells ,bootstrap_id=myrank)
+        
+        if rank == root:
+            clusters_buffer = None
+        else:
+            clusters_buffer = np.empty( nranks*ncells, dtype=int )
 
-def tsne(
-         data, max_dim, out_file_name, tag, perplexity=30, plot="True"
-):
-    embed = manifold.TSNE(
-        n_components=2,
-        n_iter=5000,
-        learning_rate=200,
-        perplexity=perplexity,
-        random_state=10,
-        early_exaggeration=12.0).fit_transform(data.iloc[:, 0:max_dim])
-    res = pd.DataFrame(data=embed, index=data.index, columns=["X", "Y"])
-    if plot == "True":
-        utils.scatter(embed, out_file_name, tag)
-    return res
+        comm.Gatherv(sendbuf=clusters, recvbuf=(clusters_buffer, ncells), root=root)
 
+        #method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
+        #method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
+        #n_iter is the number of bootstrap cases we want to execute for kmeans
+        #iterations = itertools.product(dims, range(n_iter))
+        print("cluster_method_distributed checkpt 3",flush=True)
+        #ceb run n_iter kmeans functions on thread pool
+        #res = pool.starmap(method_iterable, iterations)
 
-def TSNE(
-         data, max_dim, out_file_name, tag, perplexity=30, plot="True", n_jobs=1
-):
-    print("mcTSNE using %s processors" % (n_jobs),flush=True)
-    embed = mcTSNE(
-        n_components=2,
-        n_iter=5000,
-        learning_rate=200,
-        perplexity=perplexity,
-        random_state=10,
-        early_exaggeration=12.0,
-        n_jobs=n_jobs,
-        ).fit_transform(data.iloc[:, 0:max_dim])
-    res = pd.DataFrame(data=embed, index=data.index, columns=["X", "Y"])
-    if plot == "True":
-        utils.scatter(embed, out_file_name, tag)
-    return res
+        #collect clusters data on root rank
+        if myrank == root:
+            for i in range(nranks):
+                #add dataframe to global list
+                res = pd.DataFrame(
+                    data=clusters_buffer[i*ncells:(i+1)*ncells],
+                    index=df.index,
+                    columns=["label"],
+                    ) 
+                r = r + res
+
+    hdf.close()
+    print("cluster_method_distributed checkpt 6",flush=True)
+    return r
+
 
 
 def visualization(
@@ -936,12 +852,12 @@ def visualization(
     hdf.close()
 
     if visualize == "umap":
-        embed_2d = umap(hdf_trans, max_dim, min_dist)
+        embed_2d = utils.umap(hdf_trans, max_dim, min_dist)
 
     elif visualize == "tsne":
         perplexity = np.min([perplexity, np.max(cclust.groupby(["label"]).size())])
-        #embed_2d = tsne(hdf_trans, max_dim, "", None, perplexity, "False")
-        embed_2d = TSNE(hdf_trans, max_dim, "", None, perplexity, "False",nprocesses)
+        #embed_2d = utils.tsne(hdf_trans, max_dim, "", None, perplexity, "False")
+        embed_2d = utils.mctsne(hdf_trans, max_dim, "", None, perplexity, "False",nprocesses)
     cclust = pd.concat([cclust, embed_2d.loc[cclust.index, :]], axis=1)
     res = cclust.loc[:, ["X", "Y", "label"]]
     # save 2D embedding to txt file
@@ -950,23 +866,91 @@ def visualization(
     res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
 
 
+def consensus_sc3(km_results, n_clusters, common_name=None):
+    """ Implement SC3's consensus clustering. (https://www.nature.com/articles/nmeth.4236)
+    Args:
+        km_results (list of dataframes): each dataframe is a clustering results with two columns (cell_index,
+                                         clustering_label)
+        n_clusters (int): number of clusters
+        common_name (name): common string to name the output files
+    Returns:
+        Clustering results
+    """
+    print("consensus checkpt 1",flush=True)
+    n_iter = len(km_results)
+    print('Number of k-mean results: {}'.format(n_iter))
+    if n_iter == 0:
+        return None
+    if len(km_results) == 0:
+        return None
+
+    print("consensus checkpt 1",flush=True)
+    conss_binary_mat = np.zeros((km_results[0].shape[0], km_results[0].shape[0]))
+    print("consensus checkpt 2",flush=True)
+
+    #loop over list of clusters generated by parallel kmeans.
+    #This loop can be done in parallel
+    #The concensus matrix will be sized [n_cells x n_cells], so will grow as square of n_cells
+    #We are going to perform a hierarchical agglomerative clustering algorithm on this matrix.
+    #This will impose a computational (and eventually memory) bottleneck
+
+    for i in range(n_iter):
+        arr = km_results[i].to_numpy()
+        #compare arr with it's transpose, create matrix of bools where true if .
+        mask = arr[:, None] == arr
+        binary_mat = mask[:,:,0].astype(int)
+        #sum values where kmeans clusters agree
+        conss_binary_mat += binary_mat
+
+
+    print("consensus checkpt 3",flush=True)
+    #divide summations by total number of clusterings compared
+    conss_binary_mat = conss_binary_mat / n_iter
+    print("consensus checkpt 4",flush=True)
+    #ceb differs from previous aggregate function which uses ward linkage
+    clust = cluster.AgglomerativeClustering(
+        linkage="complete", n_clusters=n_clusters, affinity="euclidean"
+    )
+
+    #this agglomerative clustering function takes most time 
+    print("aggregate: fit agglomerative cluster",flush=True)
+    clust.fit(conss_binary_mat)
+    print("aggregate: finish agglomerative cluster",flush=True)
+
+    cclust = pd.DataFrame(data=clust.labels_, index=km_results[0].index, columns=["label"])
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    label_map = {index[i]: i + 1000 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": label_map})
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    map_back = {index[i]: i + 1 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": map_back})
+    out_file = common_name + "_k" + str(n_clusters)
+    out_file_hdf = out_file + "_cclust.h5"
+    cclust.to_hdf(out_file_hdf, "cclust")
+    # conss_binary_mat.to_hdf(out_file_hdf, "membership")
+    print('consensus_sc3 is done')
+    return cclust, out_file
+
 
 def clustering(in_file, dr, k, n_bootstrap, out_name,
                plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
     start_total_time = time.time()
-    dim_km = map(int, dim_km)
-
+    dim_km = map(int, dim_km) #converts string to int 
     start_km_time = time.time()
     result = cluster_method_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
                          common_name=out_name, dims=dim_km, num_processes=n_processes)
+    #print("result",flush=True)
+    #print(result[0],flush=True)
     print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
-
     start_agg_time = time.time()
-    agg, out_f = utils.aggregate(result, k, out_name)
+    print("pre aggregate checkpt ",flush=True)
+    #agg, out_f = utils.consensus_sc3(result, k, out_name)
+    agg, out_f = consensus_sc3(result, k, out_name)
     print("aggregate %s seconds" % (time.time() - start_agg_time),flush=True)
 
-    start_tsne_time = time.time()
-    visualization(agg,  # consensus clustering result
+    if 1:
+        start_tsne_time = time.time()
+        visualization(agg,  # consensus clustering result
                         in_file,  # reduced_mi_file
                         dr,  # transformation
                         out_f,  # output file name
@@ -976,14 +960,38 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
                         perplexity=tsne_perplexity,
                         nprocesses=n_processes,
                         )
-    print("tsne %s seconds" % (time.time() - start_tsne_time),flush=True)
+        print("tsne %s seconds" % (time.time() - start_tsne_time),flush=True)
 
     print("--- %s seconds ---" % (time.time() - start_total_time),flush=True)
 
+
+
+
 #==============================================================
-if 1:
-    #compute tsne
-    plot_file_name = plot_file_path+project_name+"scatter"
+#compute tsne
+plot_file_name = plot_file_path+project_name+"scatter"
+
+
+if 1: #run multiproces clustering
+    #if rank==0:
+    start_km_time = time.time()
+    dim_km=[19]
+    dim_km = map(int, dim_km) #converts string to int 
+    #result = cluster_method_multiprocess(reduced_mi_filename, n_cluster=5, n_iter=2,
+    #                     common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
+    result = cluster_method_distributed(reduced_mi_filename, n_cluster=5, n_iter=2,
+                         common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
+    print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
+
+
+
+#write code for distrubuted kmeans
+#try pyspark version of kmeans
+
+
+
+
+if 0: #compute tSNE and plot
     max_dim=200
     block_start = time.time()
     if rank==0:
@@ -996,19 +1004,29 @@ if 1:
     comm.Barrier()
     if rank==0:
         print("Plot TSNE Elapsed = %s" % (block_end - block_start),flush=True)
-else:
+
+
+if 1: #run entire clustering pipeline
+    block_start = time.time()
     if rank==0:
+        print("Begin Clustering",flush=True)
         clustering(reduced_mi_filename, 
                "mds",#dr 
                5,    #k
-               1,  #test  #n_bootstrap
+               comm.size,  #test  #n_bootstrap
                plot_file_name, #outfile name
                "tsne", #plot method
+               #"umap", #plot method
                0.1,    #umap_min_dist
                30,     #tsne_perplexity
                19,     #plot_dim
                comm.size,     #n_processes
                [19])   #dim_km
+    block_end = time.time()
+    comm.Barrier()
+    if rank==0:
+        print("Clustering Elapsed = %s" % (block_end - block_start),flush=True)
+
 
 
 total_time_end = time.time()
