@@ -3,8 +3,15 @@
 import sys
 import numpy as np
 import community
+import logging
 from multiprocessing import Pool
 from functools import partial
+import matplotlib
+matplotlib.use('Agg')
+matplotlib.rcParams['font.family'] = 'Arial'
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_samples, silhouette_score
+from MICA.lib import visualize as vs
 
 
 def graph_clustering(G, method='louvain', min_resolution=0.2, max_resolution=3.4, step_size=0.4):
@@ -54,3 +61,26 @@ def graph_clustering_parallel(G, method='louvain', min_resolution=0.2, max_resol
         sys.exit('Error - invalid graph clustering method: {}'.format(method))
     pool.close()
     return partitions
+
+
+def silhouette_analysis(clustering_res, num_clusters, frame_dr, out_dir):
+    """ Calculate silhouette scores and draw silhouette plot of consensus clustering results for a given number of
+    clusters.
+    Args:
+        clustering_res (dict): clustering results, {sample index: cluster label}
+        num_clusters (int): number of clusters
+        frame_dr (ndarray): matrix after dimension reduction
+        out_dir (dir): path to output folder
+    Outputs:
+        silhouette score (float)
+        PDF image of silhouette plot
+    """
+    if num_clusters == 1:
+        # Number of clusters is 1. Set silhouette score to 0.0
+        logging.info('Number of clusters: {}, silhouette_avg: {}'.format(num_clusters, 0.0))
+        return 0.0
+    labels = clustering_res['label']
+    silhouette_avg = silhouette_score(frame_dr, labels)
+    logging.info('Number of clusters: {}, silhouette score: {}'.format(num_clusters, silhouette_avg))
+    vs.silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir)
+    return silhouette_avg
