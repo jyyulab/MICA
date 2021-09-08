@@ -7,17 +7,19 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from functools import partial
 from sklearn.manifold import TSNE
 import umap
 from .distance import numba_calc_mi_dis
+from sklearn.metrics import silhouette_samples
 
 
 def visual_embed(clustering_res, frame_dr, out_dir, dis_metric='euclidean',
                  visual_method='UMAP', suffix=None, num_works=10, perplexity=30, min_dist=0.6):
     """ Visualize clustering results using tSNE for clustering results.
     Args:
-        partition (dict): clustering results, {index: cluster label}
+        clustering_res (dict): clustering results, {sample index: cluster label}
         frame_dr (ndarray): matrix after dimension reduction
         out_dir (dir): path to output folder
         dis_metric (str): distance metric (default: mi)
@@ -95,3 +97,56 @@ def scatter_plot(data, out_file, marker_size=1.0, marker="o", method='UMAP', mar
                markerscale=marker_scale)
     plt.savefig(out_file, bbox_inches="tight")
     plt.cla()
+
+
+def silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir):
+    """ Draw a silhouette plot
+    Args:
+        labels (dict): clustering results, {sample index: cluster label}
+        frame_dr (ndarray): matrix after dimension reduction
+        out_dir (dir): path to output folder
+    Returns:
+        PDF image of silhouette plot
+    """
+    # Compute the silhouette scores for each cell
+    sample_silhouette_values = silhouette_samples(frame_dr, labels)
+    fig, ax = plt.subplots()
+    fig.set_size_inches(10, 7)
+    y_lower = 10
+    for i in range(1, num_clusters + 1):
+        # Aggregate the silhouette scores for cells belonging to cluster i, and sort them
+        ith_cluster_silhouette_values = sample_silhouette_values[labels == i]
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        # The silhouette coefficient can range from -1, 1 but in this example all lie within [-0.1, 1]
+        ax.set_xlim([-0.1, 1])
+        # The (n_clusters+1)*10 is for inserting blank space between silhouette
+        # plots of individual clusters, to demarcate them clearly.
+        ax.set_ylim([0, len(frame_dr) + (num_clusters + 1) * 10])
+
+        color = cm.nipy_spectral(float(i) / num_clusters)
+        ax.fill_betweenx(np.arange(y_lower, y_upper),
+                         0, ith_cluster_silhouette_values,
+                         facecolor=color, edgecolor=color, alpha=0.7)
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        ax.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+        # Compute the new y_lower for next plot
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    ax.set_title("The silhouette plot for the various clusters.")
+    ax.set_xlabel("The silhouette coefficient values")
+    ax.set_ylabel("Cluster label")
+
+    # The vertical line for average silhouette score of all the values
+    ax.axvline(x=silhouette_avg, color="red", linestyle="--")
+
+    ax.set_yticks([])  # Clear the yaxis labels / ticks
+    ax.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+    out_png_file = '{}/silhouette_{}_{}.pdf'.format(out_dir, frame_dr.shape[1], num_clusters)
+    plt.savefig(out_png_file, bbox_inches="tight")
+    return sample_silhouette_values

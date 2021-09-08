@@ -61,7 +61,7 @@ def mica_ge(args):
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
     frame = adata.to_df()
-    logging.info(frame.shape)
+    logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -101,6 +101,7 @@ def mica_ge(args):
     start = time.time()
     logging.info('Performing clustering ...')
     mat_dr_df = pd.read_csv(emb_file, delimiter=' ', skiprows=1, index_col=0, names=np.arange(1, args.dr_dim+1))
+    logging.info('(cells, dimensions): {}'.format(frame.shape))
     mat_dr_df.sort_index(inplace=True)
     mat_dr = mat_dr_df.to_numpy()
     logging.info(mat_dr.shape)
@@ -124,9 +125,19 @@ def mica_ge(args):
 
     logging.info('Visualizing clustering results using {}'.format(args.visual_method))
     for agg, num_cluster in aggs:
-        logging.info('Number of clusters: {}'.format(num_cluster))
         vs.visual_embed(agg, mat_dr, args.output_dir, suffix=num_cluster,
                         visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
+    end = time.time()
+    runtime = end - start
+    logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    start = time.time()
+    logging.info('Optimal number of clusters analysis ...')
+    with open('{}/silhouette_avg.txt'.format(args.output_dir), 'w') as fout:
+        fout.write('dimension\tnum_clusters\tsilhouette_avg\n')
+        for agg, num_cluster in aggs:
+            silhouette_avg = cl.silhouette_analysis(agg, num_cluster, mat_dr, args.output_dir)
+            fout.write('{}\t{}\t{}\n'.format(args.dr_dim, num_cluster, silhouette_avg))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))

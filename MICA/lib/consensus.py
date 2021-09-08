@@ -49,7 +49,6 @@ def consensus_sc3(clustering_results, n_clusters, common_name=None):
     # out_file_hdf = out_file + "_cclust.h5"
     # cclust.to_hdf(out_file_hdf, "cclust")
     # conss_binary_mat.to_hdf(out_file_hdf, "membership")
-    logging.info('consensus_sc3 is done')
     return cclust, out_file
 
 
@@ -60,10 +59,8 @@ def group_partition(partitions, index):
     Returns:
         Clustering results
     """
-    print(len(partitions))
     cluster_dict = dict()
     for partition in partitions:
-        logging.info(len(partition.values()))
         labels = [x + 1 for x in partition.values()]
         num_cluster = len(set(labels))
         clustering_res = pd.DataFrame(data=labels, index=index, columns=["label"])
@@ -75,4 +72,5 @@ def group_partition(partitions, index):
 
 
 def purify():
+    """ To do: purify mis-classified cells. """
     return

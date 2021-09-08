@@ -92,7 +92,6 @@ def main():
         if args.platform == 'lsf' and args.config_json is None:
             sys.exit('Error: --config-json must be specified for lsf platform.')
         logging.info('Start MDS mode...')
-        # print(args)
         mica_mds.mica_mds(args)
     else:
         sys.exit('Error - invalid running version')
