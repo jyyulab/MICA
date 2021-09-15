@@ -114,7 +114,10 @@ else:
     #slice_size = 8192 #ok for 50497?
     #slice_size = 12500 #ok for 50497 with ranks=16 (failure at 64 ranks)
     #slice_size = 12500 #ok for 50497 with ranks=32, 1 job per rank?
-    #slice_size = 6250 #ok for 50497 with ranks=64, 1 job per rank?
+    if size==32:
+        slice_size = 12500 #ok for 50497 with ranks=64, 1 job per rank?
+    if size==64:
+        slice_size = 6250 #ok for 50497 with ranks=64, 1 job per rank?
     if size==128:
         slice_size = 3125 # for 50497 with ranks=128, 1 job per rank?
     if size==256:
@@ -140,12 +143,6 @@ if rank==0:
 #then check to see if mi file exists.
 #if so we can skip the prep_dist 
 
-##ceb
-#comm.Barrier()
-#if rank==0:
-#    print("checkpt 1",flush=True)
-#exit()
-#comm.Barrier()
 
 total_time_start = time.time()
 
@@ -201,6 +198,12 @@ def compute_process_grid_dimensions(nranks):
         #ceb eigenvalue solve fails (MPI errors) at pr=16 pc=8. Not sure why
         PR=8
         PC=4
+    #ceb best for 32
+    # Need to write code to select the greatest 2 factors of comm.size for optimal process grid.
+    if comm.size==64:
+        #ceb eigenvalue solve fails (MPI errors) at pr=16 pc=8. Not sure why
+        PR=8
+        PC=8
     #ceb best for 128
     # Need to write code to select the greatest 2 factors of comm.size for optimal process grid.
     if nranks==128:
@@ -732,7 +735,7 @@ def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     return km_res
 
 
-import faiss
+#import faiss
 #https://github.com/facebookresearch/faiss
 def faiss_kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     out_file_name = project_name + "_faiss_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
@@ -766,8 +769,8 @@ def cluster_method_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[1
     for trans in hdf.keys():
         print("mc clustering trans=[%s]" % (trans),flush=True)
         df = hdf[trans]
-        #method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
-        method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
+        method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
+        #method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
         #n_iter is the number of bootstrap cases we want to execute for kmeans
         iterations = itertools.product(dims, range(n_iter))
         print("cluster_method_multiprocess checkpt 3",flush=True)
@@ -779,57 +782,77 @@ def cluster_method_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[1
     print("cluster_method_multiprocess checkpt 6",flush=True)
     return r
 
+
 #https://github.com/DmitryUlyanov/Multicore-TSNE
 #shared memory kmeans
-def cluster_method_distributed(mi_file, n_cluster, n_iter, common_name, dims=[19], num_processes=1):
+def cluster_method_distributed(mi_file, n_cluster, n_bootstraps, common_name, dims=[19], num_processes=1):
     #Run on all mpi ranks
     comm = MPI.COMM_WORLD
     myrank = comm.Get_rank()
     nranks = comm.Get_size()
+    if myrank < n_bootstraps:
+        color = 1
+        key = myrank
+    else:
+        color = 2 #MPI.UNDEFINED
+        key = myrank
+
+    subcomm = MPI.COMM_WORLD.Split(color,key)
+    #print("myrank=%s subcomm=%s" % (myrank,subcomm))
+    #need to use n_iter to set number of bootstraps
     root = 0
-    #All ranks read input file
-    hdf = pd.HDFStore(mi_file)
     r = []
-    #ceb not sure what these "keys" are
-    # but kmeans is being run independently on each key
-    for trans in hdf.keys():
-        print("mc clustering trans=[%s]" % (trans),flush=True)
-        df = hdf[trans]
-        ncells = df.shape[0]
-        print("n_cells=%s" % (ncells))
+    #only use ranks in subcomm
+    if color==1:
+        mysubrank = subcomm.Get_rank()
+        print("myrank=%s my_subrank= %s subcomm.Get_size()=%s" % (myrank,mysubrank,subcomm.Get_size()),flush=True)
+        #All ranks read input file
+        hdf = pd.HDFStore(mi_file)
+        #ceb not sure what these "keys" are
+        # but kmeans is being run independently on each key
+        for trans in hdf.keys():
+            #print("mc clustering trans=[%s]" % (trans),flush=True)
+            df = hdf[trans]
+            ncells = df.shape[0]
+       
+            print("cluster_method_distributed checkpt 0",flush=True)
+            #n_iter is the number of bootstrap cases we want to execute for kmeans
+            #we will distribute a kmeans to each rank 
+            # we will send numpy array clusters to root rank
+            #clusters = faiss_kmeans(df, n_cluster, common_name, dim=ncells ,bootstrap_id=myrank)
+            clusters = np.asarray((utils.kmeans(df, n_cluster, common_name, dim=ncells ,bootstrap_id=mysubrank)).label,dtype=int)
+            print("cluster_method_distributed checkpt 1",flush=True)
+      
+            clusters_buffer=None 
+            if mysubrank == root:
+                #clusters_buffer = np.empty( nranks*ncells, dtype=int )
+                clusters_buffer = np.empty( n_bootstraps*ncells, dtype=int )
 
-        #we will distribute a kmeans to each rank 
-        # we will send numpy array clusters to root rank
-        clusters = faiss_kmeans(df, n_cluster, common_name, dim=ncells ,bootstrap_id=myrank)
-        
-        if rank == root:
-            clusters_buffer = None
-        else:
-            clusters_buffer = np.empty( nranks*ncells, dtype=int )
+            #print("cluster_method_distributed checkpt 2",flush=True)
+            #comm.Gatherv(clusters, clusters_buffer, root=root)
+            subcomm.Gatherv(clusters, clusters_buffer, root=root)
 
-        comm.Gatherv(sendbuf=clusters, recvbuf=(clusters_buffer, ncells), root=root)
+            #print("cluster_method_distributed checkpt 3",flush=True)
 
-        #method_iterable = partial(utils.kmeans, df, n_cluster, common_name)
-        #method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
-        #n_iter is the number of bootstrap cases we want to execute for kmeans
-        #iterations = itertools.product(dims, range(n_iter))
-        print("cluster_method_distributed checkpt 3",flush=True)
-        #ceb run n_iter kmeans functions on thread pool
-        #res = pool.starmap(method_iterable, iterations)
+            #collect clusters data on root rank
+            if mysubrank == root:
+                #for i in range(nranks):
+                for i in range(subcomm.Get_size()):
+                    #add dataframe to global list
+                    res = pd.DataFrame(
+                        data=clusters_buffer[i*ncells:(i+1)*ncells],
+                        index=df.index,
+                        columns=["label"],
+                        ) 
+                    #print(res)
+                    r.append(res)
+        hdf.close()
 
-        #collect clusters data on root rank
-        if myrank == root:
-            for i in range(nranks):
-                #add dataframe to global list
-                res = pd.DataFrame(
-                    data=clusters_buffer[i*ncells:(i+1)*ncells],
-                    index=df.index,
-                    columns=["label"],
-                    ) 
-                r = r + res
-
-    hdf.close()
-    print("cluster_method_distributed checkpt 6",flush=True)
+    #print("rank %s is waiting at barrier" % (myrank),flush=True)
+    comm.Barrier()
+    if color==1:
+        subcomm.Free()
+    #print("cluster_method_distributed checkpt 6",flush=True)
     return r
 
 
@@ -897,15 +920,19 @@ def consensus_sc3(km_results, n_clusters, common_name=None):
     for i in range(n_iter):
         arr = km_results[i].to_numpy()
         #compare arr with it's transpose, create matrix of bools where true if .
+        # arr[:,None] is transpose of arr
+        #creates an NxN matrix of bools
         mask = arr[:, None] == arr
+        #convert binary matrix to integers
+        #We could convert this new matrix to Anndata CSR
         binary_mat = mask[:,:,0].astype(int)
+
         #sum values where kmeans clusters agree
         conss_binary_mat += binary_mat
 
-
     print("consensus checkpt 3",flush=True)
     #divide summations by total number of clusterings compared
-    conss_binary_mat = conss_binary_mat / n_iter
+    conss__mat = conss_binary_mat / n_iter
     print("consensus checkpt 4",flush=True)
     #ceb differs from previous aggregate function which uses ward linkage
     clust = cluster.AgglomerativeClustering(
@@ -914,10 +941,110 @@ def consensus_sc3(km_results, n_clusters, common_name=None):
 
     #this agglomerative clustering function takes most time 
     print("aggregate: fit agglomerative cluster",flush=True)
-    clust.fit(conss_binary_mat)
+    clust.fit(conss_mat)
     print("aggregate: finish agglomerative cluster",flush=True)
 
     cclust = pd.DataFrame(data=clust.labels_, index=km_results[0].index, columns=["label"])
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    label_map = {index[i]: i + 1000 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": label_map})
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    map_back = {index[i]: i + 1 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": map_back})
+    out_file = common_name + "_k" + str(n_clusters)
+    out_file_hdf = out_file + "_cclust.h5"
+    cclust.to_hdf(out_file_hdf, "cclust")
+    adjacency = edgelist2adjacency(edge_list)# conss_binary_mat.to_hdf(out_file_hdf, "membership")
+    print('consensus_sc3 is done')
+    return cclust, out_file
+
+
+from scipy import sparse
+from sknetwork.utils import edgelist2adjacency, edgelist2biadjacency
+from sknetwork.data import convert_edge_list, load_edge_list, load_graphml
+from sknetwork.visualization import svg_graph, svg_digraph, svg_bigraph
+from sknetwork.clustering import Louvain
+
+def consensus_sc3_graph(km_results, n_clusters, common_name=None):
+    """ Implement SC3's consensus clustering. (https://www.nature.com/articles/nmeth.4236)
+    Args:
+        km_results (list of dataframes): each dataframe is a clustering results with two columns (cell_index,
+                                         clustering_label)
+        n_clusters (int): number of clusters
+        common_name (name): common string to name the output files
+    Returns:
+        Clustering results
+    """
+    print("consensus checkpt 1",flush=True)
+    n_iter = len(km_results)
+    print('Number of k-mean results: {}'.format(n_iter))
+    if n_iter == 0:
+        return None
+    if len(km_results) == 0:
+        return None
+
+    print("consensus checkpt 1",flush=True)
+    #create an empty csr matrix that we will be adding to
+    conss_adjacency_mat = csr_matrix( np.zeros((km_results[0].shape[0], km_results[0].shape[0])) )
+    print("consensus checkpt 2",flush=True)
+
+    #loop over list of clusters generated by parallel kmeans.
+    #This loop can be done in parallel but this should not be computational costly so should probably leave as is.
+
+    #The concensus matrix will be sized [n_cells x n_cells], so will grow as square of n_cells
+    #We are going to perform a hierarchical agglomerative clustering algorithm on this matrix.
+    
+    #ceb This might be able to be run in parallel, particularly the summation of the csr adjacency matrix
+    for i in range(n_iter):
+        print("processing kmeans result %s" % i,flush=True)
+        #Get array of cluster labels from kmeans solution
+        arr = km_results[i].to_numpy()
+
+        #compare arr with it's transpose, create matrix of bools where true if .
+        # arr[:,None] is transpose of arr
+        #creates an NxN matrix of bools
+        #not sure how efficient this is. Really only need the upper triangular portion
+        mask = arr[:, None] == arr
+        print("consensus checkpt 2.1",flush=True)
+
+        #convert binary matrix to integers (adjacency matrix)
+        adjacency_mat = mask[:,:,0].astype(int) 
+        print("consensus checkpt 2.2",flush=True)
+        #ceb for graph clustering
+        #convert this new matrix to Anndata CSR
+        adjacency_mat = csr_matrix(adjacency_mat)
+        print("consensus checkpt 2.3",flush=True)
+
+        #sum values where kmeans clusters agree
+        conss_adjacency_mat += adjacency_mat
+        print("consensus checkpt 2.4",flush=True)
+
+
+    print("consensus checkpt 3",flush=True)
+    #Normalize by dividing summations by total number of clusterings compared
+    conss_adjacency_mat = conss_adjacency_mat / n_iter
+    #print("conss_adjacency_mat",flush=True)
+    #print(conss_adjacency_mat)
+
+    if 0:
+        print("consensus checkpt 4",flush=True)
+        #ceb differs from previous aggregate function which uses ward linkage
+        clust = cluster.AgglomerativeClustering( linkage="complete", n_clusters=n_clusters, affinity="euclidean" )
+        #this agglomerative clustering function takes most time 
+        print("aggregate: fit agglomerative cluster",flush=True)
+        clust.fit(conss_adjacency_mat) 
+        labels=clust.labels_
+        print("consensus labels",flush=True)
+        print(labels,flush=True)
+        print("aggregate: finish agglomerative cluster",flush=True)
+    else:
+        print("consensus checkpt 4",flush=True)
+        louvain=Louvain()
+        labels = louvain.fit_transform(conss_adjacency_mat)
+        print("consensus labels",flush=True)
+        print(labels,flush=True)
+
+    cclust = pd.DataFrame(data=labels, index=km_results[0].index, columns=["label"])
     index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
     label_map = {index[i]: i + 1000 for i in range(len(index))}
     cclust = cclust.replace(to_replace={"label": label_map})
@@ -932,24 +1059,34 @@ def consensus_sc3(km_results, n_clusters, common_name=None):
     return cclust, out_file
 
 
-def clustering(in_file, dr, k, n_bootstrap, out_name,
-               plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
+def clustering_dist(in_file, dr, k, n_bootstrap, out_name, plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
+
     start_total_time = time.time()
     dim_km = map(int, dim_km) #converts string to int 
     start_km_time = time.time()
-    result = cluster_method_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
+    #This function should currently only be run on a single rank
+    #if rank == 0:
+    #    result = cluster_method_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
+    #                     common_name=out_name, dims=dim_km, num_processes=n_processes)
+    #run in parallel
+    #need to be able to read in completed results from outfile if exists
+    result = cluster_method_distributed(in_file, n_cluster=k, n_bootstraps=n_bootstrap,
                          common_name=out_name, dims=dim_km, num_processes=n_processes)
-    #print("result",flush=True)
-    #print(result[0],flush=True)
-    print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
+    if rank==0:
+        print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
     start_agg_time = time.time()
-    print("pre aggregate checkpt ",flush=True)
+    #print("pre create consensus clustering checkpt ",flush=True)
     #agg, out_f = utils.consensus_sc3(result, k, out_name)
-    agg, out_f = consensus_sc3(result, k, out_name)
-    print("aggregate %s seconds" % (time.time() - start_agg_time),flush=True)
-
-    if 1:
+    #agg, out_f = consensus_sc3(result, k, out_name)
+    #This function should currently only be run on a single rank
+    #Graph cluster consensus of Kmeans results
+    if rank==0:
+        agg, out_f = consensus_sc3_graph(result, k, out_name)
+        print("consensus clustering time %s seconds" % (time.time() - start_agg_time),flush=True)
+    #Compute tSNE to visualize clusters
+    if rank==0:
         start_tsne_time = time.time()
+        #This function should currently only be run on a single rank
         visualization(agg,  # consensus clustering result
                         in_file,  # reduced_mi_file
                         dr,  # transformation
@@ -958,11 +1095,12 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
                         visualize=plot_method.lower(),
                         min_dist=umap_min_dist,
                         perplexity=tsne_perplexity,
-                        nprocesses=n_processes,
+                        #nprocesses=n_processes,
+                        nprocesses=1,
                         )
         print("tsne %s seconds" % (time.time() - start_tsne_time),flush=True)
 
-    print("--- %s seconds ---" % (time.time() - start_total_time),flush=True)
+        print("--- %s seconds ---" % (time.time() - start_total_time),flush=True)
 
 
 
@@ -972,48 +1110,45 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
 plot_file_name = plot_file_path+project_name+"scatter"
 
 
-if 1: #run multiproces clustering
-    #if rank==0:
-    start_km_time = time.time()
-    dim_km=[19]
-    dim_km = map(int, dim_km) #converts string to int 
-    #result = cluster_method_multiprocess(reduced_mi_filename, n_cluster=5, n_iter=2,
-    #                     common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
-    result = cluster_method_distributed(reduced_mi_filename, n_cluster=5, n_iter=2,
-                         common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
-    print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
-
-
-
-#write code for distrubuted kmeans
-#try pyspark version of kmeans
+#if 0: #run multiproces clustering
+#    #if rank==0:
+#    start_km_time = time.time()
+#    dim_km=[19]
+#    dim_km = map(int, dim_km) #converts string to int 
+#    #result = cluster_method_multiprocess(reduced_mi_filename, n_cluster=5, n_iter=2,
+#    #                     common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
+#    result = cluster_method_distributed(reduced_mi_filename, n_cluster=5, n_iter=2,
+#                         common_name=plot_file_name, dims=dim_km, num_processes=comm.size)
+#    print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
 
 
 
 
-if 0: #compute tSNE and plot
-    max_dim=200
-    block_start = time.time()
-    if rank==0:
-        #vis is dataframe    
-        vis = utils.tsne( Y, max_dim, plot_file_name, "mds",)
-        #vis = TSNE(Y, max_dim, plot_file_name, "mds", plot="False", n_jobs=comm.size)
-        vis.to_hdf(plot_file_name + "_reduced.h5", "mds_tsne")  # save preview in key "mds_tsne"
-        ##utils.visualization(Y, reduced_mi_filename, "mds", plot_file_name, max_dim, "tsne")
-    block_end = time.time()
-    comm.Barrier()
-    if rank==0:
-        print("Plot TSNE Elapsed = %s" % (block_end - block_start),flush=True)
-
+#if 0: #compute tSNE and plot
+#    max_dim=200
+#    block_start = time.time()
+#    if rank==0:
+#        #vis is dataframe    
+#        vis = utils.tsne( Y, max_dim, plot_file_name, "mds",)
+#        #vis = TSNE(Y, max_dim, plot_file_name, "mds", plot="False", n_jobs=comm.size)
+#        vis.to_hdf(plot_file_name + "_reduced.h5", "mds_tsne")  # save preview in key "mds_tsne"
+#        ##utils.visualization(Y, reduced_mi_filename, "mds", plot_file_name, max_dim, "tsne")
+#    block_end = time.time()
+#    comm.Barrier()
+#    if rank==0:
+#        print("Plot TSNE Elapsed = %s" % (block_end - block_start),flush=True)
 
 if 1: #run entire clustering pipeline
     block_start = time.time()
+
     if rank==0:
         print("Begin Clustering",flush=True)
-        clustering(reduced_mi_filename, 
+
+    clustering_dist(reduced_mi_filename, 
                "mds",#dr 
                5,    #k
                comm.size,  #test  #n_bootstrap
+               #16,  #test  #n_bootstrap
                plot_file_name, #outfile name
                "tsne", #plot method
                #"umap", #plot method
@@ -1022,42 +1157,18 @@ if 1: #run entire clustering pipeline
                19,     #plot_dim
                comm.size,     #n_processes
                [19])   #dim_km
+
     block_end = time.time()
     comm.Barrier()
     if rank==0:
         print("Clustering Elapsed = %s" % (block_end - block_start),flush=True)
 
-
-
 total_time_end = time.time()
 if rank==0:
     print("Total Time Elapsed = %s" % (total_time_end - total_time_start),flush=True)
 
-
-
-
 #gracefully end program
 exit()
-
-
-
-
-#%tpx
-#perplexity=30
-#max_dim=200
-#
-#    if print_plot == "True":
-#        vis = tsne(
-#            Y,
-#            max_dim,
-#            out_file_name,
-#            "mds",
-#            perplexity,
-#            print_plot,
-#        )
-#        vis.to_hdf(out_file_name + "_reduced", "mds_tsne")  # save preview in key "mds_tsne"
-
-
 
 
 
