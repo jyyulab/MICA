@@ -34,6 +34,23 @@ sc.tl.leiden(adata, resolution=0.08)
 print(adata.obs['leiden'])
 
 #%%
+sc.tl.umap(adata)
+
+#%%
+sc.pl.umap(adata)
+
+#%% UMAP scatter plot
+df_umap = pd.DataFrame(adata.obsm['X_umap'], columns=['X', 'Y'])
+
+#%%
+df_umap['label'] = list(adata.obs['leiden'].astype(int))
+
+#%%
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/PBMC_20k/Scanpy/PBMC_20k_Scanpy_UMAP.txt',
+               sep='\t')
+
+
+#%%
 # sc.pl.umap(adata)
 
 #%%

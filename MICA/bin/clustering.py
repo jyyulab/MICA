@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
+import logging
 import itertools
-import time
 import argparse
 import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 from MICA.lib import utils
 from MICA.lib import consensus
+from MICA.lib import clustering as cl
+from MICA.lib import visualize as vi
 
 
 def main():
@@ -62,23 +64,40 @@ def km_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_proc
 
 def clustering(in_file, dr, k, n_bootstrap, out_name,
                plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
-    start_time = time.time()
     dim_km = map(int, dim_km)
     result = km_multiprocess(in_file, n_cluster=k, n_iter=n_bootstrap,
                              common_name=out_name, dims=dim_km, num_processes=n_processes)
 
     agg, out_f = consensus.consensus_sc3(result, k, out_name)
 
-    utils.visualization(agg,        # consensus clustering result
-                        in_file,    # reduced_mi_file
-                        dr,         # transformation
-                        out_f,      # output file name
-                        max_dim=plot_dim,
-                        visualize=plot_method.lower(),
-                        min_dist=umap_min_dist,
-                        perplexity=tsne_perplexity
-                        )
-    print("--- %s seconds ---" % (time.time() - start_time))
+    hdf = pd.HDFStore(in_file)
+    dr = "pca" if dr == "lpca" else dr
+    hdf_trans = hdf[dr.lower()]
+    hdf.close()
+
+    # UMAP or tSNE plot
+    embed_res = vi.visual_embed(agg, hdf_trans, '.', dr_dim=19, visual_method=plot_method.lower(),
+                                min_dist=umap_min_dist, perplexity=tsne_perplexity, marker_size=5.0,
+                                marker_scale=5.0)
+
+    # UMAP or tSNE plot
+    # utils.visualization(agg,        # consensus clustering result
+    #                     in_file,    # reduced_mi_file
+    #                     dr,         # transformation
+    #                     out_f,      # output file name
+    #                     max_dim=plot_dim,
+    #                     visualize=plot_method.lower(),
+    #                     min_dist=umap_min_dist,
+    #                     perplexity=tsne_perplexity)
+    #
+    # Silhouette plot
+    # hdf = pd.HDFStore(in_file)
+    # dr = "pca" if dr == "lpca" else dr
+    # hdf_trans = hdf[dr.lower()]
+    # hdf.close()
+
+    silhouette_avg = cl.silhouette_analysis(embed_res, k, embed_res.loc[:, ['X', 'Y']], '.')
+    logging.info('Silhouette score: {}'.format(silhouette_avg))
 
 
 if __name__ == '__main__':
