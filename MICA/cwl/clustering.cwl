@@ -84,11 +84,11 @@ inputs:
 
 outputs:
   out_fig:
-    type: File
+    type: File[]
     outputBinding:
-      glob: "*.png"
+      glob: "*.pdf"
 
   out_txt:
     type: File
     outputBinding:
-      glob: "*_ClusterMem.txt"
+      glob: "clustering_*.txt"

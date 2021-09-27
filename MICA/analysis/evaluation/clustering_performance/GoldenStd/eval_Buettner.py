@@ -3,7 +3,7 @@ from MICA.analysis.evaluation.clustering_performance import utils
 
 
 root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
-level = 'GoldernStd'
+level = 'GoldenStd'
 author = 'Buettner'
 input_file = '{}_MICA_input.txt'.format(author)
 num_clusters = 3

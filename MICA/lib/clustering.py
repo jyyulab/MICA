@@ -9,8 +9,7 @@ from functools import partial
 import matplotlib
 matplotlib.use('Agg')
 matplotlib.rcParams['font.family'] = 'Arial'
-import matplotlib.pyplot as plt
-from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.metrics import silhouette_score
 from MICA.lib import visualize as vs
 
 
@@ -82,5 +81,5 @@ def silhouette_analysis(clustering_res, num_clusters, frame_dr, out_dir):
     labels = clustering_res['label']
     silhouette_avg = silhouette_score(frame_dr, labels)
     logging.info('Number of clusters: {}, silhouette score: {}'.format(num_clusters, silhouette_avg))
-    vs.silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir)
+    vs.silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir, ss_lower_bound=-0.6, ss_upper_bound=1.0)
     return silhouette_avg

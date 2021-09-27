@@ -124,9 +124,12 @@ def mica_ge(args):
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     logging.info('Visualizing clustering results using {}'.format(args.visual_method))
+    aggs_embed = []
     for agg, num_cluster in aggs:
-        vs.visual_embed(agg, mat_dr, args.output_dir, suffix=num_cluster,
-                        visual_method=args.visual_method, num_works=args.num_workers, min_dist=args.min_dist)
+        agg_embed = vs.visual_embed(agg, mat_dr, args.output_dir, suffix=num_cluster,
+                                    visual_method=args.visual_method, num_works=args.num_workers,
+                                    min_dist=args.min_dist)
+        aggs_embed.append((agg_embed, num_cluster))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -135,8 +138,10 @@ def mica_ge(args):
     logging.info('Optimal number of clusters analysis ...')
     with open('{}/silhouette_avg.txt'.format(args.output_dir), 'w') as fout:
         fout.write('dimension\tnum_clusters\tsilhouette_avg\n')
-        for agg, num_cluster in aggs:
-            silhouette_avg = cl.silhouette_analysis(agg, num_cluster, mat_dr, args.output_dir)
+        for agg, num_cluster in aggs_embed:
+            logging.info(num_cluster)
+            logging.info(agg)
+            silhouette_avg = cl.silhouette_analysis(agg, num_cluster, agg.loc[:, ['X', 'Y']], args.output_dir)
             fout.write('{}\t{}\t{}\n'.format(args.dr_dim, num_cluster, silhouette_avg))
     end = time.time()
     runtime = end - start
