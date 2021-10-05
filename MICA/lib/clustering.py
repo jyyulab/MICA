@@ -14,7 +14,7 @@ from sklearn.metrics import silhouette_score
 from MICA.lib import visualize as vs
 
 
-def graph_clustering(G, method='louvain', min_resolution=-2.0, max_resolution=2.0, step_size=0.2):
+def graph_clustering(G, method='louvain', min_resolution=-2.0, max_resolution=3.0, step_size=0.2):
     """ Perform graph-based clustering.
     Args:
         G (nx graph): G to perform community detection
@@ -43,7 +43,7 @@ def best_partition_wrapper(G, max_resolution):
     return community.best_partition(G, resolution=max_resolution), max_resolution
 
 
-def graph_clustering_parallel(G, method='louvain', min_resolution=-2.0, max_resolution=2.0, step_size=0.2,
+def graph_clustering_parallel(G, method='louvain', min_resolution=-2.0, max_resolution=3.0, step_size=0.2,
                               num_workers=10):
     """ Perform graph-based clustering in parallel.
     Args:
