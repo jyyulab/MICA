@@ -108,7 +108,8 @@ def scatter_plot(data, out_file, marker_size=1.0, marker="o", method='UMAP', mar
     plt.cla()
 
 
-def silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir, ss_lower_bound=-0.1, ss_upper_bound=1.0):
+def silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir, ss_lower_bound=-0.1, ss_upper_bound=1.0,
+                    resolution=None):
     """ Draw a silhouette plot.
     Args:
         labels (array): array-like clustering results, {sample index: cluster label}
@@ -120,6 +121,7 @@ def silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir, ss_
         limit for plotting.
         ss_upper_bound (float): The silhouette coefficient can range from -1, 1. This parameter sets the upper
         limit for plotting.
+        resolution (float): Louvain clustering resolution
     Returns:
         PDF image of silhouette plot
     """
@@ -165,6 +167,9 @@ def silhouette_plot(labels, frame_dr, num_clusters, silhouette_avg, out_dir, ss_
 
     ax.set_yticks([])  # Clear the yaxis labels / ticks
     ax.set_xticks(np.arange(ss_lower_bound, ss_upper_bound+0.1, 0.2))
-    out_pdf_file = '{}/silhouette_{}_{}.pdf'.format(out_dir, frame_dr.shape[1], num_clusters)
+    if resolution:
+        out_pdf_file = '{}/silhouette_{}_{}_{}.pdf'.format(out_dir, frame_dr.shape[1], num_clusters, resolution)
+    else:
+        out_pdf_file = '{}/silhouette_{}_{}.pdf'.format(out_dir, frame_dr.shape[1], num_clusters)
     plt.savefig(out_pdf_file, bbox_inches="tight")
     return sample_silhouette_values

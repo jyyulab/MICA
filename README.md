@@ -84,7 +84,7 @@ MICA auto mode reduces the dimensionality using either the multidimensional scal
 the graph embedding method (> 3,000 cells), where the number of cells cutoff was chosen based on performance
 evaluation of datasets of various sizes. 
 
-`mica -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs`
+`mica auto -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs -pn pbmc3k -nc 10`
 
 #### Running MICA GE mode
 MICA GE mode reduces the dimensionality using the graph embedding method. It sweeps a range of resolutions
