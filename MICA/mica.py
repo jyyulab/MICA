@@ -24,7 +24,11 @@ def main():
     common_required.add_argument('-o', '--output-dir', metavar='DIR', required=True,
                                  help='Path to final output directory')
 
-    common_optional = parent_parser.add_argument_group('visualization arguments')
+    common_optional = parent_parser.add_argument_group('Optional arguments')
+    common_optional.add_argument('-pn', '--project-name', metavar='STR', required=False, type=str,
+                                 help='Project name/ID.')
+    common_optional.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=False, type=int,
+                                 help='Number of clusters to be specified in kmeans')
     common_optional.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                                  help='Visualization method UMAP or t-SNE (default: UMAP)')
     common_optional.add_argument('-md', '--min-dist', metavar='FLOAT', required=False, default=0.6, type=float,
@@ -49,11 +53,6 @@ def main():
 
     # Create a sub parser for running MDS version
     subparser_mds = subparsers.add_parser('mds', parents=[parent_parser], help='MDS version')
-    add_required_mds = subparser_mds.add_argument_group('additional required arguments')
-    add_required_mds.add_argument('-pn', '--project-name', metavar='STR', required=True, type=str,
-                                  help='Project name/ID.')
-    add_required_mds.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=True, type=int,
-                                  help='Number of clusters to be specified in kmeans')
     mica_mds.add_mds_arguments(subparser_mds)
 
     if len(sys.argv) == 1 or len(sys.argv) == 2:
@@ -79,11 +78,13 @@ def main():
             args = parser.parse_args()
             mica_ge.mica_ge(args)
         else:                               # Run MDS version
-            if args.platform == 'lsf' and args.config_json is None:
-                sys.exit('Error: --config-json must be specified for lsf platform.')
             logging.info('Less than {} cells. Use MDS version...'.format(num_cells))
             mica_mds.add_mds_arguments(subparser_auto)
             args = parser.parse_args()
+            if args.project_name is None:
+                sys.exit('ArgumentError: argument -pn/--project-name is required')
+            if args.num_clusters is None:
+                sys.exit('ArgumentError: argument -nc/--num-clusters is required')
             mica_mds.mica_mds(args)
     elif args.version == 'ge':
         logging.info('Start GE mode...')

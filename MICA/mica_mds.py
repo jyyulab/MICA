@@ -22,8 +22,7 @@ def main():
     required.add_argument('-pn', '--project-name', metavar='STR', required=True, type=str,
                           help='Project name/ID.')
     required.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=True, type=int,
-                          help='Number of cluster to be specified in kmeans')
-
+                          help='Number of clusters to be specified in kmeans')
     add_mds_arguments(parser)
 
     visualization = parser.add_argument_group('visualization arguments')
@@ -84,6 +83,9 @@ def add_mds_arguments(parser):
 
 
 def mica_mds(args):
+    if args.platform == 'lsf' and args.config_json is None:
+        sys.exit('Error: --config-json must be specified for lsf platform.')
+
     # to make executable and config findable
     installed_path = os.path.dirname(os.path.realpath(__file__))
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
