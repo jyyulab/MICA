@@ -31,7 +31,10 @@ from scipy.cluster.hierarchy import dendrogram  # for heatmap
 from scipy.linalg import eigh
 from scipy.spatial import distance  # for euclidean distance
 
+#ceb
+from memory_profiler import profile
 
+@profile
 def read_file(in_file, out_file_name):
     """ Reads text file and stores data in a temporary HDF5-format file.
 
@@ -63,7 +66,7 @@ def read_anndata_file(in_file):
     #adata.to_hdf(out_file_name + ".h5.tmp", "slice_0")
     return adata
 
-
+@profile
 def slice_file(df_file,  out_file_name, slice_size="1000"):
     """ Slices the HDF5 file.
 
@@ -131,7 +134,7 @@ def patch_file(df_file,  out_file_name):
         out_file_name + ".whole.h5", "rows"
     )
 
-
+#@profile
 def calc_prep(in_file, project_name):
     """ Prepares the already sliced input file for further calculation in MICA.
     
@@ -173,8 +176,9 @@ def calc_prep(in_file, project_name):
                                 "MI_indx", "project_name", "num_slices"]).to_hdf(mat_tmp, "params")
     in_.close()
 
-    
-def prep_dist(input_file, out_name, slice_unit):
+import math
+@profile    
+def prep_dist(input_file, out_name, nranks):
     import logging
     """ Preprocess input file to create sliced matrices.
 
@@ -197,12 +201,21 @@ def prep_dist(input_file, out_name, slice_unit):
     #if adf==None :
     #    raise Exception("Input file ",input_file," not found.")
     #print("prep_dist: initial data size=",adf.shape,flush=True)
-    slice_size = int(slice_unit)
+    #slice_size = int(slice_unit)
+
+    nrows=adf.shape[0]
+    #compute optimal slice size for number of ranks available
+    #slice_size = math.ceil( 2*nrows/(1+math.sqrt(1+8*nranks)))
+    slice_size = math.ceil( 2*nrows/(math.sqrt(1+8*nranks) -1 ))
+    #slice_size = math.ceil( 2*nrows/(1+math.sqrt(1+4*nranks)))
+
     #compute number of slices needed to break dataset in to slice_size row blocks
-    b = int(np.ceil(float(adf.shape[0]) / float(slice_size)))
+    b = int(np.ceil( float(nrows) / float(slice_size)))
     #determine how many digits are in b so we can pad spaces for the string output
     digit = int(np.floor(np.log10(b)) + 1)
-    #print("prep_dist: slices=",b,flush=True)
+    
+    ncols=adf.shape[1]
+    print("prep_dist: nrows=%s, ncols=%s, slice_size=%s, nslices=%s: " % (nrows, ncols, slice_size, b),flush=True)
 
     #loop over slice numbers
     for i in range(b):
@@ -218,7 +231,7 @@ def prep_dist(input_file, out_name, slice_unit):
         #print("output_file_name: ",output_file_name)
         adf_sub.write(output_file_name)
     #return nrows, ncols, and nslices
-    return adf.shape[0], adf.shape[1], b
+    return adf.shape[0], adf.shape[1], b, slice_size
 
 
 
@@ -308,6 +321,7 @@ def compute_bin_upperbound(x, max, num_bins):
         return None
     else:
         return bin
+
 
     
 @numba.jit(nopython=True, fastmath=True)
@@ -516,8 +530,30 @@ def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
             SM_block[i,j] = numba_calc_mi_dis_csr(Arow_data, Arow_cols, Brow_data, Brow_cols, num_bins, num_genes)
     return #SM_block
 
-    
 
+#function to compute optimal (squarish) process grid rows and columns for scalapack distributed matrix
+def compute_process_grid_dimensions(n):
+    #Define process grid with process rows and process cols
+    #ideally we would like BR and BC to the square root of the num_ranks to get a square process matrix
+    a = int(np.sqrt(n))
+    while n%a >0:
+        a -= 1
+    PR=n//a
+    PC=a
+    #if that doesn't match then create a 1D process array
+    if PR*PC != n:
+        PR=n
+        PC=1
+    #ceb Check to make sure that PR*PC == num_ranks
+    assert(PR*PC == n), print("Error, Size of process grid must match total number of ranks.")
+    #we want the greatest common factors here for efficiency
+    #if rank==0:
+    #   print("PR=",PR, "PC=",PC,flush=True)
+    return PR,PC
+
+
+    
+@profile
 def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, nslices, SM):
     
     """ Prepares the already sliced input file for further calculation in MICA.
@@ -531,11 +567,6 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         nrows : number of rows in global matrix
         ncols : number of vars in global matrix
     """
-
-    #create a 2d list to hold blocks of similarity matrix
-    #this should be a global var
-    #SM = [[None for j in range(b)] for i in range(b)] 
-    
     #input file is full input that has been segmented into b blocks of rows
     
     #nranks would ideally be equal to  b(b+1)/2
@@ -565,7 +596,6 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
 
     #from list just generated, only do work assigned to your rank
     for index, tuple in enumerate(myslices):
-        #print("tuple=",tuple)
         i=tuple[0] #block row
         j=tuple[1] #block col      
 
@@ -597,7 +627,6 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         #need SM for each block pair    
         #creates local array of zeros and assigns to global 2d list
         #create matrix of zeros with row order indexing
-        #SM[i][j] = np.ones(shape=(Arows,Brows), dtype = float, order = 'C') #for testing only
         SM[i][j] = np.zeros(shape=(Arows,Brows), dtype = float, order = 'C')
  
         #This numba function cannot create a numpy array internally so we return SM[i,j] as a variable
@@ -740,7 +769,6 @@ def norm_mi_mat(in_mat_file, out_file_name):
         )
     hdf.close()
 
-
 def tsne(
          data, max_dim, out_file_name, tag, perplexity=30, plot="True"
 ):
@@ -755,6 +783,28 @@ def tsne(
     if plot == "True":
         scatter(embed, out_file_name, tag)
     return res
+
+#https://github.com/DmitryUlyanov/Multicore-TSNE
+from MulticoreTSNE import MulticoreTSNE as mcTSNE
+@profile
+def mctsne(
+         data, max_dim, out_file_name, tag, perplexity=30, plot="True", n_jobs=1
+):
+    print("mcTSNE using %s processors" % (n_jobs),flush=True)
+    embed = mcTSNE(
+        n_components=2,
+        n_iter=5000,
+        learning_rate=200,
+        perplexity=perplexity,
+        random_state=10,
+        early_exaggeration=12.0,
+        n_jobs=n_jobs,
+        ).fit_transform(data.iloc[:, 0:max_dim])
+    res = pd.DataFrame(data=embed, index=data.index, columns=["X", "Y"])
+    if plot == "True":
+        scatter(embed, out_file_name, tag)
+    return res
+
 
 
 def umap(
@@ -876,18 +926,20 @@ def pca(
             plot,
         )
 
-
+@profile
 def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
-    out_file_name = project_name + "_kmeans_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
+    #out_file_name = project_name + "_kmeans_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
+    out_file_name = project_name + "_kmeans_k" + str(n_clusters) + ".h5.tmp." + str(bootstrap_id)
+    print("Executing kmeans:" + out_file_name,flush=True)
     km = cluster.KMeans(n_clusters=n_clusters, max_iter=1000, n_init=1000)
-
     km_res = pd.DataFrame(
         data=np.transpose(km.fit_predict(in_mat.iloc[:, 0:dim])),
         index=in_mat.index,
         columns=["label"],
     )
-    # km_res.to_hdf(out_file_name, "kmeans")
-    print("Executing kmeans:" + out_file_name)
+    #write dataframe of results to file
+    km_res.to_hdf(out_file_name, "kmeans")
+    #print("Finished executing kmeans:" + out_file_name,flush=True)
     return km_res
 
 
@@ -896,28 +948,40 @@ def aggregate(km_results, n_clusters, common_name):
     if n_iter == 0:
         return None
     mem = None
+
+    print("aggregate checkpt 1",flush=True)
+    #ceb Not sure what kind of preprocessing of the kmeans data is going on here
+    #loop over list of clusters generated by parallel kmeans.
     for i in range(n_iter):
         df = km_results[i]
+        # multiply df by its transpose and store as new matrix dff
         dff = pd.DataFrame(data=df.values@df.T.values, index=df.index, columns=df.index)
+        # create matrix of dff diagonals
         dff_div = pd.DataFrame(
             data=np.array((np.diag(dff),) * dff.shape[0]).T,
             index=dff.index,
             columns=dff.columns,
         )
+        #ceb, I have no idea what is going on here
+        # create 0's and 1's matrix? where we have 1's on diag and 0's elsewhere? doesnt seem right.
         mem_mat = pd.DataFrame(
             data=dff / dff_div == 1,
             index=dff.index,
             columns=dff.columns,
             dtype=np.float32,
         )
+        # add mem_matrix elementwise to mem
         mem = mem_mat if i == 0 else mem + mem_mat.loc[mem.index, mem.columns]
+        # divide matrix by number of iters
         mem = mem / n_iter if i == n_iter - 1 else mem
 
+    #perform agglomerative clustering on the preprocessed kmeans data
     clust = cluster.AgglomerativeClustering(
         linkage="ward", n_clusters=n_clusters, affinity="euclidean"
     )
-    clust.fit(mem)
-
+    print("aggregate: fit agglomerative cluster",flush=True)
+    clust.fit(mem) #ceb this takes the bulk of time, maybe hanging due to mem?
+    print("aggregate: finished agglomerative clustering",flush=True)
     cclust = pd.DataFrame(data=clust.labels_, index=mem.index, columns=["label"])
     index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
     label_map = {index[i]: i + 1000 for i in range(len(index))}
@@ -925,7 +989,6 @@ def aggregate(km_results, n_clusters, common_name):
     index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
     map_back = {index[i]: i + 1 for i in range(len(index))}
     cclust = cclust.replace(to_replace={"label": map_back})
-
     out_file = common_name + "_k" + str(n_clusters)
     out_file_hdf = out_file + "_cclust.h5"
     cclust.to_hdf(out_file_hdf, "cclust")
@@ -933,6 +996,244 @@ def aggregate(km_results, n_clusters, common_name):
     return cclust, out_file
 
 
+#@profile
+def consensus_sc3(km_results, n_clusters, common_name=None):
+    """ Implement SC3's consensus clustering. (https://www.nature.com/articles/nmeth.4236)
+    Args:
+        km_results (list of dataframes): each dataframe is a clustering results with two columns (cell_index,
+                                         clustering_label)
+        n_clusters (int): number of clusters
+        common_name (name): common string to name the output files
+    Returns:
+        Clustering results
+    """
+    n_iter = len(km_results)
+    print('Number of k-mean results: {}'.format(n_iter))
+    if n_iter == 0:
+        return None
+    if len(km_results) == 0:
+        return None
+
+    conss_binary_mat = np.zeros((km_results[0].shape[0], km_results[0].shape[0]))
+    #loop over list of clusters generated by parallel kmeans.
+    #
+    for i in range(n_iter):
+        arr = km_results[i].to_numpy()
+        #compare arr with it's transpose, creates matrix of bools where true if two cells are in same cluster 
+        mask= arr[:, None] == arr
+        #convert boolean similarity matrix to integer so we can sum with the others
+        binary_mat = mask[:,:,0].astype(int)
+        #sum values to grow consensus in places where kmeans clusters agree
+        conss_binary_mat += binary_mat
+    
+    #divide summations by total number of clusterings compared
+    conss_binary_mat = conss_binary_mat / n_iter
+    #ceb differs from previous aggregate function which uses ward linkage
+
+    clust = cluster.AgglomerativeClustering(
+        linkage="complete", n_clusters=n_clusters, affinity="euclidean"
+    )
+    print("aggregate: fit agglomerative cluster",flush=True)
+    clust.fit(conss_binary_mat)
+    print("aggregate: finish agglomerative cluster",flush=True)
+
+    cclust = pd.DataFrame(data=clust.labels_, index=km_results[0].index, columns=["label"])
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    label_map = {index[i]: i + 1000 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": label_map})
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    map_back = {index[i]: i + 1 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": map_back})
+    out_file = common_name + "_k" + str(n_clusters)
+    out_file_hdf = out_file + "_cclust.h5"
+    cclust.to_hdf(out_file_hdf, "cclust")
+    # conss_binary_mat.to_hdf(out_file_hdf, "membership")
+    print('consensus_sc3 is done')
+    return cclust, out_file
+
+
+
+
+
+
+
+from scipy import sparse
+from sknetwork.utils import edgelist2adjacency, edgelist2biadjacency
+from sknetwork.data import convert_edge_list, load_edge_list, load_graphml
+from sknetwork.visualization import svg_graph, svg_digraph, svg_bigraph
+from sknetwork.clustering import Louvain
+@profile
+def consensus_sc3_graph(km_results, n_clusters, common_name=None):
+    """ Implement SC3's consensus clustering. (https://www.nature.com/articles/nmeth.4236)
+    Args:
+        km_results (list of dataframes): each dataframe is a clustering results with two columns (cell_index,
+                                         clustering_label)
+        n_clusters (int): number of clusters
+        common_name (name): common string to name the output files
+    Returns:
+        Clustering results
+    """
+    print("consensus checkpt 1",flush=True)
+    n_iter = len(km_results)
+    print('Number of k-mean results: {}'.format(n_iter))
+    if n_iter == 0:
+        return None
+    if len(km_results) == 0:
+        return None
+
+    #create an empty csr matrix that we will be adding to
+    conss_adjacency_mat = csr_matrix( np.zeros((km_results[0].shape[0], km_results[0].shape[0])) )
+
+    #loop over list of clusters generated by parallel kmeans.
+    #This loop can be done in parallel but this should not be computational costly so should probably leave as is.
+
+    #The concensus matrix will be sized [n_cells x n_cells], so will grow as square of n_cells
+    #We are going to perform a hierarchical agglomerative clustering algorithm on this matrix.
+
+    #ceb This might be able to be run in parallel, particularly the summation of the csr adjacency matrix
+    for i in range(n_iter):
+        print("consensus: processing kmeans result %s" % i,flush=True)
+        #Get array of cluster labels from kmeans solution
+        arr = km_results[i].to_numpy()
+        indptr = np.zeros(arr.shape[0]+1).astype(int)
+        #for CSR we need to compute the number of nonzeros for each row and create an index for the beginning of each row in the compressed matrix
+        for n in range(len(arr)):
+            #temporarily create dense row
+            n_edges=np.nonzero(arr[n] == arr)[0]
+            indptr[n+1]=indptr[n]+n_edges.shape[0]
+
+        #we needed to compute the total number of nonzeros to allow us to preallocate nzcols, which speeds this function by >10x over appending ncols by row
+        nnz=indptr[-1]
+        nzcols = np.empty(nnz).astype(int)
+        for n in range(len(arr)):
+            n_edges=np.nonzero(arr[n] == arr)[0]
+            nzcols[indptr[n]:indptr[n+1]]=n_edges
+
+        nzdata=np.ones_like(nzcols).astype(int)
+        adjacency_mat = csr_matrix( (nzdata,nzcols,indptr), shape=(len(arr),len(arr)), dtype=int )
+
+        #sum values where kmeans clusters agree
+        conss_adjacency_mat += adjacency_mat
+
+    #Normalize by dividing summations by total number of clusterings compared
+    conss_adjacency_mat = conss_adjacency_mat / (n_iter)
+
+    louvain=Louvain()
+    #compute louvain clustering
+    labels = louvain.fit_transform(conss_adjacency_mat)
+    print("consensus labels",flush=True)
+    print(labels,flush=True)
+
+    cclust = pd.DataFrame(data=labels, index=km_results[0].index, columns=["label"])
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    label_map = {index[i]: i + 1000 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": label_map})
+    index = cclust.groupby(["label"]).size().sort_values(ascending=False).index
+    map_back = {index[i]: i + 1 for i in range(len(index))}
+    cclust = cclust.replace(to_replace={"label": map_back})
+    out_file = common_name + "_k" + str(n_clusters)
+    out_file_hdf = out_file + "_cclust.h5"
+    cclust.to_hdf(out_file_hdf, "cclust")
+    # conss_binary_mat.to_hdf(out_file_hdf, "membership")
+    print('consensus_sc3 is done')
+    return cclust, out_file
+
+
+
+
+
+#shared memory kmeans
+#@profile
+def cluster_method_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[19], num_processes=1):
+   #Create a thread pool of num_processes size
+    pool = Pool(processes=num_processes)
+    hdf = pd.HDFStore(mi_file)
+    r = []
+    #ceb not sure what these "keys" are
+    # but kmeans is being run independently on each key
+    for trans in hdf.keys():
+        print("mc clustering trans=[%s]" % (trans),flush=True)
+        df = hdf[trans]
+        method_iterable = partial(kmeans, df, n_cluster, common_name)
+        #method_iterable = partial(faiss_kmeans, df, n_cluster, common_name)
+        #n_iter is the number of bootstrap cases we want to execute for kmeans
+        iterations = itertools.product(dims, range(n_iter))
+        print("cluster_method_multiprocess checkpt 3",flush=True)
+        #ceb run n_iter kmeans functions on thread pool
+        res = pool.starmap(method_iterable, iterations)
+        r = r + res
+    pool.close()
+    hdf.close()
+    print("cluster_method_multiprocess checkpt 6",flush=True)
+    return r
+
+
+
+#ceb may want to put this back into MICA_distributed.py
+#ceb MPI calls make this too complex for a utility function
+#https://github.com/DmitryUlyanov/Multicore-TSNE
+@profile
+def cluster_method_distributed(mi_file, n_cluster, n_bootstraps, common_name, dims=[19], num_processes=1):
+
+    #print("cluster_method_distributed checkpt 1",flush=True)
+    comm = MPI.COMM_WORLD
+    myrank = comm.Get_rank()
+    nranks = comm.Get_size()
+
+    #create subcommunicator to limit the number of ranks involve in bootstrap to n_bootstraps
+    if myrank < n_bootstraps:
+        color = 1
+        key = myrank
+    else:
+        color = 2 #MPI.UNDEFINED
+        key = myrank
+
+    subcomm = MPI.COMM_WORLD.Split(color,key)
+    #need to use n_iter to set number of bootstraps
+    root = 0
+    r = []
+    #only use ranks in subcomm
+    if color==1:
+        mysubrank = subcomm.Get_rank()
+        #All ranks read input file
+        hdf = pd.HDFStore(mi_file)
+        #ceb not sure what these "keys" are
+        # but kmeans is being run independently on each key
+        for trans in hdf.keys():
+            df = hdf[trans]
+            ncells = df.shape[0]
+            #need to check for kmeans results file before computing new one.
+            #we might want to do this
+            #returns array of datframes?
+            clusters = np.asarray((kmeans(df, n_cluster, common_name, dim=ncells ,bootstrap_id=mysubrank)).label,dtype=int)
+            print("clustering: bootstrap finished on rank %s" % (mysubrank),flush=True)
+
+            clusters_buffer=None
+            if mysubrank == root:
+                clusters_buffer = np.empty( n_bootstraps*ncells, dtype=int )
+
+            subcomm.Gatherv(clusters, clusters_buffer, root=root)
+
+            #collect clusters data on root rank
+            if mysubrank == root:
+                for i in range(subcomm.Get_size()):
+                    #add dataframe to global list
+                    res = pd.DataFrame(
+                        data=clusters_buffer[i*ncells:(i+1)*ncells],
+                        index=df.index,
+                        columns=["label"],
+                        )
+                    r.append(res)
+                    #r is list of dataframes
+        hdf.close()
+
+    comm.Barrier()
+    subcomm.Free()
+    #returning list of dataframes
+    return r
+
+
+#@profile
 def visualization(
         agg_mtx,   # 1
         reduced_mi_file,  # 2
@@ -962,6 +1263,37 @@ def visualization(
     # save 2D embedding to txt file
     out_file_name = out_file_name + "_" + visualize
 
+    scatter2(res, out_file_name + '.png')
+    res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
+
+@profile
+def visualization_dist(
+        agg_mtx,
+        reduced_mi_file,
+        transformation,
+        out_file_name,
+        max_dim=0,
+        visualize="umap",
+        min_dist=0.25,
+        perplexity=30,
+        nprocesses=1,
+):
+    cclust = agg_mtx
+    hdf = pd.HDFStore(reduced_mi_file)
+    transformation = "pca" if transformation == "lpca" else transformation
+    hdf_trans = hdf[transformation.lower()]
+    hdf.close()
+
+    if visualize == "umap":
+        embed_2d = umap(hdf_trans, max_dim, min_dist)
+    elif visualize == "tsne":
+        perplexity = np.min([perplexity, np.max(cclust.groupby(["label"]).size())])
+        embed_2d = mctsne(hdf_trans, max_dim, "", None, perplexity, "False", nprocesses)
+
+    cclust = pd.concat([cclust, embed_2d.loc[cclust.index, :]], axis=1)
+    res = cclust.loc[:, ["X", "Y", "label"]]
+    # save 2D embedding to txt file
+    out_file_name = out_file_name + "_" + visualize
     scatter2(res, out_file_name + '.png')
     res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
 
