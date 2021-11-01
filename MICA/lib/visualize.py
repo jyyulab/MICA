@@ -69,6 +69,7 @@ def visual_embed(clustering_res, frame_dr, out_dir, dr_dim=None, dis_metric='euc
     embed_2d = pd.DataFrame(data=embed, index=clustering_res.index, columns=["X", "Y"])
     clustering_res = pd.concat([clustering_res, embed_2d.loc[clustering_res.index, :]], axis=1)
     final_res = clustering_res.loc[:, ["X", "Y", "label"]]
+    final_res.index.name = 'ID'
     # save 2D embedding to txt file
     if suffix:
         out_txt_file = '{}/clustering_{}_{}_{}_{}.txt'.format(out_dir, visual_method, dis_metric, frame_dr.shape[1],
