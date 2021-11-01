@@ -31,6 +31,7 @@ setup(
         "anndata>=0.7.4",
         "umap-learn>=0.5.1",
         "gensim>=4.1.0",
+        "pynndescent==0.5.2",
         ],
     python_requires=">=3.6.1",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
