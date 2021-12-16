@@ -34,7 +34,7 @@ from scipy.spatial import distance  # for euclidean distance
 #ceb
 from memory_profiler import profile
 
-@profile
+#@profile
 def read_file(in_file, out_file_name):
     """ Reads text file and stores data in a temporary HDF5-format file.
 
@@ -66,7 +66,7 @@ def read_anndata_file(in_file):
     #adata.to_hdf(out_file_name + ".h5.tmp", "slice_0")
     return adata
 
-@profile
+#@profile
 def slice_file(df_file,  out_file_name, slice_size="1000"):
     """ Slices the HDF5 file.
 
@@ -177,7 +177,7 @@ def calc_prep(in_file, project_name):
     in_.close()
 
 import math
-@profile    
+#@profile    
 def prep_dist(input_file, out_name, nranks):
     import logging
     """ Preprocess input file to create sliced matrices.
@@ -553,7 +553,7 @@ def compute_process_grid_dimensions(n):
 
 
     
-@profile
+#@profile
 def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, nslices, SM):
     
     """ Prepares the already sliced input file for further calculation in MICA.
@@ -786,7 +786,7 @@ def tsne(
 
 #https://github.com/DmitryUlyanov/Multicore-TSNE
 from MulticoreTSNE import MulticoreTSNE as mcTSNE
-@profile
+#@profile
 def mctsne(
          data, max_dim, out_file_name, tag, perplexity=30, plot="True", n_jobs=1
 ):
@@ -926,7 +926,7 @@ def pca(
             plot,
         )
 
-@profile
+#@profile
 def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
     #out_file_name = project_name + "_kmeans_k" + str(n_clusters) + "_d" + str(dim) + ".h5.tmp." + str(bootstrap_id)
     out_file_name = project_name + "_kmeans_k" + str(n_clusters) + ".h5.tmp." + str(bootstrap_id)
@@ -1062,7 +1062,7 @@ from sknetwork.utils import edgelist2adjacency, edgelist2biadjacency
 from sknetwork.data import convert_edge_list, load_edge_list, load_graphml
 from sknetwork.visualization import svg_graph, svg_digraph, svg_bigraph
 from sknetwork.clustering import Louvain
-@profile
+#@profile
 def consensus_sc3_graph(km_results, n_clusters, common_name=None):
     """ Implement SC3's consensus clustering. (https://www.nature.com/articles/nmeth.4236)
     Args:
@@ -1172,7 +1172,7 @@ def cluster_method_multiprocess(mi_file, n_cluster, n_iter, common_name, dims=[1
 #ceb may want to put this back into MICA_distributed.py
 #ceb MPI calls make this too complex for a utility function
 #https://github.com/DmitryUlyanov/Multicore-TSNE
-@profile
+#@profile
 def cluster_method_distributed(mi_file, n_cluster, n_bootstraps, common_name, dims=[19], num_processes=1):
 
     #print("cluster_method_distributed checkpt 1",flush=True)
@@ -1266,7 +1266,7 @@ def visualization(
     scatter2(res, out_file_name + '.png')
     res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
 
-@profile
+#@profile
 def visualization_dist(
         agg_mtx,
         reduced_mi_file,
