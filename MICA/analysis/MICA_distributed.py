@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/hpcf/authorized_apps/rhel7_apps/mica/mica_nv/bin/python
 # coding: utf-8
 
 # # Use MPI and Scalapy to distribute all of MICA workflow to work on multiple nodes
@@ -512,8 +512,8 @@ data_file_path=""
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("--input", action="store", type="string")
-parser.add_option("--project", action="store", type="string")
-parser.add_option("--outdir", action="store", type="string")
+parser.add_option("--project", action="store", type="string", default="default_proj")
+parser.add_option("--outdir", action="store", type="string", default="outdir")
 parser.add_option("--bootstraps", action="store", type="int", default=1)
 parser.add_option("--clusters", action="store", type="int", default=4)
 (options, args) = parser.parse_args()
@@ -538,15 +538,11 @@ if rank==0:
     if not os.path.exists(plot_file_path):
         os.makedirs(plot_file_path)
 
-#set block size for distributed cyclic matrix
+#set default block size for distributed cyclic matrix
 block_size=64
 
 #begin whole code timer
 total_time_start = time.time()
-
-#comm.Barrier()
-#exit()
-
 
 #==================================================================================
 
@@ -558,7 +554,6 @@ nslices=0
 slice_size=0
 #Run prep.py only on one processor to create the slice files
 if rank==0:
-    #g_nrows, ncols, nslices = utils.prep_dist(input_file_name, output_file_name, slice_size)
     g_nrows, ncols, nslices, slice_size = utils.prep_dist(input_file_name, output_file_prefix, nranks)
 end = time.time()
 
@@ -578,8 +573,6 @@ nslices = comm.bcast(nslices, root=0)
 slice_size = comm.bcast(slice_size, root=0)
 ##=============================================================================
 
-#comm.Barrier()
-#exit()
 
 b=nslices
 if slice_size<block_size:
@@ -598,6 +591,9 @@ if rank==0:
 comm.Barrier()
 #sets default context and block_shape
 #@profile
+
+if rank==0:
+    print("Initializing distributed MI matrix",flush=True)
 core.initmpi([PR, PC],block_shape=[block_size,block_size])
 
 #comm.Barrier()
@@ -613,9 +609,11 @@ if os.path.isfile(mi_filename):
     ## The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
     #Read MI matrix from file
     if rank==0:
-        print("reading computed MI matrix from file: ",mi_filename)
+        print("reading computed MI matrix from file: ",mi_filename,flush=True)
     dMI=core.DistributedMatrix.from_file(mi_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
 else: #file does not exist, so compute MI matrix and write
+    if rank==0:
+        print("Computed distributed MI matrix: ",mi_filename,flush=True)
     dMI = obtain_distributed_MI_matrix(nslices, generated_file_path, project_name, g_nrows, ncols)
 
 ## End compute MI matrix and write
@@ -634,9 +632,9 @@ if os.path.isfile(mi_normed_filename):
     end=time.time()
     if rank==0:
         print("Read distributed normed MI matrix from file Elapsed = %s" % (end - start),flush=True)
-
 else:
-
+    if rank==0:
+        print("Computing distributed normed MI matrix",flush=True)
     dMI_normed=normalize_distributed_matrix(dMI)
 
 
@@ -651,10 +649,11 @@ else:
 processed_dissimilarity_matrix_filename = output_file_prefix+'_dissimilarity_matrix_distributed.scalapack'
 if os.path.isfile(processed_dissimilarity_matrix_filename):
     if rank==0:
-        print("Reading preprocessed dissimilarity matrix from file: "+processed_dissimilarity_matrix_filename)
+        print("Reading preprocessed dissimilarity matrix from file: "+processed_dissimilarity_matrix_filename,flush=True)
     B=core.DistributedMatrix.from_file(processed_dissimilarity_matrix_filename, global_shape=[g_nrows,g_nrows], dtype=np.float64, block_shape=[block_size,block_size])
-else:
-
+else: 
+    if rank==0:
+        print("Preprocessing dissimilarity matrix ",flush=True)
     B=process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, dMI, dMI_normed, g_nrows, block_size)
 
 #==================================================================================
@@ -664,14 +663,16 @@ reduced_mi_filename = output_file_prefix+'_mi_reduced.h5'
 
 if os.path.isfile(reduced_mi_filename):
     if rank==0:
-        print("Reading existing eigenvalue file")
+        print("Reading existing eigenvalue file",flush=True)
         Y = pd.read_hdf(reduced_mi_filename)
 else:
+    if rank==0:
+        print("Computing eigenvalues",flush=True)
     Y = compute_eigenvales(reduced_mi_filename, B, g_nrows, rank)
 
 #print reduced data to screen
 if rank==0:
-    print("Reduced Data Matrix")
+    print("Reduced Data Matrix",flush=True)
     print(Y)
 #==================================================================================
 
@@ -710,6 +711,7 @@ if rank==0:
     print("Total Time Elapsed = %s" % (total_time_end - total_time_start),flush=True)
 
 #gracefully end program
+MPI.Finalize()
 exit()
 
 

@@ -60,6 +60,7 @@ def read_anndata_file(in_file):
         in_file_name  (str): path to input text file
         out_file_name (str): user-defined name for output file
     """
+    adata=None
     if in_file.endswith('.h5ad'):
         adata = anndata.read_h5ad(in_file)
     #write dataframe to hdf
