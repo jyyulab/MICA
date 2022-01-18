@@ -53,8 +53,10 @@ adj.rand.index(col_data$label, col_data$sc3_5_clusters)
 
 save.image(file='/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/tests/SilverStd/PBMC_20k/SC3/PBMC_20k_SC3.RData')
 # plotPCA(sce, colour_by = "label")
-sce <- sc3(sce, ks = 10, biology = TRUE, n_cores = 10)
+sce <- sc3(sce, ks = 10, biology = TRUE, kmeans_nstart=50)
 
 col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 print(adj.rand.index(col_data$label, col_data$sc3_10_clusters))
+
+save.image(file='/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/tests/SilverStd/PBMC_20k/SC3/PBMC_20k_SC3.RData')

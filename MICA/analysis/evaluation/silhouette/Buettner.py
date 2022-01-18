@@ -96,7 +96,7 @@ umap_embed = pd.read_csv(umap_embed_file, sep='\t', index_col=0)
 merged = true_label.merge(umap_embed, left_index=True, right_index=True)
 
 #%%
-out_dir = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Buettner/Scanpy'
+out_dir = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/Buettner/Scanpy'
 
 #%%
 labels = merged['label_x']

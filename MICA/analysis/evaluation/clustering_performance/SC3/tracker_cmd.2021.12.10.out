@@ -1,0 +1,59 @@
+[INFO] Splitting jobids 145930138
+[INFO] array_jids:  ['145930138']
+[INFO] Reading bjobs
+[INFO] Reading jobs from bjobs
+[INFO] Number of jobs found:  1
+[INFO] Sleeping for 181 seconds between each update
+[UPDATE][145930138] 2021-12-10 01:32:51 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145930138] 2021-12-10 01:35:52 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:38:54 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:41:55 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:44:56 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:47:57 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:50:58 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][145930138] 2021-12-10 01:53:59 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[INFO] Job 145930138.1 has exited ...
+[UPDATE][145930138] 2021-12-10 01:57:00 nPEND nRUN nDONE nREQUEUE nFAIL =     0     0     0     0     1
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nodecn201>
+Subject: Job 145930136: <tracker_cmd> in cluster <hpcf_research_cluster> Exited
+
+Job <tracker_cmd> was submitted from host <noderome166> by user <lding> in cluster <hpcf_research_cluster> at Fri Dec 10 01:32:14 2021
+Job was executed on host(s) <nodecn201>, in queue <compbio_tracker>, as user <lding> in cluster <hpcf_research_cluster> at Fri Dec 10 01:32:43 2021
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Fri Dec 10 01:32:43 2021
+Terminated at Fri Dec 10 02:00:02 2021
+Results reported at Fri Dec 10 02:00:02 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_LSF -P PBMC_20k  -J cmd -q superdome -n 12 -M 499999 -o /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/out.%J.%I.txt -e /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.%J.%I.txt -i /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh -update 181
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   3.48 sec.
+    Max Memory :                                 19 MB
+    Average Memory :                             12.92 MB
+    Total Requested Memory :                     1000.00 MB
+    Delta Memory :                               981.00 MB
+    Max Swap :                                   -
+    Max Processes :                              10
+    Max Threads :                                11
+    Run time :                                   1632 sec.
+    Turnaround time :                            1668 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <tracker_cmd.2021.12.10.err> for stderr output of this job.
+
