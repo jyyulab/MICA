@@ -1,4 +1,4 @@
-#/usr/bin/env Rscript
+#!/usr/bin/env Rscript
 
 library(SingleCellExperiment)
 library(SC3)
@@ -9,11 +9,11 @@ library(data.table)
 library(pdfCluster)
 
 
-yan <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Yan/Yan_MICA_input.txt"),
+yan <- read.table(file=paste0("/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/GoldenStd/Yan/Yan_MICA_input.txt"),
                   sep="\t", header=TRUE, row.names=1)
 yan_t <- transpose(yan)
 yan_pow2 <- 2^yan_t - 1
-ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Yan/Yan_true_label.txt"),
+ann <- read.table(file=paste0("/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/GoldenStd/Yan/Yan_true_label.txt"),
                   sep="\t", header=TRUE, row.names=1)
 
 

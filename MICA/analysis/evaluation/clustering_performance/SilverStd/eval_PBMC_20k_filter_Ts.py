@@ -38,8 +38,6 @@ adata_filter.write(filename='/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/
 
 
 
-
-
 #%% Filter CD4+ T helper2 and CD8+ Cytotoxic T
 filtered_cells = true_label[true_label['label'] != 'CD4+ T Helper2']
 

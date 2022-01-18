@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
@@ -9,6 +8,7 @@ from sklearn.metrics.cluster import adjusted_rand_score
 root_dir = '/Users/lding/Documents/MICA/Datasets/HPC'
 level = 'SilverStd'
 author = 'Zeisel'
+<<<<<<< HEAD
 num_clusters = 7
 
 
@@ -59,10 +59,57 @@ sc.pp.normalize_total(adata, target_sum=1e4)
 sc.pp.log1p(adata)
 
 input_file = '{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author)
+=======
+>>>>>>> more analysis code from HPC
 num_clusters = 7
 
+
+#%% Read raw data
+input_file = '{}/{}/{}/GSE60361_C1-3005-Expression.txt'.format(root_dir, level, author)
+adata = sc.read_csv(input_file, first_column_names=True, delimiter='\t')
+
+
 #%%
-adata = preprocessing.read_preprocessed_mat(input_file)
+adata = adata.transpose()
+
+
+#%%
+adata.var_names_make_unique()
+
+
+#%%
+sc.pp.filter_cells(adata, min_genes=200)
+sc.pp.filter_genes(adata, min_cells=3)
+
+
+#%%
+adata.var['mt'] = adata.var_names.str.startswith('MT-')  # annotate the group of mitochondrial genes as 'mt'
+sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+
+
+#%%
+sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'],
+             jitter=0.3, multi_panel=True)
+
+
+#%%
+sc.pl.scatter(adata, x='total_counts', y='pct_counts_mt')
+sc.pl.scatter(adata, x='total_counts', y='n_genes_by_counts')
+
+
+#%%
+# adata2 = adata[adata.obs.n_genes_by_counts < 8000, :]
+
+#%%
+adata = adata[adata.obs.pct_counts_mt < 5, :]
+
+
+#%%
+sc.pp.normalize_total(adata, target_sum=1e4)
+
+#%%
+sc.pp.log1p(adata)
+
 
 #%%
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
@@ -80,6 +127,7 @@ sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
 sc.tl.leiden(adata, resolution=0.135)
+<<<<<<< HEAD
 print(adata.obs['leiden'])
 
 #%%
@@ -91,7 +139,16 @@ sc.pl.umap(adata)
 
 #%%
 sc.tl.leiden(adata, resolution=0.1)
+=======
+>>>>>>> more analysis code from HPC
 print(adata.obs['leiden'])
+
+#%%
+sc.tl.umap(adata)
+
+#%%
+sc.pl.umap(adata)
+
 
 #%%
 true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
@@ -115,11 +172,12 @@ ari
 
 
 
+<<<<<<< HEAD
 
 sc.tl.umap(adata)
+=======
+>>>>>>> more analysis code from HPC
 
-#%%
-sc.pl.umap(adata)
 
 
 
@@ -130,13 +188,13 @@ df_umap = pd.DataFrame(adata.obsm['X_umap'], columns=['X', 'Y'])
 df_umap['label'] = list(adata.obs['leiden'].astype(int))
 
 #%%
-df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.txt',
-               sep='\t')
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/Zeisel/'
+               'Scanpy/Zeisel_Scanpy_UMAP.txt', sep='\t')
 
 #%% UMAP scatter plot
 from MICA.lib import visualize as vi
 df_umap['label'] += 1
-out_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.pdf'
+out_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.pdf'
 vi.scatter_plot(df_umap, out_file, marker_size=1.0, marker="o", method='UMAP', marker_scale=10.0)
 
 
