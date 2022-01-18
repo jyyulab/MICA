@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
@@ -47,16 +48,19 @@ sc.pp.normalize_total(adata, target_sum=1e4)
 #%%
 sc.pp.log1p(adata)
 
+input_file = '{}/{}/{}/{}_MICA_input.h5ad'.format(root_dir, level, author, author)
+num_clusters = 20
+
+#%%
+adata = preprocessing.read_preprocessed_mat(input_file)
 
 #%%
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
 sc.pl.highly_variable_genes(adata)
 
-
 #%%
 adata.raw = adata
 adata = adata[:, adata.var.highly_variable]
-
 
 #%%
 sc.pp.regress_out(adata, ['total_counts', 'pct_counts_mt'])
@@ -77,6 +81,10 @@ sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
 sc.tl.leiden(adata, resolution=0.3)
+sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
+
+#%%
+sc.tl.leiden(adata, resolution=0.08)
 print(adata.obs['leiden'])
 
 #%%
@@ -94,7 +102,6 @@ df_umap['label'] = list(adata.obs['leiden'].astype(int))
 #%%
 df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/PBMC_20k/'
                'Scanpy/PBMC_20k_Scanpy_UMAP.txt', sep='\t')
-
 
 
 #%%

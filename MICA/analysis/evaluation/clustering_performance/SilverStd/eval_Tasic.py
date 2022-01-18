@@ -12,7 +12,7 @@ utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
 
 # max_resolution = 10.0
 # utils.create_cmds_ge(root_dir, level, author, input_file, max_resolution)
-utils.calc_ARIr_ge(root_dir, level, author, num_clusters)
+utils.calc_ARIs_ge(root_dir, level, author, num_clusters)
 
 
 #%%

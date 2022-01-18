@@ -4,7 +4,6 @@ from MICA.lib import visualize as vi
 import pandas as pd
 
 
-
 #%%
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Kolod/Kolod_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
@@ -34,7 +33,6 @@ print(silhouette_avg)
 #%%
 vi.silhouette_plot(labels, merged.loc[:, ['X', 'Y']], 3, silhouette_avg, out_dir, ss_lower_bound=-0.6,
                    ss_upper_bound=1.0)
-
 
 
 
@@ -84,7 +82,6 @@ vi.silhouette_plot(labels, merged.loc[:, ['UMAP_1', 'UMAP_2']], 3, silhouette_av
 
 
 
-
 #%% Scanpy
 map_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Kolod/Scanpy/Kolod_Scanpy_UMAP.txt'
 umap_embed = pd.read_csv(umap_embed_file, sep='\t', index_col=0)
@@ -126,8 +123,6 @@ print(silhouette_avg)
 #%%
 vi.silhouette_plot(labels, merged.loc[:, ['UMAP_1', 'UMAP_2']], 3, silhouette_avg, out_dir, ss_lower_bound=-0.6,
                    ss_upper_bound=1.0)
-
-
 
 
 

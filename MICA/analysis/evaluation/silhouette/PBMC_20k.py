@@ -10,9 +10,7 @@ true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 # true_label['label'] = true_label['label']+1
 
 
-#%%
-umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/PBMC_20k/md_0.2/' \
-                  'clustering_UMAP_euclidean_20_10.txt'
+umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/PBMC_20k/md_0.2/clustering_UMAP_euclidean_20_10.txt'
 umap_embed = pd.read_csv(umap_embed_file, sep='\t', index_col=0)
 # umap_embed['label'] = umap_embed['label'] + 1
 
@@ -100,15 +98,23 @@ vi.silhouette_plot(labels, merged.loc[:, ['UMAP_1', 'UMAP_2']], 10, silhouette_a
 
 
 #%% Scanpy
+<<<<<<< HEAD
 umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/PBMC_20k/' \
                   'Scanpy/PBMC_20k_Scanpy_UMAP.txt'
+=======
+umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/PBMC_20k/Scanpy/PBMC_20k_Scanpy_UMAP.txt'
+>>>>>>> b77f5c014b1a3e01faa6131792bee9d39e39b760
 umap_embed = pd.read_csv(umap_embed_file, sep='\t', index_col=0)
 
 #%%
 merged = true_label.merge(umap_embed, left_index=True, right_index=True)
 
 #%%
+<<<<<<< HEAD
 out_dir = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/PBMC_20k/Scanpy'
+=======
+out_dir = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/PBMC_20k/Scanpy'
+>>>>>>> b77f5c014b1a3e01faa6131792bee9d39e39b760
 
 #%%
 labels = merged['label_x']

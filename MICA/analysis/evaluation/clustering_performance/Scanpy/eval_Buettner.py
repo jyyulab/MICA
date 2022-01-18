@@ -9,6 +9,7 @@ from sklearn.metrics.cluster import adjusted_rand_score
 root_dir = '/Users/lding/Documents/MICA/Datasets/HPC'
 level = 'GoldenStd'
 author = 'Buettner'
+<<<<<<< HEAD
 num_clusters = 8
 
 #%% Read raw data
@@ -47,6 +48,11 @@ sc.pp.normalize_total(adata, target_sum=1e4)
 #%%
 sc.pp.log1p(adata)
 
+input_file = '{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author)
+num_clusters = 8
+
+#%%
+adata = preprocessing.read_preprocessed_mat(input_file)
 
 #%%
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
@@ -55,7 +61,6 @@ sc.pl.highly_variable_genes(adata)
 #%%
 adata.raw = adata
 adata = adata[:, adata.var.highly_variable]
-
 
 #%%
 sc.pp.regress_out(adata, ['total_counts', 'pct_counts_mt'])
@@ -92,17 +97,21 @@ df_umap['label'] = list(adata.obs['leiden'].astype(int))
 df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/'
                'Buettner/Scanpy/Buettner_Scanpy_UMAP.txt', sep='\t')
 
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Buettner/Scanpy/Buettner_Scanpy_UMAP.txt',
+               sep='\t')
 
 
 
 #%%
 true_label_file = '{}/{}/{}/{}_true_label_new.txt'.format(root_dir, level, author, author)
+true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 
 #%%
 predict_label = adata.obs['leiden'].astype(int)
 # predict_label.index = predict_label.index.astype(int)
 predict_label.to_csv('{}/{}/{}/{}_predict_label.txt'.format(root_dir, level, author, author), sep='\t')
+predict_label.index = predict_label.index.astype(int)
 
 #%%
 merged = true_label.merge(predict_label, left_on='cell', right_index=True)

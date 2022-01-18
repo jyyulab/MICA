@@ -25,6 +25,19 @@ ann <- as.data.frame(ann[rownames(mat),])
 colnames(ann) <- c('label')
 
 
+# mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/with_true_labels/GoldernStd/pollen/Pollen_MICA_input.txt"),
+#                   sep="\t", header=TRUE, row.names=1)
+# mat_t <- transpose(mat)
+# mat_pow2 <- exp(1)^mat_t - 1
+
+
+mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/with_true_labels/GoldernStd/pollen/pollen_log2.txt"),
+                  sep="\t", header=TRUE, row.names=1)
+mat_t <- transpose(mat)
+mat_pow2 <- 2^mat_t - 1
+ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/pollen/Pollen_true_label.txt"),
+                  sep="\t", header=TRUE, row.names=1)
+
 
 # create a SingleCellExperiment object
 sce <- SingleCellExperiment(
@@ -100,3 +113,6 @@ labels <- pollen@colData@listData[["cell_type1"]]
 true_label <- data.frame(cells, labels)
 write.table(true_label, file='/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_true_label.txt', sep="\t")
 
+col_data <- colData(sce)
+head(col_data[ , grep("sc3_", colnames(col_data))])
+adj.rand.index(col_data$label, col_data$sc3_11_clusters)

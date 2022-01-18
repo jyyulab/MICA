@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
@@ -57,6 +58,11 @@ sc.pp.normalize_total(adata, target_sum=1e4)
 #%%
 sc.pp.log1p(adata)
 
+input_file = '{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author)
+num_clusters = 7
+
+#%%
+adata = preprocessing.read_preprocessed_mat(input_file)
 
 #%%
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
@@ -84,6 +90,10 @@ sc.pl.umap(adata)
 
 
 #%%
+sc.tl.leiden(adata, resolution=0.1)
+print(adata.obs['leiden'])
+
+#%%
 true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 
@@ -106,6 +116,10 @@ ari
 
 
 
+sc.tl.umap(adata)
+
+#%%
+sc.pl.umap(adata)
 
 
 
@@ -116,13 +130,13 @@ df_umap = pd.DataFrame(adata.obsm['X_umap'], columns=['X', 'Y'])
 df_umap['label'] = list(adata.obs['leiden'].astype(int))
 
 #%%
-df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/Zeisel/'
-               'Scanpy/Zeisel_Scanpy_UMAP.txt', sep='\t')
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.txt',
+               sep='\t')
 
 #%% UMAP scatter plot
 from MICA.lib import visualize as vi
 df_umap['label'] += 1
-out_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.pdf'
+out_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Scanpy/Zeisel_Scanpy_UMAP.pdf'
 vi.scatter_plot(df_umap, out_file, marker_size=1.0, marker="o", method='UMAP', marker_scale=10.0)
 
 
