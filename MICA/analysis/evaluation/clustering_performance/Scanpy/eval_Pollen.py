@@ -60,6 +60,22 @@ sc.tl.leiden(adata, resolution=2.7)
 print(adata.obs['leiden'])
 
 #%%
+sc.tl.umap(adata)
+
+#%%
+sc.pl.umap(adata)
+
+#%% UMAP scatter plot
+df_umap = pd.DataFrame(adata.obsm['X_umap'], columns=['X', 'Y'])
+
+#%%
+df_umap['label'] = list(adata.obs['leiden'].astype(int))
+
+#%%
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Pollen/Scanpy/Pollen_Scanpy_UMAP.txt',
+               sep='\t')
+
+#%%
 true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 

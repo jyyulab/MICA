@@ -2,8 +2,8 @@
 from MICA.analysis.evaluation.clustering_performance import utils
 
 
-root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
-level = 'GoldernStd'
+root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets'
+level = 'GoldenStd'
 author = 'Goolam'
 input_file = '{}_MICA_input.h5ad'.format(author)
 num_clusters = 5
@@ -21,3 +21,22 @@ num_clusters = 5
 # adata = pp.read_preprocessed_mat('{}/{}/{}/{}'.format(root_dir, level, author, input_file))
 # frame = adata.to_df()
 # frame.to_csv('{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author), sep='\t')
+
+
+#%%
+from MICA.lib import preprocessing as pp
+# root_dir = '/Users/lding/Documents/MICA/Datasets/HPC/'
+adata = pp.read_preprocessed_mat('{}/{}/{}/{}'.format(root_dir, level, author, input_file))
+
+#%%
+frame = adata.to_df()
+
+#%%
+frame_T = frame.T
+# frame.to_csv('{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author), sep='\t')
+
+#%%
+frame_T.insert(loc=0, column='geneSymbol', value=list(frame_T.index))
+
+#%%
+frame_T.to_csv('{}/{}/{}/{}_SJARACNe_input.txt'.format(root_dir, level, author, author), sep='\t')

@@ -104,6 +104,10 @@ s_obj <- FindClusters(s_obj, resolution = 0.15)
 s_obj <- RunUMAP(s_obj, dims = 1:10)
 DimPlot(s_obj, reduction = "umap")
 
+write.table(s_obj@reductions$umap@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Chung/Chung_Seurat_UMAP.txt', sep='\t')
+write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Chung/Chung_Seurat_PCA.txt', sep='\t')
+
+
 adj.rand.index(scgnn_true_label$cell_type, as.numeric(s_obj$seurat_clusters))
 
 
@@ -113,4 +117,12 @@ saveRDS(s_obj, file = paste0("/Users/lding/Documents/MICA/Datasets/HPC/", level 
 true_label_file <- paste0('/Users/lding/Documents/MICA/Datasets/HPC/', level, '/', author, '/', author, '_true_label.txt')
 true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names=1)
 adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
+
+
+# Calculate silhouette
+library(scclusteval)
+silhouette <- CalculateSilhouette(s_obj, dims=1:50)
+mean(silhouette$width)
+# 4.19E-05
+
 

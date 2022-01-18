@@ -5,6 +5,7 @@ library(dplyr)
 library(Matrix)
 library(data.table)
 library(pdfCluster)
+library(ggplot2)
 
 
 # Read input matrix
@@ -33,16 +34,32 @@ s_obj <- ScaleData(s_obj, features = all.genes)
 s_obj <- RunPCA(s_obj, features = VariableFeatures(object = s_obj))
 # VizDimLoadings(s_obj, dims = 1:2, reduction = "pca")
 
+
 # Clustering
 s_obj <- FindNeighbors(s_obj, dims = 1:10)
 s_obj <- FindClusters(s_obj, resolution = 0.068)
 s_obj <- RunUMAP(s_obj, dims = 1:10)
 DimPlot(s_obj, reduction = "umap")
+ggsave("/Users/lding/Desktop/Zeisel_Seurat_UMAP.pdf", width=40, height=40, unit="cm", useDingbats = FALSE)
+
+
+
+write.table(s_obj@reductions$umap@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Zeisel_Seurat_UMAP.txt', sep='\t')
+write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/Zeisel_Seurat_PCA.txt', sep='\t')
+
 
 saveRDS(s_obj, file = paste0("/Users/lding/Documents/MICA/Datasets/HPC/", level ,"/", author,"/", author,"_seurat.rds"))
+
+
 
 # Calculate ARI
 true_label_file <- paste0('/Users/lding/Documents/MICA/Datasets/HPC/', level, '/', author, '/', author, '_true_label.txt')
 true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names=1)
 adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
 
+
+# Calculate silhouette
+library(scclusteval)
+silhouette <- CalculateSilhouette(s_obj, dims=1:50)
+mean(silhouette$width)
+# [1] 0.2328271

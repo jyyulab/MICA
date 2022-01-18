@@ -50,3 +50,8 @@ col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$cell_type, col_data$sc3_4_clusters)
 
+
+library(umap)
+euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)
+write.table(euclidean_laplacian_umap$layout, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Chung/SC3/Chung_SC3_euclidean_laplacian_UMAP.txt', sep='\t')
+

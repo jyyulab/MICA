@@ -39,6 +39,21 @@ s_obj <- FindClusters(s_obj, resolution = 0.05)
 s_obj <- RunUMAP(s_obj, dims = 1:10)
 DimPlot(s_obj, reduction = "umap")
 
+write.table(s_obj@reductions$umap@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/Klein_Seurat_UMAP.txt', sep='\t')
+write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/Klein_Seurat_PCA.txt', sep='\t')
+
+
+
+umap_embed <- s_obj@reductions$umap@cell.embeddings
+umap_embed_df <- as.data.frame(umap_embed)
+umap_embed_df$label <- as.numeric(as.vector(s_obj@meta.data$seurat_clusters))
+colnames(umap_embed_df) <- c('X', 'Y', 'label')
+
+write.table(umap_embed_df, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/Klein_Seurat_UMAP.txt', sep='\t')
+write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/Klein_Seurat_PCA.txt', sep='\t')
+
+
+
 saveRDS(s_obj, file = paste0("/Users/lding/Documents/MICA/Datasets/HPC/", level ,"/", author,"/", author,"_seurat.rds"))
 
 # Calculate ARI
@@ -46,3 +61,9 @@ true_label_file <- paste0('/Users/lding/Documents/MICA/Datasets/HPC/', level, '/
 true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names=1)
 adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
 
+
+# Calculate silhouette
+library(scclusteval)
+silhouette <- CalculateSilhouette(s_obj, dims=1:50)
+mean(silhouette$width)
+# [1] 0.2517724

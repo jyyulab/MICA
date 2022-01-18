@@ -38,6 +38,10 @@ s_obj <- FindClusters(s_obj, resolution = 4.5)
 s_obj <- RunUMAP(s_obj, dims = 1:10)
 DimPlot(s_obj, reduction = "umap")
 
+write.table(s_obj@reductions$umap@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Pollen/Pollen_Seurat_UMAP.txt', sep='\t')
+write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Pollen/Pollen_Seurat_PCA.txt', sep='\t')
+
+
 saveRDS(s_obj, file = paste0("/Users/lding/Documents/MICA/Datasets/HPC/", level ,"/", author,"/", author,"_seurat.rds"))
 
 
@@ -49,6 +53,11 @@ adj.rand.index(true_labels, as.numeric(s_obj$seurat_clusters))
 
 
 
+# Calculate silhouette
+library(scclusteval)
+silhouette <- CalculateSilhouette(s_obj, dims=1:50)
+mean(silhouette$width)
+# 0.1070167
 
 
 
