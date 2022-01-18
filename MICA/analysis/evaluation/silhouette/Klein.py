@@ -11,8 +11,7 @@ true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 
 
 #%%
-umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/mds_1_3_silhouette/' \
-                  'clustering_umap_euclidean_19.txt'
+umap_embed_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Klein/mds_1_3_silhouette/clustering_umap_euclidean_19.txt'
 umap_embed = pd.read_csv(umap_embed_file, sep='\t', index_col=0)
 # umap_embed['label'] = umap_embed['label'] + 1
 

@@ -2,9 +2,8 @@
 from MICA.analysis.evaluation.clustering_performance import utils
 
 
-# root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
-root_dir = '/Users/lding/Documents/MICA'
-level = 'GoldenStd'
+root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
+level = 'GoldernStd'
 author = 'Pollen'
 input_file = '{}_MICA_input.txt'.format(author)
 num_clusters = 11

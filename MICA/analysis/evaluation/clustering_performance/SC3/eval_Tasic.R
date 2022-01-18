@@ -20,6 +20,7 @@ label <- ann[rownames(ann) %in% rownames(mat),]
 rownames2 <- rownames(ann)[rownames(ann) %in% rownames(mat)]
 ann2 <- data.frame(label)
 rownames(ann2) <- rownames2
+ann2 <- ann[rownames(mat),]
 
 
 # create a SingleCellExperiment object

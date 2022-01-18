@@ -61,7 +61,6 @@ plt.savefig('/Users/lding/Desktop/ARI_summary_catplot.pdf', dpi=500)
 
 
 
-
 #%%
 cell_count_table = ARI_table.loc[['MICA', 'Seurat', 'SC3', 'Scanpy'],]
 cell_count_table.loc['#cells'] = ARI_table.loc['# cells']
