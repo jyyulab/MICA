@@ -7,7 +7,7 @@ from sklearn.metrics.cluster import adjusted_rand_score
 
 #%%
 root_dir = '/Users/lding/Documents/MICA/Datasets/HPC'
-level = 'GoldernStd'
+level = 'GoldenStd'
 author = 'Goolam'
 input_file = '{}/{}/{}/{}_MICA_input.txt'.format(root_dir, level, author, author)
 num_clusters = 8
@@ -32,6 +32,24 @@ sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 #%%
 sc.tl.leiden(adata, resolution=0.2)
 print(adata.obs['leiden'])
+
+#%%
+sc.tl.umap(adata)
+
+#%%
+sc.pl.umap(adata)
+
+#%% UMAP scatter plot
+df_umap = pd.DataFrame(adata.obsm['X_umap'], columns=['X', 'Y'])
+
+#%%
+df_umap['label'] = list(adata.obs['leiden'].astype(int))
+
+#%%
+df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Goolam/Scanpy/Goolam_Scanpy_UMAP.txt',
+               sep='\t')
+
+
 
 #%%
 true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)

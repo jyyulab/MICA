@@ -9,18 +9,21 @@ library(data.table)
 library(pdfCluster)
 
 
-mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/with_true_labels/GoldernStd/pollen/Pollen_MICA_input.txt"),
+mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_MICA_input_246.txt"),
                   sep="\t", header=TRUE, row.names=1)
 mat_t <- transpose(mat)
-mat_pow2 <- exp(1)^mat_t - 1
+mat_pow2 <- exp(1)^mat_t-1
 
 
 # mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/with_true_labels/GoldernStd/pollen/pollen_log2.txt"),
 #                   sep="\t", header=TRUE, row.names=1)
 # mat_t <- transpose(mat)
 # mat_pow2 <- 2^mat_t - 1
-ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/pollen/Pollen_true_label.txt"),
+ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_true_label.txt"),
                   sep="\t", header=TRUE, row.names=1)
+ann <- as.data.frame(ann[rownames(mat),])
+colnames(ann) <- c('label')
+
 
 
 # create a SingleCellExperiment object
@@ -33,6 +36,8 @@ sce <- SingleCellExperiment(
 )
 
 
+
+
 # define feature names in feature_symbol column
 rowData(sce)$feature_symbol <- rownames(sce)
 # remove features with duplicated names
@@ -43,15 +48,16 @@ sce <- runPCA(sce)
 plotPCA(sce, colour_by = "label")
 sce <- sc3(sce, ks = 11, biology = TRUE)
 
+
 col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_11_clusters)
 
 
 
-
-
-
+library(umap)
+euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)
+write.table(euclidean_laplacian_umap$layout, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Pollen/SC3/Pollen_SC3_euclidean_laplacian_UMAP.txt', sep='\t')
 
 
 
@@ -93,3 +99,4 @@ cells <- pollen@colData@rownames
 labels <- pollen@colData@listData[["cell_type1"]]
 true_label <- data.frame(cells, labels)
 write.table(true_label, file='/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_true_label.txt', sep="\t")
+

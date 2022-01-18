@@ -8,6 +8,7 @@ library(Matrix)
 library(data.table)
 library(pdfCluster)
 
+
 zeisel <- readRDS('/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/Zeisel/Zeisel_seurat.rds')
 
 # log1p based?
@@ -39,6 +40,14 @@ sce <- runPCA(sce)
 plotPCA(sce, colour_by = "label")
 sce <- sc3(sce, ks = 7, biology = TRUE)
 
+
+sc3_plot_silhouette(sce, k = 7)
 col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_7_clusters)
+
+
+
+library(umap)
+euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)
+write.table(euclidean_laplacian_umap$layout, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Zeisel/SC3/Zeisel_SC3_euclidean_laplacian_UMAP.txt', sep='\t')

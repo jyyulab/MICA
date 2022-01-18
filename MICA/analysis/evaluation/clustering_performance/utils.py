@@ -52,7 +52,7 @@ def create_cmds_auto(root_dir, level, author, input_file):
 
 
 def calc_ARIs_ge(root_dir, level, author, num_clusters):
-    output_dir = '{}/outputs/{}/{}/ge'.format(root_dir, level, author)
+    output_dir = '{}/outputs/{}/{}/ge_1_3'.format(root_dir, level, author)
     # output_dir = '{}/outputs/{}/{}/old'.format(root_dir, level, author)
     summary_file = '{}/summary_ge.txt'.format(output_dir)
     if os.path.isfile(summary_file):
@@ -84,14 +84,15 @@ def calc_ARIs_ge(root_dir, level, author, num_clusters):
                 merged = true_label.merge(predict_label, left_on='cell', right_index=True)
                 # print(merged)
                 # ari = adjusted_rand_score(merged['cell'], merged['label_y'])
-                ari = adjusted_rand_score(merged['subclass_label'], merged['label'])
+                ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
                 print('{} {} {} {}'.format(predict_num_clusters, dim, reso, ari))
                 if ari > best_ari:
                     best_ari = ari
+                    best_ari_str = '{}\t{}\t{}\t{}\n'.format(author, dim, reso_round, ari)
                 fout.write('{}\t{}\t{}\t{}\n'.format(author, dim, reso_round, ari))
                 # break
             # break
-    print('GE best ARI: {}'.format(best_ari))
+    print('GE best ARI: {}'.format(best_ari_str))
     print('Done')
 
 
@@ -101,15 +102,11 @@ def calc_ARIs_mds(root_dir, level, author, num_clusters):
     if os.path.isfile(summary_file):
         os.remove(summary_file)
 
-    # true_label_file = '{}/datasets/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
-    # true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
-    # true_label_file = '/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/SilverStd/' \
-    #                   'Chung/scGNN/Chung_cell_label.csv'
-    true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Pollen/Pollen_true_label.txt'
+    true_label_file = '{}/datasets/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
     true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
     print(true_label)
     with open(summary_file, 'w') as fout:
-        predict_label_file = '{}/{}_k{}_umap_ClusterMem.txt'.format(output_dir, author, num_clusters)
+        predict_label_file = '{}/mds_1_3/{}_scDHA_k{}_umap_ClusterMem.txt'.format(output_dir, author, num_clusters)
         print(predict_label_file)
         predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
         # print(predict_label)

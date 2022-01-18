@@ -89,7 +89,11 @@ outputs:
     outputSource: clustering/out_txt
 
   clustering_plots:
-    type: File[]
+    type:
+      type: array
+      items:
+        type: array
+        items: File
     outputSource: clustering/out_fig
 
 steps:
