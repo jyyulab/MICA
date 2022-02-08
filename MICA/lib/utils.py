@@ -191,9 +191,8 @@ def prep_dist(input_file, out_name, nranks):
         out_name   (str): common rootname of generated output files
         slice_unit (int): size of each slice of cell data in input text-file
     """
-    logging.basicConfig(level=logging.INFO)
+    #logging.basicConfig(level=logging.INFO)
     #Read in whole file stored in anndata csr format
-    #adf=utils.read_anndata_file(input_file)
     adf=read_anndata_file(input_file)
     #make sure the matrix is in csr format
     from scipy.sparse import csr_matrix
@@ -205,18 +204,31 @@ def prep_dist(input_file, out_name, nranks):
     #slice_size = int(slice_unit)
 
     nrows=adf.shape[0]
-    #compute optimal slice size for number of ranks available
-    #slice_size = math.ceil( 2*nrows/(1+math.sqrt(1+8*nranks)))
-    slice_size = math.ceil( 2*nrows/(math.sqrt(1+8*nranks) -1 ))
-    #slice_size = math.ceil( 2*nrows/(1+math.sqrt(1+4*nranks)))
 
-    #compute number of slices needed to break dataset in to slice_size row blocks
-    b = int(np.ceil( float(nrows) / float(slice_size)))
+    #compute optimal slice size for number of ranks available
+    #aiming for 2 or fewer comparisons per rank, though the smaller the slice size, the easier to load balance
+    #ceb this is currently creating poor load balancing. Most ranks with one comparison, few with two.
+    if 0:
+        slice_size = math.ceil( 2*nrows/(math.sqrt(1+8*nranks) -1 ))
+        #compute number of slices needed to break dataset in to slice_size row blocks
+        b = int(np.ceil( float(nrows) / float(slice_size)))
+    else: #Test for better load balancing
+        M=1
+        #multiple for load balancing
+        if nranks%2==0:
+            M=2
+        else:
+            M=3
+        b= int( math.sqrt(1+8*M*nranks)/2 -0.5  )
+        comparisons=int(b*(b+1)/2)
+        slice_size= math.ceil(float(nrows)/b)
+        print("M ",M," nranks ",nranks," slices ",b," nrows ",nrows," slice_size ",slice_size, " comparisons ",comparisons)
+
     #determine how many digits are in b so we can pad spaces for the string output
     digit = int(np.floor(np.log10(b)) + 1)
-    
+
     ncols=adf.shape[1]
-    print("prep_dist: nrows=%s, ncols=%s, slice_size=%s, nslices=%s: " % (nrows, ncols, slice_size, b),flush=True)
+    #print("prep_dist: nrows=%s, ncols=%s, slice_size=%s, nslices=%s: " % (nrows, ncols, slice_size, b),flush=True)
 
     #loop over slice numbers
     for i in range(b):
@@ -232,6 +244,7 @@ def prep_dist(input_file, out_name, nranks):
         #print("output_file_name: ",output_file_name)
         adf_sub.write(output_file_name)
     #return nrows, ncols, and nslices
+    print("prep_dist: g_nrows=%s ncols=%s nslices=%s slice_size=%s" % (adf.shape[0], adf.shape[1], b, slice_size),flush=True)
     return adf.shape[0], adf.shape[1], b, slice_size
 
 
@@ -282,7 +295,7 @@ def calc_mi(arr1, arr2, bins, m):
 def numba_nan_fill(x):
     shape = x.shape
     x = x.ravel()
-    x[np.isnan(x)] = 0.0
+    x[np.isnan(x)] = 0.0 #ceb numba 0.55.1 breaks this for numpy 1.21.5 #looks like the error was coming from fastmath=True
     x = x.reshape(shape)
     return x
 
@@ -295,7 +308,8 @@ def numba_inf_fill(x):
     x = x.reshape(shape)
     return x
 
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def compute_bin(x, min, max, num_bins):
     """ Compute bin index for a give number.
     """
@@ -309,7 +323,8 @@ def compute_bin(x, min, max, num_bins):
         return bin
     
     
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def compute_bin_upperbound(x, max, num_bins):
     """ Compute bin index for a give number.
         Assume that min is always zero
@@ -325,7 +340,8 @@ def compute_bin_upperbound(x, max, num_bins):
 
 
     
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def numba_histogram2d(arr1, arr2, num_bins):
     """ Compute the bi-dimensional histogram of two data samples.
     Args:
@@ -355,7 +371,8 @@ def numba_histogram2d(arr1, arr2, num_bins):
     
     
 #ceb create csr version of numba_histogram2d, also compute_bin with knowledge that minx will always be zero
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def numba_histogram2d_csr(arr1, cols1, arr2, cols2, ncols, num_bins):
     """ Compute the bi-dimensional histogram of two data samples.
     Args:
@@ -389,7 +406,8 @@ def numba_histogram2d_csr(arr1, cols1, arr2, cols2, ncols, num_bins):
 
 
 
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def numba_calc_mi_dis(arr1, arr2, bins, m):
     """ Calculates a mutual information distance D(X, Y) = H(X, Y) - I(X, Y) using bin-based method
 
@@ -429,7 +447,8 @@ def numba_calc_mi_dis(arr1, arr2, bins, m):
 
 
 
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, bins, m):
     """ Calculates a mutual information distance D(X, Y) = H(X, Y) - I(X, Y) using bin-based method
 
@@ -447,7 +466,6 @@ def numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, bins, m):
         a float between 0 and 1
     """
     hist = numba_histogram2d_csr(arr1, cols1, arr2, cols2, m, bins)
-    
     sm = np.sum(hist, axis=1)
     tm = np.sum(hist, axis=0)
     sm = sm / float(sm.sum())
@@ -457,7 +475,6 @@ def numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, bins, m):
     for i, s in enumerate(sm):
         for j, t in enumerate(tm):
             sm_tm[i, j] = s * t
-
     fq = hist / float(m)
     div = np.true_divide(fq, sm_tm)
     numba_nan_fill(div)
@@ -470,7 +487,8 @@ def numba_calc_mi_dis_csr(arr1, cols1, arr2, cols2, bins, m):
 
 
 
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def numba_calc_mi_csr(arr1, cols1, arr2, cols2, bins, m):
     """ Calculates a mutual information distance D(X, Y) = H(X, Y) - I(X, Y) using bin-based method
 
@@ -509,7 +527,8 @@ def numba_calc_mi_csr(arr1, cols1, arr2, cols2, bins, m):
 
     
 #numba compilation cannot interpret the creation of a 2d array inside of this function so we pass in and out SM_block instead of returning it
-@numba.jit(nopython=True, fastmath=True)
+#@numba.jit(nopython=True, fastmath=True)
+@numba.jit(nopython=True)
 def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
                      Brows,Bmat_data,Bmat_indptr,Bmat_indices,
                      num_bins,num_genes,
@@ -519,6 +538,8 @@ def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
         Arowend   = Amat_indptr[i+1]
         Arow_cols = Amat_indices[Arowstart:Arowend]
         Arow_data = Amat_data[Arowstart:Arowend]
+        #print("Arow_data: "+str(i))#ceb
+        #print(Arow_data)#ceb
         Bstart=0
         Bend=Brows
         #if(symmetric):Bstart=i #upper triangluar
@@ -529,6 +550,8 @@ def process_matrices(Arows,Amat_data,Amat_indptr,Amat_indices,
             Brow_cols = Bmat_indices[Browstart:Browend]
             Brow_data = Bmat_data[Browstart:Browend]               
             SM_block[i,j] = numba_calc_mi_dis_csr(Arow_data, Arow_cols, Brow_data, Brow_cols, num_bins, num_genes)
+            #print("SM_block[%d,j%d]=%e" %(i,j,SM_block[i,j]))
+            #print(SM_block[i,j])
     return #SM_block
 
 
@@ -541,7 +564,7 @@ def compute_process_grid_dimensions(n):
         a -= 1
     PR=n//a
     PC=a
-    #if that doesn't match then create a 1D process array
+    #if that doesn't match then create a 1D process array. Also works for odd numbers of ranks.
     if PR*PC != n:
         PR=n
         PC=1
@@ -549,7 +572,7 @@ def compute_process_grid_dimensions(n):
     assert(PR*PC == n), print("Error, Size of process grid must match total number of ranks.")
     #we want the greatest common factors here for efficiency
     #if rank==0:
-    #   print("PR=",PR, "PC=",PC,flush=True)
+    #print("PR=",PR, "PC=",PC," n=",n,flush=True)
     return PR,PC
 
 
@@ -579,6 +602,7 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
     
     digit = int(np.floor(np.log10(nslices)) + 1)
 
+    #ceb hardcoded number of histogram bins relative the the number of rows
     num_bins = int(np.floor(nrows ** (1 / 3.0)))  # number of bins
     b = nslices #number of row blocks (cells)
     m = ncols  # number of cols per row (genes)
@@ -593,7 +617,9 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         for j in range(i,b): # j in range [i,b]
             idx = int(i * b + j - (i * (i + 1)) / 2)
             targetrank = idx//n_jobs_per_rank
-            if (targetrank == myrank): myslices.append((i,j))            
+            if (targetrank == myrank): 
+                myslices.append((i,j))            
+                print("rank: ",targetrank," comparison between segs:",i," x ",j,flush=True)
 
     #from list just generated, only do work assigned to your rank
     for index, tuple in enumerate(myslices):
@@ -612,6 +638,9 @@ def calc_distance_metric_distributed(in_file_path, project_name, nrows, ncols, n
         input_file = in_file_path + project_name + ".slice_" + slice_name +".h5ad"
         #print("infile seg2: ",input_file)
         mat2 = read_anndata_file(input_file)    
+
+        #print("mat1") #ceb
+        #print(mat1.X.data) #ceb
 
         #check to see if block comparison will result in a symmetric SM matrix
         # so that we can reduce the number of computations in half
@@ -950,7 +979,7 @@ def aggregate(km_results, n_clusters, common_name):
         return None
     mem = None
 
-    print("aggregate checkpt 1",flush=True)
+    #print("aggregate checkpt 1",flush=True)
     #ceb Not sure what kind of preprocessing of the kmeans data is going on here
     #loop over list of clusters generated by parallel kmeans.
     for i in range(n_iter):
