@@ -361,7 +361,7 @@ def process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, 
 
 
 #@profile
-def compute_eigenvales(reduced_mi_filename, B, g_nrows, rank):
+def compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank):
     if rank==0:
         print("Computing Eigenvalues of Preprocessed Dissimilarity Matrix")
 
@@ -598,8 +598,8 @@ comm.Barrier()
 #print("rank %s, checkpt 2"%(rank),flush=True)
 
 #set default block size for distributed cyclic matrix
-#block_size=32
-block_size=8
+block_size=32
+#block_size=16
 
 b=nslices
 if slice_size<block_size:
@@ -720,7 +720,7 @@ if 1:#ceb
     else:
         if rank==0:
             print("Computing eigenvalues",flush=True)
-        Y = compute_eigenvales(reduced_mi_filename, B, g_nrows, rank)
+        Y = compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank)
 
     #print reduced data to screen
     if rank==0:
