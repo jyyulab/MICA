@@ -512,7 +512,7 @@ rank = comm.Get_rank()
 name = MPI.Get_processor_name()
 
 #set global variable for writing checkpoint files
-WRITE_CHECKPOINT=False
+WRITE_CHECKPOINT=True
 
 #print("MPI Check: {host}[{pid}]: {rank}/{size}".format(
 #    host=socket.gethostname(),
@@ -734,36 +734,9 @@ if 1:#ceb
         print(Y)
 #==================================================================================
 
-plot_file_name = plot_file_path+project_name
-out_file_name = generated_file_path+project_name
+#plot_file_name = plot_file_path+project_name
+#out_file_name = generated_file_path+project_name
 
-#run entire clustering pipeline
-block_start = time.time()
-
-if rank==0:
-    print("Begin Clustering",flush=True)
-
-#ceb 
-if 0:#ceb
-    clustering_dist(reduced_mi_filename, 
-           "mds",#dr 
-           nclusters,    #k
-           nbootstraps,  #test  #n_bootstrap
-           #plot_file_name, #outfile name
-           out_file_name, #outfile name
-           "tsne", #plot method
-           #"umap", #plot method
-           0.1,    #umap_min_dist
-           30,     #tsne_perplexity
-           19,     #plot_dim
-           comm.size,     #n_processes
-           [19])   #dim_km
-
-#==============================================================
-block_end = time.time()
-#comm.Barrier()
-if rank==0:
-    print("Clustering Elapsed = %s" % (block_end - block_start),flush=True)
 
 total_time_end = time.time()
 if rank==0:
