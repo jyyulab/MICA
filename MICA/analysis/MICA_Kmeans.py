@@ -26,13 +26,10 @@ import gc
 import math
 from memory_profiler import profile
 from MICA.lib import utils
-#from scalapy import *
-#from scalapy import core
-#import scalapy.routines as rt
-#from scalapy import blacs
-
 
 #========================================================================
+#Global variables
+comm = MPI.COMM_WORLD
 
 #============== function definitions ========================
 # Post dimensionality reduction Clustering and Visualization
@@ -47,7 +44,7 @@ import pickle
 
 #@profile
 def clustering_dist(in_file, dr, k, n_bootstrap, out_name, plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
-
+    rank=comm.Get_rank()
     start_total_time = time.time()
     dim_km = map(int, dim_km) #converts string to int 
     start_km_time = time.time()
@@ -102,68 +99,64 @@ def clustering_dist(in_file, dr, k, n_bootstrap, out_name, plot_method, umap_min
 
 #=========================================== end funtion definintions ===============================
 
+def main():
+    ## Check to make sure MPI (mpi4py) is working
+    #comm = MPI.COMM_WORLD #defined globally
+    size = comm.Get_size()
+    nranks=size
+    rank = comm.Get_rank()
+    name = MPI.Get_processor_name()
 
-## Check to make sure MPI (mpi4py) is working
-comm = MPI.COMM_WORLD
-size = comm.Get_size()
-nranks=size
-rank = comm.Get_rank()
-name = MPI.Get_processor_name()
+    ## Begin execution of code
+    cwd=os.getcwd()
+    if rank==0:
+        print(cwd,flush=True)
 
-#set global variable for writing checkpoint files
-WRITE_CHECKPOINT=True
+    ## Parse command line arguments
+    input_file_name=""
+    project_name=""
+    data_file_path=""
+    nbootstraps=0
+    nclusters=0
+    from optparse import OptionParser
 
-## Begin execution of code
-cwd=os.getcwd()
-if rank==0:
-    print(cwd,flush=True)
+    parser = OptionParser()
+    parser.add_option("--input", action="store", type="string")
+    parser.add_option("--project", action="store", type="string", default="default_proj")
+    parser.add_option("--outdir", action="store", type="string", default="outdir")
+    parser.add_option("--bootstraps", action="store", type="int", default=1)
+    parser.add_option("--clusters", action="store", type="int", default=4)
+    (options, args) = parser.parse_args()
 
-## Parse command line arguments
-input_file_name=""
-project_name=""
-data_file_path=""
-nbootstraps=0
-nclusters=0
-from optparse import OptionParser
-#if rank==0:
-parser = OptionParser()
-parser.add_option("--input", action="store", type="string")
-parser.add_option("--project", action="store", type="string", default="default_proj")
-parser.add_option("--outdir", action="store", type="string", default="outdir")
-parser.add_option("--bootstraps", action="store", type="int", default=1)
-parser.add_option("--clusters", action="store", type="int", default=4)
-(options, args) = parser.parse_args()
+    input_file_name = options.input
+    project_name = options.project
+    data_file_path = options.outdir
+    nbootstraps=options.bootstraps
+    nclusters=options.clusters
 
-input_file_name = options.input
-project_name = options.project
-data_file_path = options.outdir
-nbootstraps=options.bootstraps
-nclusters=options.clusters
+    ## define file paths and names
+    data_file_path= data_file_path +'/'+ project_name +'/'
+    generated_file_path = data_file_path + 'generated_files/'
+    plot_file_path = data_file_path + 'plots/'
+    output_file_prefix = generated_file_path+project_name
 
-## define file paths and names
-data_file_path= data_file_path +'/'+ project_name +'/'
-generated_file_path = data_file_path + 'generated_files/'
-plot_file_path = data_file_path + 'plots/'
-output_file_prefix = generated_file_path+project_name
+    ## create directories if necessary
+    if rank==0:
+        if not os.path.exists(generated_file_path):
+            os.makedirs(generated_file_path)
+        if not os.path.exists(plot_file_path):
+            os.makedirs(plot_file_path)
 
-## create directories if necessary
-if rank==0:
-    if not os.path.exists(generated_file_path):
-        os.makedirs(generated_file_path)
-    if not os.path.exists(plot_file_path):
-        os.makedirs(plot_file_path)
+    if rank==0:
+        print("Begin Clustering",flush=True)
 
-
-if rank==0:
-    print("Begin Clustering",flush=True)
-
-#ceb read reduced matrix
-reduced_mi_filename = output_file_prefix+'_mi_reduced.h5'
-plot_file_name = plot_file_path+project_name
-out_file_name = generated_file_path+project_name
-if os.path.isfile(reduced_mi_filename):
-    block_start = time.time()
-    clustering_dist(reduced_mi_filename, 
+    #ceb read reduced matrix
+    reduced_mi_filename = output_file_prefix+'_mi_reduced.h5'
+    plot_file_name = plot_file_path+project_name
+    out_file_name = generated_file_path+project_name
+    if os.path.isfile(reduced_mi_filename):
+        block_start = time.time()
+        clustering_dist(reduced_mi_filename, 
            "mds",#dr 
            nclusters,    #k
            nbootstraps,  #test  #n_bootstrap
@@ -176,20 +169,22 @@ if os.path.isfile(reduced_mi_filename):
            19,     #plot_dim
            comm.size,     #n_processes
            [19])   #dim_km
-    block_end = time.time()
-    if rank==0:
-        print("Clustering Elapsed = %s" % (block_end - block_start),flush=True)
-else:
-    if rank==0:
-        print("Reduced similarity matrix file not found. Exiting",flush=True)
+        block_end = time.time()
+        if rank==0:
+            print("Clustering Elapsed = %s" % (block_end - block_start),flush=True)
+    else:
+        if rank==0:
+            print("Reduced similarity matrix file not found. Exiting",flush=True)
+
+    #==============================================================
+    comm.Barrier()
+    #gracefully end program
+    MPI.Finalize()
+    exit()
+
 
 #==============================================================
-
-comm.Barrier()
-#gracefully end program
-MPI.Finalize()
-exit()
-
-
+if __name__ == "__main__":
+    main()
 
 

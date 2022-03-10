@@ -32,11 +32,16 @@ import scalapy.routines as rt
 from scalapy import blacs
 
 #========================================================================
+#global vars
+comm = MPI.COMM_WORLD
+#slice_size=0
+WRITE_CHECKPOINT=False
 
 #============== function definitions ========================
 
 #@profile
-def obtain_distributed_MI_matrix(nslices, generated_file_path, project_name, g_nrows, ncols):
+def obtain_distributed_MI_matrix(nslices, slice_size, generated_file_path, project_name, g_nrows, ncols):
+    rank = comm.Get_rank()
     ## Read in anndata preprocessed files (in distributed mode, by node number) and calculate distance metrics between all row pairs
 
     #create a 2d list to hold blocks of similarity matrix
@@ -51,7 +56,6 @@ def obtain_distributed_MI_matrix(nslices, generated_file_path, project_name, g_n
     assert(n_jobs_per_rank >= 1), print("Error, Discretization too small. must have at least 1 job per rank.")
     if rank==0:
         print("n_jobs_per_rank=",n_jobs_per_rank,flush=True)
-
 
     SM = [[None for j in range(b)] for i in range(b)]
 
@@ -167,6 +171,7 @@ def obtain_distributed_MI_matrix(nslices, generated_file_path, project_name, g_n
 
 #@profile
 def normalize_distributed_matrix(dMI):
+    rank = comm.Get_rank()
 
     ## Now we need to create a normalization matrix
     ### We start with an empty matrix but add the the diagonal as the first column
@@ -304,11 +309,6 @@ def process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, 
     MDS2.local_array[:] = MDS.local_array[:]**2
 
     #Have other ranks wait until prep_dist has completed
-    #comm.Barrier()
-    #del MDS
-    #gc.collect
-
-    #Have other ranks wait until prep_dist has completed
     comm.Barrier()
 
     start = time.time()
@@ -333,22 +333,8 @@ def process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, 
     B.local_array[:]=B.local_array[:]/2.0
 
     #Have other ranks wait until prep_dist has completed
-    #comm.Barrier()
-    #del H
-    #del C
-    #del negH
-    #del MDS2
-    #del dMI
-    #gc.collect()
-
-    #Have other ranks wait until prep_dist has completed
     comm.Barrier()
-
-    #dMI_norm=dMI_diag.T*dMI_diag
-    #dMI_norm = rt.dot(dMI_diag,dMI_diag,transA='T')
-
     subblock_end = time.time()
-    comm.Barrier()
     if rank==0:
         print("Prep dissimilarity matrix Elapsed = %s" % (subblock_end - subblock_start),flush=True)
 
@@ -364,7 +350,7 @@ def process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, 
 
 
 #@profile
-def compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank):
+def compute_eigenvalues(input_file_name,reduced_mi_filename, B, g_nrows, rank):
     if rank==0:
         print("Computing Eigenvalues of Preprocessed Dissimilarity Matrix")
 
@@ -390,11 +376,7 @@ def compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank):
 
     ## gather the top 200 eigenvalues on a single rank
     if rank==0:
-        #if os.path.isfile(reduced_mi_filename):
-        #    Y = pd.read_hdf(reduced_mi_filename)
-        #else:
-
-        ## Read in original dataframe to get labels to attach to results
+        # Read in original dataframe to get labels to attach to results
         #get index names from original dataframe
         adf=utils.read_anndata_file(input_file_name)
         index=adf.obs.index
@@ -414,7 +396,6 @@ def compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank):
         )
 
         ## Write reduced data to file
-        #WRITE_CHECKPOINT:
         Y.to_hdf(reduced_mi_filename, "mds")  # save reduced mi in mds
         print(reduced_mi_filename+" written to disk")
         # Return Y to rank 0
@@ -423,239 +404,127 @@ def compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank):
         # Return None to all other ranks
         return None
 
-#====================================================================================
+
+#=========================================== end function definintions ===============================
 
 
 
+def main():
+    ## Check to make sure MPI (mpi4py) is working
+    #comm = MPI.COMM_WORLD
+    size = comm.Get_size()
+    nranks=size
+    rank = comm.Get_rank()
+    name = MPI.Get_processor_name()
 
-
-
-
-#        Post dimensionality reduction Clustering and Visualization
-
-import itertools
-import argparse
-from multiprocessing import Pool
-from functools import partial
-
-from sklearn import cluster        # for kmeanmerge_dist_matss
-from sklearn import manifold       # for tsne
-
-
-import pickle
-#@profile
-def clustering_dist(in_file, dr, k, n_bootstrap, out_name, plot_method, umap_min_dist, tsne_perplexity, plot_dim, n_processes, dim_km):
-
-    start_total_time = time.time()
-    dim_km = map(int, dim_km) #converts string to int 
-    start_km_time = time.time()
-
-    #run in parallel
-    result=[]
-    #need to be able to read in completed results from outfile if exists
-    kmeans_file=out_name+".kmeanslist"+".pkl"
-    if os.path.exists(kmeans_file) : #check for kmeans list object file
-        if rank==0:
-            print("reading kmeans results from file: "+kmeans_file,flush=True)        
-            #read computed list of results
-            inp = open(kmeans_file,'rb')  
-            result=pickle.load(inp)
-    else: #compute new results
-        if rank==0:
-            print("computing kmeans with %s bootstraps" % (n_bootstrap),flush=True)        
-        result = utils.cluster_method_distributed(in_file, n_cluster=k, n_bootstraps=n_bootstrap,
-                         common_name=out_name, dims=dim_km, num_processes=n_processes)
-        if rank==0:#write to file
-            print("cluster_method_multiprocess %s seconds" % (time.time() - start_km_time),flush=True)
-            #save list of dataframes (kmeans) as object to file
-            outp = open(kmeans_file,'wb')
-            pickle.dump(result, outp, pickle.HIGHEST_PROTOCOL)
-
-    start_agg_time = time.time()
-
-    #This function should currently only be run on a single rank
-    #Graph cluster consensus of Kmeans results
-    #Currently loops over n_bootstraps kmeans results. 
-    # Could be parallelized to process n_bootstraps results simultaneously
+    ## Begin execution of code
+    cwd=os.getcwd()
     if rank==0:
-        agg, out_f = utils.consensus_sc3_graph(result, k, out_name)
-        print("consensus clustering time %s seconds" % (time.time() - start_agg_time),flush=True)
+        print(cwd,flush=True)
 
-    #Compute tSNE to visualize clusters
+    ## Parse command line arguments
+    input_file_name=""
+    project_name=""
+    data_file_path=""
+
+    from optparse import OptionParser
+    #if rank==0:
+    parser = OptionParser()
+    parser.add_option("--input", action="store", type="string")
+    parser.add_option("--project", action="store", type="string", default="default_proj")
+    parser.add_option("--outdir", action="store", type="string", default="outdir")
+    parser.add_option("--write_checkpoints", action="store_true")
+    (options, args) = parser.parse_args()
+
+    input_file_name = options.input
+    project_name = options.project
+    data_file_path = options.outdir
+
+    #set global variable for writing checkpoint files
+    WRITE_CHECKPOINT=options.write_checkpoints
+
+    ## define file paths and names
+    data_file_path= data_file_path +'/'+ project_name +'/'
+    generated_file_path = data_file_path + 'generated_files/'
+    plot_file_path = data_file_path + 'plots/'
+    output_file_prefix = generated_file_path+project_name
+    ## create directories if necessary
     if rank==0:
-        start_tsne_time = time.time()
-        #This function should currently only be run on a single rank
-        # calls mctsne which is multithreaded
-        utils.visualization_dist(agg,  # consensus clustering result
-                        in_file,  # reduced_mi_file
-                        dr,  # transformation
-                        out_f,  # output file name
-                        max_dim=plot_dim,
-                        visualize=plot_method.lower(),
-                        min_dist=umap_min_dist,
-                        perplexity=tsne_perplexity,
-                        )
-        print("tsne %s seconds" % (time.time() - start_tsne_time),flush=True)
-        print("--- %s seconds ---" % (time.time() - start_total_time),flush=True)
+        if not os.path.exists(generated_file_path):
+            os.makedirs(generated_file_path)
+        if not os.path.exists(plot_file_path):
+            os.makedirs(plot_file_path)
 
-#=========================================== end funtion definintions ===============================
+    #begin whole code timer
+    total_time_start = time.time()
 
+    #==================================================================================
 
+    ## Run Prep_dist() to split file into slices ================================
+    start = time.time()
+    g_nrows=0 #global number of rows (cells)
+    ncols=0
+    nslices=0
+    slice_size=0
+    #Run prep.py only on one processor to create the slice files
 
-
-
-## Check to make sure MPI (mpi4py) is working
-comm = MPI.COMM_WORLD
-size = comm.Get_size()
-nranks=size
-rank = comm.Get_rank()
-name = MPI.Get_processor_name()
-
-#set global variable for writing checkpoint files
-WRITE_CHECKPOINT=True
-
-#print("MPI Check: {host}[{pid}]: {rank}/{size}".format(
-#    host=socket.gethostname(),
-#    pid=os.getpid(),
-#    rank=comm.rank,
-#    size=comm.size,),flush=True)
-
-
-## Begin execution of code
-cwd=os.getcwd()
-if rank==0:
-    print(cwd,flush=True)
-
-## Parse command line arguments
-input_file_name=""
-project_name=""
-data_file_path=""
-nbootstraps=0
-nclusters=0
-from optparse import OptionParser
-#if rank==0:
-parser = OptionParser()
-parser.add_option("--input", action="store", type="string")
-parser.add_option("--project", action="store", type="string", default="default_proj")
-parser.add_option("--outdir", action="store", type="string", default="outdir")
-parser.add_option("--bootstraps", action="store", type="int", default=1)
-parser.add_option("--clusters", action="store", type="int", default=4)
-(options, args) = parser.parse_args()
-
-input_file_name = options.input
-project_name = options.project
-data_file_path = options.outdir
-nbootstraps=options.bootstraps
-nclusters=options.clusters
-
-#print("rank %s, checkpt 0.01"%(rank),flush=True)
-
-## define file paths and names
-data_file_path= data_file_path +'/'+ project_name +'/'
-generated_file_path = data_file_path + 'generated_files/'
-plot_file_path = data_file_path + 'plots/'
-output_file_prefix = generated_file_path+project_name
-## create directories if necessary
-if rank==0:
-    if not os.path.exists(generated_file_path):
-        os.makedirs(generated_file_path)
-    if not os.path.exists(plot_file_path):
-        os.makedirs(plot_file_path)
-
-
-#begin whole code timer
-total_time_start = time.time()
-
-#==================================================================================
-
-## Run Prep_dist() to split file into slices ================================
-start = time.time()
-g_nrows=0 #global number of rows (cells)
-ncols=0
-nslices=0
-slice_size=0
-#Run prep.py only on one processor to create the slice files
-if 1:#ceb
     if rank==0:
         g_nrows, ncols, nslices, slice_size = utils.prep_dist(input_file_name, output_file_prefix, nranks)
-end = time.time()
+    end = time.time()
 
-#sys.stdout.flush()#ceb
-#print("rank %s, checkpt 0.1"%(rank),flush=True)
-#comm.Barrier()
+    if rank==0:
+        print("prep_dist completed Elapsed = %s" % (end - start),flush=True)
 
-if rank==0:
-    print("prep_dist completed Elapsed = %s" % (end - start),flush=True)
+    #Have other ranks wait until prep_dist has completed
+    comm.Barrier()
 
-#Have other ranks wait until prep_dist has completed
-comm.Barrier()
-
-#print("rank %s, checkpt 1"%(rank),flush=True)
-#broadcast resultant variables from root to the other ranks
-if 1:#ceb
+    #broadcast resultant variables from root to the other ranks
     ncols = comm.bcast(ncols, root=0)
     g_nrows = comm.bcast(g_nrows, root=0)
     nslices = comm.bcast(nslices, root=0)
     slice_size = comm.bcast(slice_size, root=0)
-##=============================================================================
+    ##=============================================================================
 
-comm.Barrier()
-#print("rank=%s g_nrows=%s ncols=%s" % (str(rank),str(g_nrows),str(ncols)),flush=True)
-#print("rank %s, checkpt 2"%(rank),flush=True)
+    comm.Barrier()
 
-#set default block size for distributed cyclic matrix
-block_size=32
-#block_size=16
+    #set default block size for distributed cyclic matrix
+    block_size=32
+    #if block_size is larger than slice size, adjust
+    b=nslices
+    if slice_size<block_size:
+        block_size=slice_size
 
-b=nslices
-if slice_size<block_size:
-    block_size=slice_size
+    if rank==0:
+        print("rank, global nrows, ncols, slices: ",rank, g_nrows, ncols, nslices,flush=True)
 
-if rank==0:
-    print("rank, global nrows, ncols, slices: ",rank, g_nrows, ncols, nslices,flush=True)
+    comm.Barrier()
 
-comm.Barrier()
-#print("rank %s, checkpt 3"%(rank),flush=True)
-
-#Define process grid with process rows and process cols
-PR=PC=0
-if 1:#ceb
+    #Define process grid with process rows and process cols
+    PR=PC=0
+    #compute the process grid dimensions from nranks, optimizing to acheive as square a matrix as possible
     PR,PC = utils.compute_process_grid_dimensions(comm.size)
 
-#if 1:#ceb
-#    PR=comm.bcast(PR, root=0)
-#    PC=comm.bcast(PC, root=0)
+    if rank==0:
+        print("PR=",PR," PC=",PC," block_size=",block_size,flush=True)
 
-if rank==0:
-    print("PR=",PR," PC=",PC," block_size=",block_size,flush=True)
+    comm.Barrier()
 
-comm.Barrier()
-#sets default context and block_shape
-#@profile
-#print("rank %s, checkpt 4"%(rank),flush=True)
+    start = time.time()
+    if rank==0: 
+        print("Initializing distributed MI matrix",flush=True)
 
-start = time.time()
-if rank==0: 
-    print("Initializing distributed MI matrix",flush=True)
-
-#core.initmpi([PR, PC],block_shape=[block_size,block_size])
-if 1:#ceb
     core.initmpi([PR, PC])
-end = time.time()
-#print("rank %s, checkpt 5"%(rank),flush=True)
+    end = time.time()
 
-if rank==0:
-    print("Completed Initializing distributed MI matrix elapsed %s" % (end - start),flush=True)
+    if rank==0:
+        print("Completed Initializing distributed MI matrix elapsed %s" % (end - start),flush=True)
 
-#comm.Barrier()
+    #=========================================================================
+    #if MI file already exists, then read it
+    mi_filename = output_file_prefix+'_mi_distributed.scalapack'
 
-#=========================================================================
-#if MI file already exists, then read it
-mi_filename = output_file_prefix+'_mi_distributed.scalapack'
-
-#==================================================================================
-dMI=None
-if 1:#ceb
+    #==================================================================================
+    dMI=None
     if os.path.isfile(mi_filename):
         ## The following code snippet reads MI matrix from a file and loads it into a distributed Scalapack matrix
         #Read MI matrix from file
@@ -666,20 +535,16 @@ if 1:#ceb
     else: #file does not exist, so compute MI matrix and write
         if rank==0:
             print("Computed distributed MI matrix: ",mi_filename,flush=True)
-        dMI = obtain_distributed_MI_matrix(nslices, generated_file_path, project_name, g_nrows, ncols)
+        dMI = obtain_distributed_MI_matrix(nslices, slice_size, generated_file_path, project_name, g_nrows, ncols)
 
-## End compute MI matrix and write
-#print("dMI")
-#print(dMI.local_shape)
-#print(dMI.local_array)
-comm.Barrier()
+    ## End compute MI matrix and write
+    comm.Barrier()
 
-#==================================================================================
+    #==================================================================================
 
-#if MI file already exists, then read it
-mi_normed_filename = output_file_prefix+'_mi_normed_distributed.scalapack'
-dMI_normed=None
-if 1:#ceb
+    #if MI file already exists, then read it
+    mi_normed_filename = output_file_prefix+'_mi_normed_distributed.scalapack'
+    dMI_normed=None
     if os.path.isfile(mi_normed_filename):
         start=time.time()
         if rank==0:
@@ -693,18 +558,16 @@ if 1:#ceb
             print("Computing distributed normed MI matrix",flush=True)
         dMI_normed=normalize_distributed_matrix(dMI)
 
+    # Now we need to create a normalization matrix
+    # We start with an empty matrix but add the the diagonal as the first column
+    # Then we multiply by its transpose to get a dense matrix
 
-#    ## Now we need to create a normalization matrix
-#    ### We start with an empty matrix but add the the diagonal as the first column
-#    ### Then we multiply by its transpose to get a dense matrix
+    #==================================================================================
 
-#==================================================================================
-
-#Read eigenvalue matrix here if exists, else compute it
-#if MI file already exists, then read it
-processed_dissimilarity_matrix_filename = output_file_prefix+'_dissimilarity_matrix_distributed.scalapack'
-B=None
-if 1:#ceb
+    #Read eigenvalue matrix here if exists, else compute it
+    #if MI file already exists, then read it
+    processed_dissimilarity_matrix_filename = output_file_prefix+'_dissimilarity_matrix_distributed.scalapack'
+    B=None
     if os.path.isfile(processed_dissimilarity_matrix_filename):
         if rank==0:
             print("Reading preprocessed dissimilarity matrix from file: "+processed_dissimilarity_matrix_filename,flush=True)
@@ -713,12 +576,11 @@ if 1:#ceb
         if rank==0:
             print("Preprocessing dissimilarity matrix ",flush=True)
         B=process_dissimilarity_matrix(rank, processed_dissimilarity_matrix_filename, dMI, dMI_normed, g_nrows, block_size)
-#==================================================================================
+    #==================================================================================
 
-#ceb read or compute reduced matrix
-reduced_mi_filename = output_file_prefix+'_mi_reduced.h5'
-Y=None
-if 1:#ceb
+    #ceb read if already existing, or compute reduced matrix
+    reduced_mi_filename = output_file_prefix+'_mi_reduced.h5'
+    Y=None
     if os.path.isfile(reduced_mi_filename):
         if rank==0:
             print("Reading existing eigenvalue file",flush=True)
@@ -726,29 +588,28 @@ if 1:#ceb
     else:
         if rank==0:
             print("Computing eigenvalues",flush=True)
-        Y = compute_eigenvalues(reduced_mi_filename, B, g_nrows, rank)
+        Y = compute_eigenvalues(input_file_name,reduced_mi_filename, B, g_nrows, rank)
 
     #print reduced data to screen
     if rank==0:
         print("Reduced Data Matrix",flush=True)
         print(Y)
+    #==================================================================================
+
+    total_time_end = time.time()
+    if rank==0:
+        print("Total Time Elapsed = %s" % (total_time_end - total_time_start),flush=True)
+
+    comm.Barrier()
+    #gracefully end program
+    MPI.Finalize()
+    exit()
+
+
+
 #==================================================================================
-
-#plot_file_name = plot_file_path+project_name
-#out_file_name = generated_file_path+project_name
-
-
-total_time_end = time.time()
-if rank==0:
-    print("Total Time Elapsed = %s" % (total_time_end - total_time_start),flush=True)
-
-comm.Barrier()
-#print("rank %s, checkpt 6 Finalize MPI"%(rank),flush=True)
-#gracefully end program
-#comm.Free()
-MPI.Finalize()
-exit()
-
+if __name__ == "__main__":
+    main()
 
 
 
