@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
 
 
 #%%
@@ -43,37 +45,34 @@ adata = adata[adata.obs.pct_counts_mt < 5, :]
 
 #%%
 sc.pp.normalize_total(adata, target_sum=1e4)
-<<<<<<< HEAD
 
 #%%
 sc.pp.log1p(adata)
 
+
+
+
+
+
+#%%
 input_file = '{}/{}/{}/{}_MICA_input.h5ad'.format(root_dir, level, author, author)
 num_clusters = 20
-=======
->>>>>>> more analysis code from HPC
 
 #%%
-sc.pp.log1p(adata)
+adata = preprocessing.read_preprocessed_mat(input_file)
+
+
+
+
 
 
 #%%
 sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
 sc.pl.highly_variable_genes(adata)
 
-
 #%%
 adata.raw = adata
 adata = adata[:, adata.var.highly_variable]
-
-
-#%%
-sc.pp.regress_out(adata, ['total_counts', 'pct_counts_mt'])
-
-
-#%%
-sc.pp.scale(adata, max_value=10)
-
 
 #%%
 sc.pp.regress_out(adata, ['total_counts', 'pct_counts_mt'])
@@ -90,17 +89,14 @@ sc.tl.pca(adata, svd_solver='arpack')
 sc.pl.pca_variance_ratio(adata, log=True)
 
 #%%
-<<<<<<< HEAD
 sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
 sc.tl.leiden(adata, resolution=0.3)
-=======
->>>>>>> more analysis code from HPC
 sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
-sc.tl.leiden(adata, resolution=0.3)
+sc.tl.leiden(adata, resolution=0.35)
 print(adata.obs['leiden'])
 
 #%%
@@ -118,10 +114,8 @@ df_umap['label'] = list(adata.obs['leiden'].astype(int))
 #%%
 df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Figure_2/Silhouette_summary/Silhouette/PBMC_20k/'
                'Scanpy/PBMC_20k_Scanpy_UMAP.txt', sep='\t')
-<<<<<<< HEAD
-=======
 
->>>>>>> more analysis code from HPC
+
 
 
 #%%
@@ -142,3 +136,7 @@ merged = true_label.merge(predict_label, left_on='cell', right_index=True)
 #%%
 ari = adjusted_rand_score(merged['label'], merged['leiden'])
 print(ari)
+
+#%%
+ami = adjusted_mutual_info_score(merged['label'], merged['leiden'])
+print(ami)

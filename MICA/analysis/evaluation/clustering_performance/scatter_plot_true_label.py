@@ -151,12 +151,13 @@ vs.scatter_plot(mds_umap_true_label, out_png_file)
 
 
 
+
+
 #%%
 import seaborn as sns
 import matplotlib
 matplotlib.use("MacOSX")
 import matplotlib.pyplot as plt
-
 
 #%%
 summary = pd.read_excel('/Users/lding/Documents/MICA/outputs/summary.xlsx', index_col=0,

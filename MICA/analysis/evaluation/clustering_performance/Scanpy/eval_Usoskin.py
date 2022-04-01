@@ -3,6 +3,7 @@ from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
 
 
 #%%
@@ -58,10 +59,15 @@ true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 
 #%%
 predict_label = adata.obs['leiden'].astype(int)
-predict_label.index = predict_label.index.astype(int)
+# predict_label.index = predict_label.index.astype(int)
 
 #%%
 merged = true_label.merge(predict_label, left_on='cell', right_index=True)
 
 #%%
 ari = adjusted_rand_score(merged['label'], merged['leiden'])
+ari
+
+#%%
+ami = adjusted_mutual_info_score(merged['label'], merged['leiden'])
+ami

@@ -20,7 +20,7 @@ def graph_clustering(G, method='louvain', min_resolution=-2.0, max_resolution=3.
         G (nx graph): G to perform community detection
         method (str): Louvain algorithm
         min_resolution (float): Determines minimum size of the communities. (default: -2.0)
-        max_resolution (float): Determines maximum size of the communities. (default: 2.0)
+        max_resolution (float): Determines maximum size of the communities. (default: 3.0)
         step_size (float): Determines the step size for sweeping the resolutions
     Returns:
         Clustering results
@@ -58,7 +58,7 @@ def graph_clustering_parallel(G, method='louvain', min_resolution=-2.0, max_reso
     """
     pool = Pool(processes=num_workers)
     reso_lst = []
-    for reso in list(np.arange(min_resolution, max_resolution+0.1, step_size)):
+    for reso in list(np.arange(min_resolution, max_resolution+0.001, step_size)):
         reso_lst.append(math.exp(reso))
     if method == 'louvain':
         community_partial = partial(best_partition_wrapper, G)

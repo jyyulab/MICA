@@ -46,7 +46,7 @@ def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0
             used for fast approximate nearest neighbor search. Larger values
             will result in more accurate search results at the cost of
             computation time.
-        pruning_degree_multi: float (optional, default=1.5)
+        pruning_degree_multi: float (optional, default=3.0)
             How aggressively to prune the graph. Since the search graph is undirected
             (and thus includes nearest neighbors and reverse nearest neighbors) vertices
             can have very high degree -- the graph will be pruned such that no
