@@ -3,6 +3,7 @@ from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
 
 
 #%%
@@ -30,7 +31,7 @@ sc.tl.pca(adata, svd_solver='arpack')
 sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
-sc.tl.leiden(adata, resolution=0.14)
+sc.tl.leiden(adata, resolution=0.12)
 print(adata.obs['leiden'])
 
 #%%
@@ -50,3 +51,8 @@ merged = true_label.merge(predict_label, left_on='cell', right_index=True)
 #%%
 ari = adjusted_rand_score(merged['subclass_label'], merged['leiden'])
 print(ari)
+
+#%%
+ami = adjusted_mutual_info_score(merged['subclass_label'], merged['leiden'])
+print(ami)
+

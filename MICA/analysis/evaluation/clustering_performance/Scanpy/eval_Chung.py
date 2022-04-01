@@ -3,6 +3,7 @@ from MICA.lib import preprocessing
 import scanpy as sc
 import pandas as pd
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
 
 
 #%%
@@ -43,7 +44,7 @@ sc.tl.pca(adata, svd_solver='arpack')
 sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
 
 #%%
-sc.tl.leiden(adata, resolution=0.125)
+sc.tl.leiden(adata, resolution=0.3)
 print(adata.obs['leiden'])
 
 
@@ -68,7 +69,8 @@ df_umap.to_csv('/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Chung/
 
 #%%
 # true_label_file = '{}/{}/{}/{}_true_label.txt'.format(root_dir, level, author, author)
-# true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/Chung/scGNN/Chung_cell_label.csv'
+true_label = pd.read_csv(true_label_file, delimiter=',', header=0)
 
 #%%
 predict_label = adata.obs['leiden'].astype(int)
@@ -79,3 +81,8 @@ merged = true_label.merge(predict_label, left_on='cell_name', right_index=True)
 
 #%%
 ari = adjusted_rand_score(merged['cell_type'], merged['leiden'])
+ari
+
+#%%
+ami = adjusted_mutual_info_score(merged['cell_type'], merged['leiden'])
+ami

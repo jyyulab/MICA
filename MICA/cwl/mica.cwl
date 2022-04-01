@@ -120,7 +120,6 @@ steps:
       mi_pairs: calc_pairwise_MI/MI_files
       method: dist_metrics
       out_name: project_name
-
     out: [MI_h5]
 
   dimension_reduce:

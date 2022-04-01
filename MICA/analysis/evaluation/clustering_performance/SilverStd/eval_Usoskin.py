@@ -8,8 +8,11 @@ author = 'Usoskin'
 input_file = '{}_MICA_input.txt'.format(author)
 num_clusters = 4
 # utils.create_cmds_mds(root_dir, level, author, input_file, num_clusters)
-utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
+# utils.calc_ARIs_mds(root_dir, level, author, num_clusters)
 
 # max_resolution = 10.0
 # utils.create_cmds_ge(root_dir, level, author, input_file, max_resolution)
-utils.calc_ARIs_ge(root_dir, level, author, num_clusters)
+# utils.calc_ARIs_ge(root_dir, level, author, num_clusters)
+
+# utils.calc_AMIs_mds(root_dir, level, author, num_clusters)
+utils.calc_AMIs_ge(root_dir, level, author, num_clusters)

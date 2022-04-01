@@ -86,9 +86,9 @@ outputs:
   out_fig:
     type: File[]
     outputBinding:
-      glob: "*.pdf"
+      glob: *.pdf
 
   out_txt:
     type: File
     outputBinding:
-      glob: "clustering_*.txt"
+      glob: clustering_*.txt

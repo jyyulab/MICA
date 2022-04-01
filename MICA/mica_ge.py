@@ -51,8 +51,29 @@ def add_ge_arguments(parser):
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.2, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
                              '(default: 0.2)')
-    parser.add_argument('-nw', '--num-workers', metavar='INT', required=False, default=10, type=int,
-                        help='Number of works to run in parallel (default: 10)')
+    parser.add_argument('-nw', '--num-workers', metavar='INT', required=False, default=1, type=int,
+                        help='Number of workers to run in parallel (default: 1, suggested: 25)')
+    parser.add_argument('-nnm', '--num-neighbors-mi', metavar='INT', required=False, default=80, type=int,
+                        help='Number of neighbors to build mutual information-based nearest neighbor graph '
+                             '(default: 80)')
+    parser.add_argument('-pdm', '--pruning-degree-multi', metavar='FLOAT', required=False, default=3.0, type=float,
+                        help='Prune vertex has degree greater than pruning_degree_multi * num_neighbors_mi '
+                             '(default: 3.0)')
+    parser.add_argument('-wl', '--walk-length', metavar='INT', required=False, default=60, type=int,
+                        help='Length of random walks per source for graph embedding (default: 60)')
+    parser.add_argument('-nl', '--num-walks', metavar='INT', required=False, default=110, type=int,
+                        help='Number of random walks per source for graph embedding (default: 110)')
+    parser.add_argument('-ws', '--window-size', metavar='INT', required=False, default=10, type=int,
+                        help='Context window size of a random walk (default: 10)')
+    parser.add_argument('-hp', '--hyper-p', metavar='FLOAT', required=False, default=2.8, type=float,
+                        help='Hyperparameter p controls the likelihood of immediately traveling back to a node '
+                             'recently traversed (default: 2.8)')
+    parser.add_argument('-hq', '--hyper-q', metavar='FLOAT', required=False, default=0.4, type=float,
+                        help='Hyperparameter q controls the likelihood of walking away from the previous '
+                             'node (default: 0.4)')
+    parser.add_argument('-nne', '--num-neighbors-eu', metavar='INT', required=False, default=20, type=int,
+                        help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
+                             'dimension reduction (default: 20)')
     parser.add_argument('-cs', '--consensus', metavar='STR', required=False, default='None', type=str,
                         choices=['None', 'CSPA', 'MCLA'], help='Consensus clustering methods. None means skip '
                                                                'consensus clustering;'
@@ -75,7 +96,9 @@ def mica_ge(args):
 
     start = time.time()
     logging.info('Building MI-based kNN graph ...')
-    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_jobs=args.num_workers)
+    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_neighbors=args.num_neighbors_mi,
+                                                            pruning_degree_multi=args.pruning_degree_multi,
+                                                            num_jobs=args.num_workers)
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
     logging.info('kNN graph number of nodes: {}'.format(len(knn_graph.nodes())))
 
@@ -93,7 +116,9 @@ def mica_ge(args):
     logging.info('Performing dimension reduction using {} method ...'.format(args.dr_method))
     emb_file = '{}/knn_graph_emb_{}_{}.txt'.format(args.output_dir, args.dr_method, args.dr_dim)
     if args.dr_method == 'node2vec':
-        dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers)
+        dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
+                                       walk_len=args.walk_length, n_walks=args.num_walks, context_size=args.window_size,
+                                       hyper_p=args.hyper_p, hyper_q=args.hyper_q)
         # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
         # print(wv)
     elif args.dr_method == 'deepwalk':
@@ -108,11 +133,11 @@ def mica_ge(args):
     start = time.time()
     logging.info('Performing clustering ...')
     mat_dr_df = pd.read_csv(emb_file, delimiter=' ', skiprows=1, index_col=0, names=np.arange(1, args.dr_dim+1))
-    logging.info('(cells, dimensions): {}'.format(frame.shape))
+    logging.info('(cells, genes): {}'.format(frame.shape))
     mat_dr_df.sort_index(inplace=True)
     mat_dr = mat_dr_df.to_numpy()
-    logging.info(mat_dr.shape)
-    G = ng.build_graph(mat_dr, dis_metric='euclidean')
+    logging.info('(cells, dimensions): {}'.format(mat_dr.shape))
+    G = ng.build_graph(mat_dr, dis_metric='euclidean', num_neighbors=args.num_neighbors_eu, num_jobs=args.num_workers)
     partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
                                                          max_resolution=args.max_resolution,
                                                          step_size=args.step_size, num_workers=args.num_workers)
@@ -135,14 +160,14 @@ def mica_ge(args):
     else:
         for par, reso in partition_resolutions:
             labels = [x + 1 for x in par.values()]
-            clustering_res = pd.DataFrame(data=labels, index=frame.index, columns=["label"])
+            clustering_res = pd.DataFrame(data=labels, index=frame.iloc[mat_dr_df.index,:].index, columns=["label"])
             aggs.append((clustering_res, reso))
 
     logging.info('Visualizing clustering results using {}'.format(args.visual_method))
     aggs_embed = []
     for partition, num_cluster_metric in aggs:      # num_cluster_metric is either resolution or num_cluster
         if args.consensus == 'None':
-            num_cluster_metric = round(num_cluster_metric, 2)
+            num_cluster_metric = round(num_cluster_metric, 5)
         agg_embed = vs.visual_embed(partition, mat_dr, args.output_dir, suffix=num_cluster_metric,
                                     visual_method=args.visual_method, num_works=args.num_workers,
                                     min_dist=args.min_dist)
@@ -164,7 +189,7 @@ def mica_ge(args):
         else:
             fout.write('dimension\tresolution\tnum_clusters\tsilhouette_avg\n')
             for agg, resolution in aggs_embed:
-                resolution = round(resolution, 2)
+                resolution = round(resolution, 5)
                 logging.info('resolution: {}'.format(resolution))
                 # logging.info(agg)
                 num_clusters = len(set(agg['label']))

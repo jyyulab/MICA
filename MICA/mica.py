@@ -43,9 +43,9 @@ def main():
     # Create a sub parser for running auto mode
     subparser_auto = subparsers.add_parser('auto', parents=[parent_parser], help='automatic version')
     add_required_auto = subparser_auto.add_argument_group('additional optional arguments')
-    add_required_auto.add_argument('-cc', '--cell-count', metavar='INT', required=False, default=3000, type=int,
+    add_required_auto.add_argument('-cc', '--cell-count', metavar='INT', required=False, default=5000, type=int,
                                    help='Run MDS version if less than cell_count; otherwise, run GE version '
-                                        '(default: 3000)')
+                                        '(default: 5000)')
 
     # Create a sub parser for running graph embedding version
     subparser_ge = subparsers.add_parser('ge', parents=[parent_parser], help='graph embedding version')

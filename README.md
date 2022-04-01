@@ -15,7 +15,7 @@ MICA workflow:
 
 
 ## Prerequisites
-* [python>=3.7.0](https://www.python.org/downloads/) (developed and tested on python 3.7.4)
+* [python==3.7.6](https://www.python.org/downloads/) (developed and tested on python 3.7.6)
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other dependencies
 
 
@@ -24,8 +24,8 @@ MICA workflow:
 The recommended method of setting up the required Python environment and dependencies 
 is to use the [conda](https://conda.io/docs/) dependency manager:
 ```
-$ conda create -n py374 python=3.7.4          # Create a python3.7 virtual environment
-$ source activate py37                        # Activate the virtual environment
+$ conda create -n py376 python=3.7.6          # Create a python virtual environment
+$ source activate py376                       # Activate the virtual environment
 $ conda install --file requirements.txt       # Install dependencies
 ```
 
@@ -80,8 +80,8 @@ After the completion of the pipeline, `mica` will generate the following outputs
 
 ## Examples
 #### Running MICA auto mode
-MICA auto mode reduces the dimensionality using either the multidimensional scaling method (<= 3,000 cells) or 
-the graph embedding method (> 3,000 cells), where the number of cells cutoff was chosen based on performance
+MICA auto mode reduces the dimensionality using either the multidimensional scaling method (<= 5,000 cells) or 
+the graph embedding method (> 5,000 cells), where the number of cells cutoff was chosen based on performance
 evaluation of datasets of various sizes. 
 
 `mica auto -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs -pn pbmc3k -nc 10`
@@ -91,7 +91,7 @@ MICA GE mode reduces the dimensionality using the graph embedding method. It swe
 of Louvain clustering algorithm. ```-ar``` parameter sets the upper bound of the range.
 
 `mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs
--ar 10.0`
+-ar 4.0 -ss 0.1`
 
 #### Running MICA MDS mode
 MICA MDS mode reduces the dimensionality using the multidimensional scaling method. ```-pn``` parameter sets the
@@ -99,7 +99,7 @@ project name; ```-nc``` specifies the numbers of clusters (k in k-mean clusterin
 the numbers of dimensions used in performing k-mean clusterings in the dimension reduced matrix.
 
 `mica mds -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
-./test_data/outputs -pn Yan -nc 8 9 10 -dk 12 13 14 15 16 17 18 19`
+./test_data/outputs -pn PBMC3k -nc 8 9 10`
 
 ## Reference
 To be added
