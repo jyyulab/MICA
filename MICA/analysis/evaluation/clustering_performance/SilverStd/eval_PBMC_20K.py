@@ -26,7 +26,6 @@ from sklearn.metrics.cluster import adjusted_rand_score
 
 #%%
 predict_label_file = '/Users/lding/Documents/MICA/outputs/PBMC_20k/MICA/clustering_UMAP_euclidean_24_1.8.txt'
-# predict_label_file = '/Users/lding/Documents/scMINER/PBMC20k/ac_mat_no_replicate_wightedmean/clustering_UMAP_euclidean_24_1.82212.txt'
 
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
@@ -40,7 +39,32 @@ print(ari)
 
 #%%
 predict_label_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/after_parameter_tuning/clustering_UMAP_euclidean_24_1.82212.txt'
-# predict_label_file = '/Users/lding/Documents/scMINER/PBMC20k/ac_mat_no_replicate_wightedmean/clustering_UMAP_euclidean_24_1.82212.txt'
+
+true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
+true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
+predict_num_clusters = len(set(predict_label['label']))
+print(predict_num_clusters)
+merged = true_label.merge(predict_label, left_on='cell', right_index=True)
+ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
+print(ari)
+
+
+#%%
+predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/ac_mat_metacell/clustering_UMAP_euclidean_24_2.01375.txt'
+
+true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
+true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
+predict_num_clusters = len(set(predict_label['label']))
+print(predict_num_clusters)
+merged = true_label.merge(predict_label, left_on='cell', right_index=True)
+ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
+print(ari)
+
+
+#%%
+predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/ac_mat_metacell/clustering_UMAP_euclidean_24_3.00417.txt'
 
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
