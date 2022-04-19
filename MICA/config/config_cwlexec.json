@@ -10,14 +10,14 @@
             "res_req": "rusage[mem=2000MB]"
         },
         "mergeAndnorm": {
-            "res_req": "rusage[mem=160000MB]"
+            "res_req": "rusage[mem=80000MB]"
         },
         "dimension_reduce": {
-            "res_req": "rusage[mem=160000MB]"
+            "res_req": "rusage[mem=80000MB]"
         },
         "clustering": {
             "processors": "10",
-            "res_req": "span[ptile=10] rusage[mem=10000MB]"
+            "res_req": "span[ptile=10] rusage[mem=5000MB]"
         }
     }
 }
