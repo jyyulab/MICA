@@ -16,7 +16,7 @@ num_clusters = 10
 
 
 # utils.calc_AMIs_mds(root_dir, level, author, num_clusters)
-utils.calc_AMIs_ge(root_dir, level, author, num_clusters)
+# utils.calc_AMIs_ge(root_dir, level, author, num_clusters)
 
 
 #%%
@@ -65,6 +65,23 @@ print(ari)
 
 #%%
 predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/ac_mat_metacell/clustering_UMAP_euclidean_24_3.00417.txt'
+
+true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
+true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
+predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
+predict_num_clusters = len(set(predict_label['label']))
+print(predict_num_clusters)
+merged = true_label.merge(predict_label, left_on='cell', right_index=True)
+ari = adjusted_rand_score(merged['label_x'], merged['label_y'])
+print(ari)
+
+
+
+#%%
+# predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_4.0552.txt'
+# predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_4.95303.txt'
+predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_2.01375.txt'
+
 
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)

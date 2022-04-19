@@ -1,7 +1,7 @@
 {
-    "queue": "standard",
+    "queue": "superdome",
     "rerunnable": true,
-    "project": "MICA",
+    "project": "MICA_MDS",
     "steps": {
         "prep": {
             "res_req": "rusage[mem=16000MB]"
@@ -10,14 +10,14 @@
             "res_req": "rusage[mem=2000MB]"
         },
         "mergeAndnorm": {
-            "res_req": "rusage[mem=40000MB]"
+            "res_req": "rusage[mem=160000MB]"
         },
         "dimension_reduce": {
-            "res_req": "rusage[mem=40000MB]"
+            "res_req": "rusage[mem=160000MB]"
         },
         "clustering": {
             "processors": "10",
-            "res_req": "span[ptile=10] rusage[mem=5000MB]"
+            "res_req": "span[ptile=10] rusage[mem=10000MB]"
         }
     }
 }
