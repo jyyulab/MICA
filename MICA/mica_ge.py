@@ -74,9 +74,9 @@ def add_ge_arguments(parser):
     parser.add_argument('-nne', '--num-neighbors-eu', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
                              'dimension reduction (default: 20)')
-    parser.add_argument('-ha', '--harmony', metavar='FILE', required=False,
-                        help='Path to a cell metadata file (tab-delimited text file) with "batch" as a column, '
-                             'required for Harmony batch correction.')
+    # parser.add_argument('-ha', '--harmony', metavar='FILE', required=False,
+    #                     help='Path to a cell metadata file (tab-delimited text file) with "batch" as a column, '
+    #                          'required for Harmony batch correction.')
     parser.add_argument('-cs', '--consensus', metavar='STR', required=False, default='None', type=str,
                         choices=['None', 'CSPA', 'MCLA'], help='Consensus clustering methods. None means skip '
                                                                'consensus clustering;'
@@ -141,15 +141,16 @@ def mica_ge(args):
     mat_dr = mat_dr_df.to_numpy()
     logging.info('(cells, dimensions): {}'.format(mat_dr.shape))
 
-    if args.harmony:
-        from harmony import harmonize
-        start = time.time()
-        logging.info('Performing harmony batch correction ...')
-        cell_meta_df = pd.read_csv(args.harmony, sep='\t', index_col=0, header=0)
-        mat_dr = harmonize(mat_dr, cell_meta_df, batch_key='batch')
-        end = time.time()
-        runtime = end - start
-        logging.info('Done. Runtime: {} seconds'.format(runtime))
+    # Comment out this step as it does not work well based on a preliminary evaluation by Zhen
+    # if args.harmony:
+    #     from harmony import harmonize
+    #     start = time.time()
+    #     logging.info('Performing harmony batch correction ...')
+    #     cell_meta_df = pd.read_csv(args.harmony, sep='\t', index_col=0, header=0)
+    #     mat_dr = harmonize(mat_dr, cell_meta_df, batch_key='batch')
+    #     end = time.time()
+    #     runtime = end - start
+    #     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     G = ng.build_graph(mat_dr, dis_metric='euclidean', num_neighbors=args.num_neighbors_eu, num_jobs=args.num_workers)
     partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
