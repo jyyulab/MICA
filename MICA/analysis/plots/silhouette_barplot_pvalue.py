@@ -28,7 +28,7 @@ melt_sil_table['Silhouette Index'] = melt_sil_table['Silhouette Index'].astype(f
 plt.close()
 plt.figure(figsize=(6, 6))
 sns.set(style="darkgrid", font='Arial')
-ax = sns.barplot(x="method", y="Silhouette Index", hue="method", data=melt_sil_table, dodge=False)
+ax = sns.barplot(x="method", y="Silhouette Index", hue="method", data=melt_sil_table, dodge=False, capsize=.2)
 # plt.show()
 plt.savefig('/Users/lding/Desktop/Silhouette_summary_pvalue.pdf', dpi=500)
 

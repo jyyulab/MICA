@@ -82,6 +82,8 @@ print(ari)
 # predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_4.95303.txt'
 predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_2.01375.txt'
 
+# predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/clustering_UMAP_euclidean_24_2.01375.txt'
+predict_label_file = '/Users/lding/Documents/scMINER/PBMC14k_input/activity_6863_drivers/MDS/scatter2/clustering_umap_euclidean_19.txt'
 
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)

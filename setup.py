@@ -33,7 +33,6 @@ setup(
         "llvmlite==0.36.0",
         "setuptools==57.5.0",
         "rdflib_jsonld==0.5.0",
-        "harmony-pytorch==0.1.7",
         ],
     python_requires="==3.7.6",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),

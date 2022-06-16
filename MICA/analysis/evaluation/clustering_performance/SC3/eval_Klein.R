@@ -44,6 +44,9 @@ col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_4_clusters)
 
+library(aricode)
+AMI(col_data$label, col_data$sc3_4_clusters)
+
 
 
 library(umap)

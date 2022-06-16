@@ -7,7 +7,7 @@ library(data.table)
 library(pdfCluster)
 
 
-data_path <- "/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/SilverStd"
+data_path <- "/Users/lding/Documents/MICA/Datasets/HPC/SilverStd"
 raw_counts<-read.table(file=paste0(data_path, "/Human_Motor_Cortex/matrix.csv"), sep=",", header=TRUE, row.names=1)
 
 raw_counts_t <- transpose(raw_counts)
@@ -70,3 +70,8 @@ library(aricode)
 print("AMI: ")
 print(AMI(merged$subclass_label, merged$cortex.seurat_clusters))
 
+adj.rand.index(merged$class_label, merged$cortex.seurat_clusters)
+
+
+library(aricode)
+AMI(true_labels$label, as.numeric(s_obj$seurat_clusters))

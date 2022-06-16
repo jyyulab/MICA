@@ -14,7 +14,6 @@ yan <- read.table(file=paste0("/research/rgs01/project_space/yu3grp/scRNASeq/yu3
 yan_t <- transpose(yan)
 yan_pow2 <- 2^yan_t - 1
 ann <- read.table(file=paste0("/research/rgs01/project_space/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/datasets/GoldenStd/Yan/Yan_true_label.txt"),
-                  sep="\t", header=TRUE, row.names=1)
 
 
 # create a SingleCellExperiment object
@@ -42,10 +41,16 @@ head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_8_clusters)
 
 
+library(aricode)
+AMI(col_data$label, col_data$sc3_8_clusters)
+
+
+
+
+
 
 library(umap)
 euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)
 write.table(euclidean_laplacian_umap$layout, 
             file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Yan/SC3/Yan_SC3_euclidean_laplacian_UMAP.txt', 
             sep = '\t')
-

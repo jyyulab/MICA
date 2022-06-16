@@ -9,11 +9,11 @@ library(data.table)
 library(pdfCluster)
 
 
-mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Goolam/Goolam_MICA_input.txt"),
+mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Goolam/Goolam_MICA_input.txt"),
                   sep="\t", header=TRUE, row.names=1)
 mat_t <- transpose(mat)
 mat_pow2 <- exp(1)^mat_t - 1
-ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Goolam/Goolam_true_label.txt"),
+ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Goolam/Goolam_true_label.txt"),
                   sep="\t", header=TRUE, row.names=1)
 
 
@@ -40,6 +40,11 @@ sce <- sc3(sce, ks = 5, biology = TRUE)
 col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_5_clusters)
+
+
+library(aricode)
+AMI(col_data$label, col_data$sc3_5_clusters)
+
 
 
 library(umap)

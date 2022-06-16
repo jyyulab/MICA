@@ -114,9 +114,14 @@ adj.rand.index(scgnn_true_label$cell_type, as.numeric(s_obj$seurat_clusters))
 saveRDS(s_obj, file = paste0("/Users/lding/Documents/MICA/Datasets/HPC/", level ,"/", author,"/", author,"_seurat.rds"))
 
 # Calculate ARI
-true_label_file <- paste0('/Users/lding/Documents/MICA/Datasets/HPC/', level, '/', author, '/', author, '_true_label.txt')
-true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names=1)
-adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
+# true_label_file <- paste0('/Users/lding/Documents/MICA/Datasets/HPC/', level, '/', author, '/', author, '_true_label.txt')
+true_label_file <- '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/Chung/scGNN/Chung_cell_label.csv'
+true_labels <- read.table(file=true_label_file, sep=",", header=TRUE, row.names=1)
+adj.rand.index(true_labels$cell_type, as.numeric(s_obj$seurat_clusters))
+
+library(aricode)
+AMI(true_labels$cell_type, as.numeric(s_obj$seurat_clusters))
+
 
 
 # Calculate silhouette
