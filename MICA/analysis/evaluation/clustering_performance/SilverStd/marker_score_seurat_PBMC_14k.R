@@ -161,6 +161,8 @@ mFOXP3.freq <- melt(FOXP3.freq, id=c('category'))
 mFOXP3.freq <- mFOXP3.freq[c(2,3,5,6),]
 mFOXP3.freq$label_ypos <- c(0.05, 0.006, 0.009, 0.0003)
 
+
+
 # Create the barplot
 ggplot(data=mFOXP3.freq, aes(x=variable, y=value, fill=category)) +
   geom_bar(stat="identity")+
@@ -168,6 +170,8 @@ ggplot(data=mFOXP3.freq, aes(x=variable, y=value, fill=category)) +
             color="white", size=3.5)+
   scale_fill_brewer(palette='Set2')+
   theme_minimal()
+
+
 
 
 
@@ -190,6 +194,40 @@ ggplot(data=mIL2RA.freq, aes(x=variable, y=value, fill=category)) +
             color="white", size=3.5)+
   scale_fill_brewer(palette='Set2')+
   theme_minimal()
+
+
+
+
+
+
+# The min.pct argument requires a feature to be detected at a minimum percentage in either of the two groups of cells.
+
+TIGIT <- table(exp.count['TIGIT', rownames(pbmc@meta.data[pbmc@meta.data$MICA_clusters == 4,])])
+# TIGIT <- c(TIGIT, "7"=0)
+# TIGIT <- c(TIGIT, "8"=0)
+TIGIT.freq <- as.data.frame( TIGIT )
+# TIGIT.freq$category <- as.integer( rownames(TIGIT.freq) )
+colnames(TIGIT.freq) <- c('category', 'Freq.MICA')
+TIGIT.freq$Freq.Seurat <- as.vector( table(exp.count['TIGIT', rownames(pbmc@meta.data[pbmc@meta.data$seurat_clusters == 0,])]) )
+TIGIT.freq$Freq.MICA <- TIGIT.freq$Freq.MICA / sum(TIGIT.freq$Freq.MICA)
+TIGIT.freq$Freq.Seurat <- TIGIT.freq$Freq.Seurat / sum(TIGIT.freq$Freq.Seurat)
+
+table(exp.count['TIGIT', rownames(pbmc@meta.data[pbmc@meta.data$MICA_clusters == 4,])])
+
+mTIGIT.freq <- melt(TIGIT.freq, id=c('category'))
+mTIGIT.freq <- mTIGIT.freq[c(2,3,4,5,6,8,9,10,11,12),]
+mTIGIT.freq$label_ypos <- c(0.05, 0.009, 0.008, 0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001)
+
+
+
+# Create the barplot
+ggplot(data=mTIGIT.freq, aes(x=variable, y=value, fill=as.factor(category))) +
+  geom_bar(stat="identity")+
+  geom_text(aes(y=label_ypos, label=value), vjust=1.6, 
+            color="white", size=3.5)+
+  scale_fill_brewer(palette='Set2')+
+  theme_minimal()
+
 
 
 

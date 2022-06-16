@@ -52,6 +52,9 @@ true_labels <- true_labels[rownames(pp_mat),]
 adj.rand.index(true_labels, as.numeric(s_obj$seurat_clusters))
 
 
+library(aricode)
+AMI(true_labels, as.numeric(s_obj$seurat_clusters))
+
 
 # Calculate silhouette
 library(scclusteval)

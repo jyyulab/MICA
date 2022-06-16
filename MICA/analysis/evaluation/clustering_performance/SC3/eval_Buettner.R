@@ -44,6 +44,10 @@ head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_3_clusters)
 
 
+library(aricode)
+AMI(col_data$label, col_data$sc3_3_clusters)
+
+
 
 library(umap)
 euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)

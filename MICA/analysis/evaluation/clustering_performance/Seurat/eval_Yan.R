@@ -45,10 +45,12 @@ write.table(s_obj@reductions$pca@cell.embeddings, file='/Users/lding/Documents/M
 saveRDS(s_obj, file = "/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Yan/Yan_seurat.rds")
 
 # Calculate ARI
-true_label_file <- '/Users/lding/Documents/MICA/Datasets/HPC/GoldernStd/Yan/Yan_true_label.txt'
+true_label_file <- '/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Yan/Yan_true_label.txt'
 true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names=1)
 adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
 
+library(aricode)
+AMI(true_labels$label, as.numeric(s_obj$seurat_clusters))
 
 
 # Calculate silhouette

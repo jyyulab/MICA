@@ -1,5 +1,4 @@
-#/usr/bin/env Rscript
-
+#!/usr/bin/env Rscript
 library(SingleCellExperiment)
 library(SC3)
 library(scater)
@@ -9,12 +8,14 @@ library(data.table)
 library(pdfCluster)
 
 
-mat <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Goolam/Goolam_MICA_input.txt"),
+# log1p based?
+mat <- read.table(file=paste0("/Users/lding/Documents/scMINER/PBMC14k_input/PBMC_20k_MICA_input_filter_14k.txt"),
                   sep="\t", header=TRUE, row.names=1)
-mat_t <- transpose(mat)
+mat_t <- t(as.matrix(mat))
 mat_pow2 <- exp(1)^mat_t - 1
-ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/GoldenStd/Goolam/Goolam_true_label.txt"),
+ann <- read.table(file=paste0("/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt"),
                   sep="\t", header=TRUE, row.names=1)
+ann <- ann[rownames(mat),]
 
 
 # create a SingleCellExperiment object
@@ -34,19 +35,18 @@ sce <- sce[!duplicated(rowData(sce)$feature_symbol), ]
 sce <- runPCA(sce)
 
 
-plotPCA(sce, colour_by = "label")
-sce <- sc3(sce, ks = 5, biology = TRUE)
+plotPCA(sce, colour_by = "X")
+sce <- sc3(sce, ks = 10, biology = TRUE)
 
 col_data <- colData(sce)
 head(col_data[ , grep("sc3_", colnames(col_data))])
 adj.rand.index(col_data$label, col_data$sc3_5_clusters)
 
 
-library(aricode)
-AMI(col_data$label, col_data$sc3_5_clusters)
+save.image(file='/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA/tests/SilverStd/PBMC_20k/SC3/PBMC_20k_SC3.RData')
+# plotPCA(sce, colour_by = "label")
+sce <- sc3(sce, ks = 10, biology = TRUE, n_cores = 10)
 
-
-
-library(umap)
-euclidean_laplacian_umap <- umap(sce@metadata$sc3$transformations$euclidean_laplacian)
-write.table(euclidean_laplacian_umap$layout, file='/Users/lding/Documents/MICA/Manuscript/Figures/Silhouette/Goolam/SC3/Goolam_SC3_euclidean_laplacian_UMAP.txt', sep = '\t')
+col_data <- colData(sce)
+head(col_data[ , grep("sc3_", colnames(col_data))])
+print(adj.rand.index(col_data$label, col_data$sc3_10_clusters))

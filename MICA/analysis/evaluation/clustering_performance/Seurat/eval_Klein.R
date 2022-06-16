@@ -62,6 +62,11 @@ true_labels <- read.table(file=true_label_file, sep="\t", header=TRUE, row.names
 adj.rand.index(true_labels$label, as.numeric(s_obj$seurat_clusters))
 
 
+library(aricode)
+AMI(true_labels$label, as.numeric(s_obj$seurat_clusters))
+
+
+
 # Calculate silhouette
 library(scclusteval)
 silhouette <- CalculateSilhouette(s_obj, dims=1:50)

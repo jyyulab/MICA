@@ -28,7 +28,7 @@ melt_ARI_table['ARI'] = melt_ARI_table['ARI'].astype(float)
 plt.close()
 plt.figure(figsize=(6, 6))
 sns.set(style="darkgrid", font='Arial')
-ax = sns.barplot(x="method", y="ARI", hue="method", data=melt_ARI_table, dodge=False)
+ax = sns.barplot(x="method", y="ARI", hue="method", data=melt_ARI_table, dodge=False, capsize=.2)
 # plt.show()
 plt.savefig('/Users/lding/Desktop/ARI_summary_pvalue.pdf', dpi=500)
 
