@@ -1,3 +1,4 @@
+conda-out/
 cache/
 tests/inputs/*.tmp
 .idea/*
