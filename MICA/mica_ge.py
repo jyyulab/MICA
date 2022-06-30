@@ -141,7 +141,7 @@ def mica_ge(args):
     mat_dr = mat_dr_df.to_numpy()
     logging.info('(cells, dimensions): {}'.format(mat_dr.shape))
 
-    # Comment out this step as it does not work well based on a preliminary evaluation by Zhen
+    # Comment out this step as it does not work well based on a preliminary evaluation by Zhen Xie
     # if args.harmony:
     #     from harmony import harmonize
     #     start = time.time()

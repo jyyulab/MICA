@@ -14,6 +14,22 @@ MICA workflow:
 <img src="images/MICA_workflow.png" width="500">
 
 
+# Getting Started
+The easiest way to run MICA locally is using Docker, as ```docker build``` creates an image with all of the
+dependencies:
+```
+git clone https://github.com/jyyulab/MICA
+cd MICA
+docker build -t mica:0.2.2 .
+
+# Test run on small dataset
+mkdir results
+docker run --mount type=bind,source=$(pwd)/test_data/inputs,target=/data,readonly --mount 
+type=bind,source=$(pwd)/test_data/outputs/docker,target=/results -it mica:0.2.2 ge -i 
+/data/PBMC_Demo_MICA_input_mini.txt -o /results
+```
+
+
 ## Prerequisites
 * [python==3.7.6](https://www.python.org/downloads/) (developed and tested on python 3.7.6)
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other dependencies
@@ -26,15 +42,8 @@ is to use the [conda](https://conda.io/docs/) dependency manager:
 ```
 $ conda create -n py376 python=3.7.6          # Create a python virtual environment
 $ source activate py376                       # Activate the virtual environment
-$ conda install --file requirements.txt       # Install dependencies
+$ pip install MICA                            # Install MICA and its dependencies
 ```
-
-<!--- 
-#### Install using pip
-```
-$ pip install MICA
-```
--->
 
 #### Install from source
 ```
