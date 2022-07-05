@@ -2,7 +2,10 @@
 
 import numpy as np
 import pandas as pd
+import time
 import random
+import logging
+from MICA.lib import dimension_reduction as dr
 
 
 def create_metacells(clustering_results, G, cell_barcodes, out_dir, num_metacells=0):

@@ -36,7 +36,7 @@ sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method",
 # plt.show()
 
 #%%
-plt.savefig('/Users/lding/Desktop/AMI_summary_lineplot.pdf', dpi=500)
+plt.savefig('/Users/lding/Desktop/ARI_summary_lineplot.pdf', dpi=500)
 
 
 
