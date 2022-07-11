@@ -8,12 +8,14 @@ import argparse
 import numpy as np
 import pandas as pd
 import pathlib
+import networkx as nx
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
 from MICA.lib import clustering as cl
 from MICA.lib import visualize as vs
 from MICA.lib import consensus as cs
+from MICA.lib import metacell as mc
 
 
 def main():
@@ -40,6 +42,8 @@ def main():
 
 
 def add_ge_arguments(parser):
+    parser.add_argument('-da', '--dr-modality', metavar='STR', required=False, choices=['gene', 'cell'],
+                        default='gene', help='Dimension reduction modality [gene | cell] (default: gene)')
     parser.add_argument('-dm', '--dr-method', metavar='STR', required=False, choices=['node2vec', 'deepwalk'],
                         default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
     parser.add_argument('-dd', '--dr-dim', metavar='INT', required=False, default=20, type=int,
@@ -74,6 +78,8 @@ def add_ge_arguments(parser):
     parser.add_argument('-nne', '--num-neighbors-eu', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
                              'dimension reduction (default: 20)')
+    parser.add_argument('-mc', '--meta-cell', required=False, action='store_true',
+                        help='Create a MetaCell for each cell cluster.')
     # parser.add_argument('-ha', '--harmony', metavar='FILE', required=False,
     #                     help='Path to a cell metadata file (tab-delimited text file) with "batch" as a column, '
     #                          'required for Harmony batch correction.')
@@ -98,10 +104,15 @@ def mica_ge(args):
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     start = time.time()
-    logging.info('Building MI-based kNN graph ...')
-    knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_neighbors=args.num_neighbors_mi,
-                                                            pruning_degree_multi=args.pruning_degree_multi,
-                                                            num_jobs=args.num_workers)
+    logging.info('Building MI-based kNN graph on {} ...'.format(args.dr_modality))
+    if args.dr_modality == 'gene':
+        knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_neighbors=args.num_neighbors_mi,
+                                                                pruning_degree_multi=args.pruning_degree_multi,
+                                                                num_jobs=args.num_workers)
+    elif args.dr_modality == 'cell':
+        knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.T.to_numpy(), num_neighbors=args.num_neighbors_mi,
+                                                                pruning_degree_multi=args.pruning_degree_multi,
+                                                                num_jobs=args.num_workers)
     knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
     logging.info('kNN graph number of nodes: {}'.format(len(knn_graph.nodes())))
 
@@ -117,21 +128,28 @@ def mica_ge(args):
 
     start = time.time()
     logging.info('Performing dimension reduction using {} method ...'.format(args.dr_method))
-    emb_file = '{}/knn_graph_emb_{}_{}.txt'.format(args.output_dir, args.dr_method, args.dr_dim)
+    emb_file = '{}/knn_{}_graph_emb_on_{}_to_{}.txt'.format(args.output_dir, args.dr_method, args.dr_modality,
+                                                            args.dr_dim)
     if args.dr_method == 'node2vec':
-        dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
-                                       walk_len=args.walk_length, n_walks=args.num_walks, context_size=args.window_size,
-                                       hyper_p=args.hyper_p, hyper_q=args.hyper_q)
-        # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
-        # print(wv)
+        if args.dr_modality == 'gene':
+            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
+                                           walk_len=args.walk_length, n_walks=args.num_walks,
+                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
+            # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
+            # print(wv)
+        elif args.dr_modality == 'cell':
+            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
+                                           walk_len=args.walk_length, n_walks=args.num_walks,
+                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
         sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
-    else:
-        sys.exit('Error - invalid dimension reduction method: {}'.format(args.dr_method))
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
+    if args.dr_modality == 'cell':
+        logging.info('All done.')
+        sys.exit(0)
 
     start = time.time()
     logging.info('Performing clustering ...')
@@ -153,12 +171,23 @@ def mica_ge(args):
     #     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     G = ng.build_graph(mat_dr, dis_metric='euclidean', num_neighbors=args.num_neighbors_eu, num_jobs=args.num_workers)
+    edgelist_file = '{}/sklearn_knn_graph_edgelist.txt'.format(args.output_dir)
+    nx.write_edgelist(G, edgelist_file)
     partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
                                                          max_resolution=args.max_resolution,
                                                          step_size=args.step_size, num_workers=args.num_workers)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    # Create MetaCells
+    if args.meta_cell:
+        start = time.time()
+        logging.info('Creating Metacells ...')
+        mc.create_metacells(partition_resolutions, G, frame.iloc[mat_dr_df.index,:].index, args.output_dir)
+        end = time.time()
+        runtime = end - start
+        logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     aggs = []
     if args.consensus != 'None':
