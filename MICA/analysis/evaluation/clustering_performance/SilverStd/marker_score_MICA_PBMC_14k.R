@@ -26,12 +26,30 @@ cluster.res <- read.table(file = '/Users/lding/Documents/MICA/Manuscript/Figures
 # cluster.res <- read.table(file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/clustering_UMAP_euclidean_24_1.49.txt', 
 #                           sep = '\t', header = TRUE)
 # cluster.res <- read.table(file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/clustering_UMAP_euclidean_24_1.35.txt', 
-  #                         sep = '\t', header = TRUE)
+#                           sep = '\t', header = TRUE)
+# cluster.res <- read.table(file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/clustering_UMAP_euclidean_24_3.0.txt',
+#                           sep = '\t', header = TRUE)
+# cluster.res <- read.table(file = '/Users/lding/Git/scMINER/docs/docs/images/clustering_UMAP_euclidean_24_1.82212.txt',
+#                           sep = '\t', header = TRUE)
+# mat.14k <- mat.14k[cluster.res$ID,]
+# eset.14k <- generate.eset(exp_mat=t(mat.14k),
+#                           phenotype_info=rownames(mat.14k),
+#                           feature_info=colnames(mat.14k),
+#                           annotation_info='exp.log2')
+
+
+
 pData(eset.14k)$cellType <- as.factor(cluster.res$label)
 pData(eset.14k)$X <- cluster.res$X
 pData(eset.14k)$Y <- cluster.res$Y
 exp.log2 <- t(mat.14k)
 
+
+# clustering_UMAP_euclidean_24_3.0
+colors <- c('#00BFC4', '#7CAE00',  '#00BF7D', '#00B0F6',  '#CD9600', '#F8766D', '#C77CFF')
+MICAplot(input_eset = eset.14k,
+         X="X", Y="Y", # which meta variable was treated as x or y coordinates
+         color_by = "cellType", colors = colors, pct = 0.5)
 
 
 # clustering_UMAP_euclidean_24_1.49
@@ -46,6 +64,53 @@ colors <- c('#A3A500', '#9590FF', '#00BFC4', '#00B0F6', '#CD9600', '#F8766D', '#
 MICAplot(input_eset = eset.14k,
          X="X", Y="Y", # which meta variable was treated as x or y coordinates
          color_by = "cellType", colors = colors, pct = 0.5)
+
+
+
+true.label.20k <- read.table(file='/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt', 
+                             sep = '\t', header = T)
+true.label.14k <- true.label.20k[true.label.20k$cell %in% cluster.res$ID,]
+pData(eset.14k)$trueLabel <- as.factor(true.label.14k$label)
+
+
+
+
+
+
+colors <- c( '#00BFC4', '#C3C3C3', '#C3C3C3', '#C3C3C3', '#C3C3C3', '#C3C3C3', '#C3C3C3')
+MICAplot(input_eset = eset.14k,
+         X="X", Y="Y", # which meta variable was treated as x or y coordinates
+         color_by = "trueLabel", colors = colors, pct = 0.5)
+
+colors <- c( '#C3C3C3', '#C3C3C3', '#CD9600', '#C3C3C3', '#C3C3C3', '#C3C3C3', '#C3C3C3')
+MICAplot(input_eset = eset.14k,
+         X="X", Y="Y", # which meta variable was treated as x or y coordinates
+         color_by = "trueLabel", colors = colors, pct = 0.5)
+
+library(pdfCluster)
+adj.rand.index(pData(eset.14k)$trueLabel, pData(eset.14k)$cellType)
+
+
+
+
+
+
+# Create data
+data <- data.frame(
+  name=c("MICA_CP10K", "MICA_CPM"),
+  ARI=c(0.8130037, 0.8401542)
+)
+
+library(ggplot2)
+library(scales)
+# 3: Using RColorBrewer
+ggplot(data, aes(x=as.factor(name), y=ARI, fill=as.factor(name))) + 
+  geom_bar(stat = "identity", width=0.7) + 
+  scale_fill_brewer(palette = "Set1") +
+  theme(legend.position="none") +
+  theme_bw() + scale_y_continuous(limits=c(0.5, 0.9), oob = rescale_none)
+
+
 
 
 
@@ -304,4 +369,3 @@ ggplot(data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
   xlim(c(2, 4)) +
   theme_void() +
   theme(legend.position = "none")
-
