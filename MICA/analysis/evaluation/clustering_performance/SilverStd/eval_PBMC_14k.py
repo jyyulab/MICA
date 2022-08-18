@@ -4,8 +4,8 @@ import pandas as pd
 from sklearn.metrics.cluster import adjusted_mutual_info_score
 
 #%%
-predict_label_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/after_parameter_tuning/clustering_UMAP_euclidean_24_1.82212.txt'
-
+predict_label_file = '/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/MICA/filter_CTL/' \
+                     'after_parameter_tuning/clustering_UMAP_euclidean_24_1.82212.txt'
 true_label_file = '/Users/lding/Documents/MICA/Datasets/HPC/SilverStd/PBMC_20k/PBMC_20k_true_label.txt'
 true_label = pd.read_csv(true_label_file, delimiter='\t', header=0)
 predict_label = pd.read_csv(predict_label_file, delimiter='\t', index_col=0)
