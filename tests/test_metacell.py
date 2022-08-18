@@ -18,7 +18,7 @@ class TestMetaCell(unittest.TestCase):
         self.out_dir = './'
 
     def test_pick_cls_res(self):
-        metacell.pick_cells(cls_res_df=self.cls_res_df, G=self.G, out_dir=self.out_dir)
+        metacell.pick_cells(cls_res_df=self.cls_res_df, G=self.G, method='closeness', out_dir=self.out_dir)
 
 
 if __name__ == "__main__":

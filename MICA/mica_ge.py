@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# MICA Version that uses a graph embedding method for dimension reduction on MI-kNN graph.
+# MICA GE version uses a graph embedding method for dimension reduction on MI-kNN graph.
 
 import sys
 import logging
@@ -176,7 +176,6 @@ def mica_ge(args):
     partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
                                                          max_resolution=args.max_resolution,
                                                          step_size=args.step_size, num_workers=args.num_workers)
-
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))

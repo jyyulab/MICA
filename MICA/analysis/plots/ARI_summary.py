@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 #%%
 ARI_file = '/Users/lding/Documents/MICA/Manuscript/Tables/ARI/ARI_summary.xlsx'
-ARI_table = pd.read_excel(ARI_file, index_col=0, sheet_name='ARI_all_methods')
-ARI_table = ARI_table.rename(columns={'Human_Motor_Cortex': 'H_Cortex'})
+ARI_table = pd.read_excel(ARI_file, index_col=0, sheet_name='AMI_all_methods')
+# ARI_table = ARI_table.rename(columns={'Human_Motor_Cortex': 'H_Cortex'})
 
 #%%
 sub_table = ARI_table.loc[['MICA', 'Seurat', 'SC3', 'Scanpy'],]
@@ -21,8 +21,8 @@ sub_table_T = sub_table.T
 melt_ARI_table = pd.melt(sub_table_T, id_vars=['dataset'])
 
 #%%
-melt_ARI_table = melt_ARI_table.rename(columns={'variable': 'method', 'value': 'ARI'})
-melt_ARI_table['ARI'] = melt_ARI_table['ARI'].astype(float)
+melt_ARI_table = melt_ARI_table.rename(columns={'variable': 'method', 'value': 'AMI'})
+melt_ARI_table['AMI'] = melt_ARI_table['AMI'].astype(float)
 
 #%%
 plt.close()
@@ -31,12 +31,12 @@ sns.set(style="darkgrid", font='Arial')
 # sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method", style="method",
 #              markers=True, markersize=10)
 # markers = {"MICA": "s", "Seurat": "s", "SC3": "s", "Scanpy": "s"}
-sns.lineplot(data=melt_ARI_table, x="dataset", y="ARI", hue="method",
+sns.lineplot(data=melt_ARI_table, x="dataset", y="AMI", hue="method",
              marker='s')
 # plt.show()
 
 #%%
-plt.savefig('/Users/lding/Desktop/ARI_summary_lineplot.pdf', dpi=500)
+plt.savefig('/Users/lding/Desktop/AMI_summary_lineplot.pdf', dpi=500)
 
 
 
