@@ -17,6 +17,9 @@ from MICA.lib import visualize as vs
 from MICA.lib import consensus as cs
 from MICA.lib import metacell as mc
 
+import torch
+import torch_geometric
+from torch_geometric import Node2Vec
 
 def main():
     head_description = 'MICA - Mutual Information-based Clustering Analysis tool. This version uses a graph ' \
@@ -131,16 +134,17 @@ def mica_ge(args):
     emb_file = '{}/knn_{}_graph_emb_on_{}_to_{}.txt'.format(args.output_dir, args.dr_method, args.dr_modality,
                                                             args.dr_dim)
     if args.dr_method == 'node2vec':
-        if args.dr_modality == 'gene':
-            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
-                                           walk_len=args.walk_length, n_walks=args.num_walks,
-                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
-            # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
-            # print(wv)
-        elif args.dr_modality == 'cell':
-            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
-                                           walk_len=args.walk_length, n_walks=args.num_walks,
-                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
+        graph_data = torch_geometric.utils.from_networkx(knn_graph)
+        pyg_model = Node2Vec(graph_data.edge_index, embedding_dim=args.dr_dim, walk_length=args.walk_length, context_size=args.window_size, walks_per_node=args.num_walks, p=args.hyper_p, q=args.hyper_q, sparse=True).to("cuda" if torch.cuda.is_available() else "cpu")
+        pyg_forward = pyg_model.forward().detach().numpy()
+
+        with open(emb_file, "w") as f:
+            f.write(str(pyg_forward.shape[0]) + " " + str(pyg_forward.shape[1]))
+            f.write("\n")
+            for w in pyg_forward:
+                f.write(", ".join(str(e) for e in w))
+                f.write("\n")
+
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
         sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
