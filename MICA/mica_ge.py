@@ -9,6 +9,9 @@ import numpy as np
 import pandas as pd
 import pathlib
 import networkx as nx
+import torch
+import torch_geometric
+from torch_geometric.nn.models import Node2Vec
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
@@ -17,9 +20,6 @@ from MICA.lib import visualize as vs
 from MICA.lib import consensus as cs
 from MICA.lib import metacell as mc
 
-import torch
-import torch_geometric
-from torch_geometric import Node2Vec
 
 def main():
     head_description = 'MICA - Mutual Information-based Clustering Analysis tool. This version uses a graph ' \
@@ -135,16 +135,20 @@ def mica_ge(args):
                                                             args.dr_dim)
     if args.dr_method == 'node2vec':
         graph_data = torch_geometric.utils.from_networkx(knn_graph)
-        pyg_model = Node2Vec(graph_data.edge_index, embedding_dim=args.dr_dim, walk_length=args.walk_length, context_size=args.window_size, walks_per_node=args.num_walks, p=args.hyper_p, q=args.hyper_q, sparse=True).to("cuda" if torch.cuda.is_available() else "cpu")
+        pyg_model = Node2Vec(graph_data.edge_index, embedding_dim=args.dr_dim, walk_length=args.walk_length,
+                             context_size=args.window_size, walks_per_node=args.num_walks, p=args.hyper_p,
+                             q=args.hyper_q, sparse=True).to("cuda" if torch.cuda.is_available() else "cpu")
         pyg_forward = pyg_model.forward().detach().numpy()
 
         with open(emb_file, "w") as f:
             f.write(str(pyg_forward.shape[0]) + " " + str(pyg_forward.shape[1]))
             f.write("\n")
-            for w in pyg_forward:
-                f.write(", ".join(str(e) for e in w))
+            for i in range(len(pyg_forward)):
+                w = pyg_forward[i]
+                f.write(str(i))
+                f.write(" ")
+                f.write(" ".join(str(e) for e in w))
                 f.write("\n")
-
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
         sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
