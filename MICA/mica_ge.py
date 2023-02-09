@@ -11,6 +11,7 @@ import pathlib
 import networkx as nx
 import torch
 import torch_geometric
+from annoy import AnnoyIndex
 from torch_geometric.nn.models import Node2Vec
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
@@ -109,14 +110,36 @@ def mica_ge(args):
     start = time.time()
     logging.info('Building MI-based kNN graph on {} ...'.format(args.dr_modality))
     if args.dr_modality == 'gene':
-        knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_neighbors=args.num_neighbors_mi,
-                                                                pruning_degree_multi=args.pruning_degree_multi,
-                                                                num_jobs=args.num_workers)
+        noy_indices, noy_dists = [], []
+        t = AnnoyIndex(frame.shape[1], 'euclidean')
+        for i in range(frame.shape[0]):
+            t.add_item(i, frame.iloc[i].to_numpy())
+        t.build(10, n_jobs=args.num_workers)
+        t.save('tmp.ann')
+        for i in range(frame.shape[0]):
+            final = t.get_nns_by_item(i, args.num_neighbors_mi, include_distances=True)
+            noy_indices.append(final[0])
+            noy_dists.append(final[1])
+
+        # knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), num_neighbors=args.num_neighbors_mi,
+        #                                                         pruning_degree_multi=args.pruning_degree_multi,
+        #                                                         num_jobs=args.num_workers)
     elif args.dr_modality == 'cell':
-        knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.T.to_numpy(), num_neighbors=args.num_neighbors_mi,
-                                                                pruning_degree_multi=args.pruning_degree_multi,
-                                                                num_jobs=args.num_workers)
-    knn_graph = ng.build_graph_from_indices(knn_indices, knn_dists)
+        noy_indices, noy_dists = [], []
+        t = AnnoyIndex(frame.shape[1], 'euclidean')
+        for i in range(frame.shape[0]):
+            t.add_item(i, frame.iloc[i].to_numpy())
+        t.build(10, n_jobs=args.num_workers)
+        t.save('tmp.ann')
+        for i in range(frame.shape[0]):
+            final = t.get_nns_by_item(i, args.num_neighbors_mi, include_distances=True)
+            noy_indices.append(final[0])
+            noy_dists.append
+
+        # knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.T.to_numpy(), num_neighbors=args.num_neighbors_mi,
+        #                                                         pruning_degree_multi=args.pruning_degree_multi,
+        #                                                         num_jobs=args.num_workers)
+    knn_graph = ng.build_graph_from_indices(noy_indices, noy_dists)
     logging.info('kNN graph number of nodes: {}'.format(len(knn_graph.nodes())))
 
     pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
