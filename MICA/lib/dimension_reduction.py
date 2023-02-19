@@ -5,6 +5,9 @@ import numpy as np
 import umap
 import logging
 # import node2vec
+import torch
+import torch_geometric
+from torch_geometric.nn.models import Node2Vec
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
 from .distance import numba_calc_mi_dis
@@ -105,6 +108,25 @@ def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', d
                                                                                          hyper_p, hyper_q)
     logging.info(cmd)
     run_shell_command(cmd)
+
+
+def dim_reduce_node2vec_pytorch_geometric(knn_graph, out_emb_file, sparse=True, dim=20, walk_len=100, n_walks=120,
+                                          context_size=20, hyper_p=0.5, hyper_q=0.5):
+    graph_data = torch_geometric.utils.from_networkx(knn_graph)
+    pyg_model = Node2Vec(graph_data.edge_index, embedding_dim=dim, walk_length=walk_len,
+                         context_size=context_size, walks_per_node=n_walks, p=hyper_p,
+                         q=hyper_q, sparse=sparse).to("cuda" if torch.cuda.is_available() else "cpu")
+    pyg_forward = pyg_model.forward().detach().numpy()
+
+    with open(out_emb_file, "w") as f:
+        f.write(str(pyg_forward.shape[0]) + " " + str(pyg_forward.shape[1]))
+        f.write("\n")
+        for i in range(len(pyg_forward)):
+            w = pyg_forward[i]
+            f.write(str(i))
+            f.write(" ")
+            f.write(" ".join(str(e) for e in w))
+            f.write("\n")
 
 
 def dim_reduce_node2vec_c(edgelist_file, out_emb_file, dim=12, walk_len=60, n_walks=120):

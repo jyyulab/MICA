@@ -9,9 +9,6 @@ import numpy as np
 import pandas as pd
 import pathlib
 import networkx as nx
-import torch
-import torch_geometric
-from torch_geometric.nn.models import Node2Vec
 from MICA.lib import neighbor_graph as ng
 from MICA.lib import preprocessing as pp
 from MICA.lib import dimension_reduction as dr
@@ -134,21 +131,16 @@ def mica_ge(args):
     emb_file = '{}/knn_{}_graph_emb_on_{}_to_{}.txt'.format(args.output_dir, args.dr_method, args.dr_modality,
                                                             args.dr_dim)
     if args.dr_method == 'node2vec':
-        graph_data = torch_geometric.utils.from_networkx(knn_graph)
-        pyg_model = Node2Vec(graph_data.edge_index, embedding_dim=args.dr_dim, walk_length=args.walk_length,
-                             context_size=args.window_size, walks_per_node=args.num_walks, p=args.hyper_p,
-                             q=args.hyper_q, sparse=True).to("cuda" if torch.cuda.is_available() else "cpu")
-        pyg_forward = pyg_model.forward().detach().numpy()
-
-        with open(emb_file, "w") as f:
-            f.write(str(pyg_forward.shape[0]) + " " + str(pyg_forward.shape[1]))
-            f.write("\n")
-            for i in range(len(pyg_forward)):
-                w = pyg_forward[i]
-                f.write(str(i))
-                f.write(" ")
-                f.write(" ".join(str(e) for e in w))
-                f.write("\n")
+        if args.dr_modality == 'gene':
+            dr.dim_reduce_node2vec_pytorch_geometric(knn_graph, emb_file, dim=args.dr_dim, walk_len=args.walk_length,
+                                                     n_walks=args.num_walks, context_size=args.window_size,
+                                                     hyper_p=args.hyper_p, hyper_q=args.hyper_q)
+            # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
+            # print(wv)
+        elif args.dr_modality == 'cell':
+            dr.dim_reduce_node2vec_pytorch_geometric(knn_graph, emb_file, dim=args.dr_dim, walk_len=args.walk_length,
+                                                     n_walks=args.num_walks, context_size=args.window_size,
+                                                     hyper_p=args.hyper_p, hyper_q=args.hyper_q)
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
         sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
