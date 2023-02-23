@@ -16,7 +16,7 @@ umap-learn==0.5.1
 gensim==4.1.2
 pynndescent==0.5.2
 llvmlite==0.36.0
-setuptools==57.5.0
+setuptools==65.5.1
 rdflib_jsonld==0.5.0
 torch==1.12.1
 torch-geometric==2.2.0

@@ -31,7 +31,7 @@ setup(
         "gensim==4.1.2",
         "pynndescent==0.5.2",
         "llvmlite==0.36.0",
-        "setuptools==57.5.0",
+        "setuptools==65.5.1",
         "rdflib_jsonld==0.5.0",
         ],
     python_requires="==3.7.6",
