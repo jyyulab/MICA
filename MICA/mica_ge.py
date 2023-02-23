@@ -132,15 +132,15 @@ def mica_ge(args):
                                                             args.dr_dim)
     if args.dr_method == 'node2vec':
         if args.dr_modality == 'gene':
-            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
-                                           walk_len=args.walk_length, n_walks=args.num_walks,
-                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
+            dr.dim_reduce_node2vec_pytorch_geometric(knn_graph, emb_file, dim=args.dr_dim, walk_len=args.walk_length,
+                                                     n_walks=args.num_walks, context_size=args.window_size,
+                                                     hyper_p=args.hyper_p, hyper_q=args.hyper_q)
             # wv = dr.dim_reduce_node2vec(knn_graph, dim=args.dr_dim, walk_len=10, n_walks=10)
             # print(wv)
         elif args.dr_modality == 'cell':
-            dr.dim_reduce_node2vec_pecanpy(edgelist_file, emb_file, dim=args.dr_dim, num_jobs=args.num_workers,
-                                           walk_len=args.walk_length, n_walks=args.num_walks,
-                                           context_size=args.window_size, hyper_p=args.hyper_p, hyper_q=args.hyper_q)
+            dr.dim_reduce_node2vec_pytorch_geometric(knn_graph, emb_file, dim=args.dr_dim, walk_len=args.walk_length,
+                                                     n_walks=args.num_walks, context_size=args.window_size,
+                                                     hyper_p=args.hyper_p, hyper_q=args.hyper_q)
     elif args.dr_method == 'deepwalk':
         # dr.dim_reduce_deepwalk(edgelist_file, emb_file, dim=args.dr_dim)
         sys.exit('Error - deepwalk has not been tested: {}'.format(args.dr_method))
