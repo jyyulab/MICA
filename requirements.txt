@@ -18,5 +18,5 @@ pynndescent==0.5.2
 llvmlite==0.36.0
 setuptools==57.5.0
 rdflib_jsonld==0.5.0
-torch==1.12.1
+torch==1.13.1
 torch-geometric==2.2.0
