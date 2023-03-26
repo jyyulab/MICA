@@ -265,10 +265,11 @@ fData(pbmc.eset.log2) <- data.frame(gene.symbol)
 
 # Heatmap
 library(openxlsx)
-ref<-read.xlsx("/Users/lding/Git/scMINER/docs/tests/Ref/PBMC_markers.xlsx", sheet="Markers_10_cell_types_PBMC_20k")
+ref<-read.xlsx("/Users/lding/Documents/scMINER/PBMC_markers.xlsx", sheet="Markers_10_cell_types_PBMC_20k")
 head(ref)
 
-celltypes <- c("CD4TCM", "CD4TReg", "CD4NaiveT", "CD8NaiveCTL", "Bcell", "NK", "Monocyte")
+# celltypes <- c("CD4TCM", "CD4TReg", "CD4NaiveT", "CD8NaiveCTL", "Bcell", "NK", "Monocyte")
+celltypes <- c("NK", "Monocyte", "CD8NaiveCTL", "CD4TReg", "CD4TCM", "CD4NaiveT",  "Bcell")
 
 ac <- matrix(NA, nrow=ncol(exp.log2), ncol=length(celltypes), dimnames = list(colnames(exp.log2), celltypes))
 
@@ -320,11 +321,14 @@ d$Cluster<-as.factor(d$Cluster)
 
 
 
-pdf(file = "/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/Seurat/Heatmap_marker_score_Adam_markers4_reorder.pdf", 
+# pdf(file = "/Users/lding/Documents/MICA/Manuscript/Figures/Figure_S3_1/PBMC_14k/Seurat/Heatmap_marker_score_Adam_markers4_reorder.pdf", 
+#     height=10, width=10)
+pdf(file = "/Users/lding/Desktop/Heatmap_marker_score_Seurat.pdf", 
     height=10, width=10)
 
 h.mat <- t(input[,-1])
-h.mat <- h.mat[,c(1, 2, 6, 4, 7, 3, 5, 8)]
+# h.mat <- h.mat[,c(1, 2, 6, 4, 7, 3, 5, 8)]
+h.mat <- h.mat[,c(3, 5, 8, 6, 1, 2, 4, 7)]
 
 
 Heatmap(as.matrix(h.mat), col = rev(colorRampPalette(brewer.pal(10, "RdYlBu"))(256)), name = 'MarkerScore',
