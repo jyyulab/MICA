@@ -23,6 +23,7 @@ def main():
                           help='Project name/ID.')
     required.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=True, type=int,
                           help='Number of clusters to be specified in kmeans')
+    required.add_argument('-lv', '--louvain-clustering', action='store_true')
     add_mds_arguments(parser)
 
     visualization = parser.add_argument_group('visualization arguments')
@@ -91,9 +92,13 @@ def mica_mds(args):
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
-    if args.num_neighbor:   # Use graph-based clustering
+    if args.louvain_clustering:
+        if not args.num_neighbor:
+            sys.exit('Error: --num-neighbor must be specified for louvain clustering.')
         cwl_script = 'mica_g.cwl'
     else:
+        if not args.num_clusters:
+            sys.exit('Error: --num-clusters must be specified for kmeans clustering. Use -lv for louvain clustering.')
         cwl_script = 'mica.cwl'
 
     pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
@@ -142,7 +147,7 @@ def create_input_yml(args):
                    'slice_size: {}\n' \
                    'thread_number: {}\n' \
                    'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.num_clusters,
-                                               args.num_neighbor, args.visual_method, args.dr_method.upper(),
+                                               args.num_neighbor, args.visual_method, args.dr_method.lower(),
                                                args.bootstrap, args.dims_km, args.dims_graph, args.dims_plot,
                                                args.perplexity, args.min_dist, args.slice_size, args.thread_number,
                                                args.dist_func)

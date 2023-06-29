@@ -29,6 +29,7 @@ def main():
                                  help='Project name/ID.')
     common_optional.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=False, type=int,
                                  help='Number of clusters to be specified in kmeans')
+    common_optional.add_argument('-lv', '--louvain-clustering', action='store_true')
     common_optional.add_argument('-vm', '--visual-method', metavar='STR', required=False, default='UMAP', type=str,
                                  help='Visualization method UMAP or t-SNE (default: UMAP)')
     common_optional.add_argument('-md', '--min-dist', metavar='FLOAT', required=False, default=0.6, type=float,
