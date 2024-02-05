@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-from MICA.analysis.eval
-uation.clustering_performance import utils
+from MICA.analysis.evaluation.clustering_performance import utils
 
 
 root_dir = '/research/projects/yu3grp/scRNASeq/yu3grp/LiangDing/MICA'
