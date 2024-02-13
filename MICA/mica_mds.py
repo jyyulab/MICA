@@ -146,7 +146,7 @@ def create_input_yml(args):
                    'min_dist: {}\n' \
                    'slice_size: {}\n' \
                    'thread_number: {}\n' \
-                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.num_clusters,
+                   'dist_metrics: {}\n'.format(os.path.abspath(args.input_file), args.project_name, args.num_neighbor,
                                                args.num_neighbor, args.visual_method, args.dr_method.lower(),
                                                args.bootstrap, args.dims_km, args.dims_graph, args.dims_plot,
                                                args.perplexity, args.min_dist, args.slice_size, args.thread_number,
