@@ -73,7 +73,7 @@ outputs:
   out_fig:
     type: File
     outputBinding:
-      glob: "*.png"
+      glob: "*.pdf"
 
   out_txt:
     type: File
