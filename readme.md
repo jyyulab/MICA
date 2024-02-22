@@ -10,10 +10,10 @@ git clone -b mica_hnsw_test https://github.com/jyyulab/MICA.git
 
 Step 2:
 
-unzip file
+unzip file if needed
 ```bash
-unzip MICA-mica_hnsw_test
-cd MICA-mica_hnsw_test
+# unzip MICA-mica_hnsw_test
+cd MICA
 ```
 
 Step 3:
