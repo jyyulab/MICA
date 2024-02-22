@@ -1,0 +1,146 @@
+starting worker pid=50054 on localhost:11860 at 23:41:35.699
+starting worker pid=50066 on localhost:11860 at 23:41:35.919
+starting worker pid=50078 on localhost:11860 at 23:41:36.138
+starting worker pid=50166 on localhost:11860 at 23:41:43.552
+starting worker pid=50180 on localhost:11860 at 23:41:43.771
+starting worker pid=50192 on localhost:11860 at 23:41:43.988
+starting worker pid=50204 on localhost:11860 at 23:41:44.207
+starting worker pid=50216 on localhost:11860 at 23:41:44.425
+starting worker pid=50228 on localhost:11860 at 23:41:44.643
+starting worker pid=50323 on localhost:11860 at 23:41:50.732
+starting worker pid=50336 on localhost:11860 at 23:41:50.952
+starting worker pid=50348 on localhost:11860 at 23:41:51.170
+starting worker pid=50360 on localhost:11860 at 23:41:51.391
+starting worker pid=50372 on localhost:11860 at 23:41:51.610
+starting worker pid=50384 on localhost:11860 at 23:41:51.829
+starting worker pid=50420 on localhost:11860 at 23:41:52.047
+starting worker pid=50432 on localhost:11860 at 23:41:52.267
+starting worker pid=50444 on localhost:11860 at 23:41:52.485
+starting worker pid=50456 on localhost:11860 at 23:41:52.707
+starting worker pid=50468 on localhost:11860 at 23:41:52.926
+starting worker pid=50480 on localhost:11860 at 23:41:53.145
+starting worker pid=50493 on localhost:11860 at 23:41:53.366
+starting worker pid=50505 on localhost:11860 at 23:41:53.588
+starting worker pid=50518 on localhost:11860 at 23:41:53.809
+starting worker pid=50542 on localhost:11860 at 23:41:54.028
+starting worker pid=50554 on localhost:11860 at 23:41:54.246
+starting worker pid=50567 on localhost:11860 at 23:41:54.465
+starting worker pid=50579 on localhost:11860 at 23:41:54.685
+starting worker pid=50591 on localhost:11860 at 23:41:54.907
+starting worker pid=50603 on localhost:11860 at 23:41:55.128
+starting worker pid=50615 on localhost:11860 at 23:41:55.351
+starting worker pid=50627 on localhost:11860 at 23:41:55.572
+starting worker pid=50640 on localhost:11860 at 23:41:55.792
+starting worker pid=50652 on localhost:11860 at 23:41:56.013
+starting worker pid=50664 on localhost:11860 at 23:41:56.234
+starting worker pid=50677 on localhost:11860 at 23:41:56.458
+starting worker pid=50689 on localhost:11860 at 23:41:56.681
+starting worker pid=50701 on localhost:11860 at 23:41:56.902
+starting worker pid=50737 on localhost:11860 at 23:41:57.123
+starting worker pid=50749 on localhost:11860 at 23:41:57.347
+starting worker pid=50761 on localhost:11860 at 23:41:57.572
+starting worker pid=50773 on localhost:11860 at 23:41:57.796
+starting worker pid=50785 on localhost:11860 at 23:41:58.020
+starting worker pid=50798 on localhost:11860 at 23:41:58.240
+starting worker pid=50810 on localhost:11860 at 23:41:58.460
+starting worker pid=50822 on localhost:11860 at 23:41:58.679
+starting worker pid=50834 on localhost:11860 at 23:41:58.898
+starting worker pid=50846 on localhost:11860 at 23:41:59.118
+starting worker pid=50858 on localhost:11860 at 23:41:59.337
+starting worker pid=50871 on localhost:11860 at 23:41:59.558
+starting worker pid=50884 on localhost:11860 at 23:41:59.777
+starting worker pid=50896 on localhost:11860 at 23:41:59.996
+starting worker pid=50952 on localhost:11860 at 23:42:00.217
+starting worker pid=51026 on localhost:11860 at 23:42:00.437
+starting worker pid=51040 on localhost:11860 at 23:42:00.657
+starting worker pid=51052 on localhost:11860 at 23:42:00.876
+starting worker pid=51064 on localhost:11860 at 23:42:01.097
+starting worker pid=51076 on localhost:11860 at 23:42:01.316
+starting worker pid=51088 on localhost:11860 at 23:42:01.534
+starting worker pid=51101 on localhost:11860 at 23:42:01.756
+starting worker pid=51125 on localhost:11860 at 23:42:01.977
+starting worker pid=51160 on localhost:11860 at 23:42:02.199
+starting worker pid=51173 on localhost:11860 at 23:42:02.418
+starting worker pid=51187 on localhost:11860 at 23:42:02.637
+starting worker pid=51199 on localhost:11860 at 23:42:02.857
+starting worker pid=51212 on localhost:11860 at 23:42:03.076
+starting worker pid=51224 on localhost:11860 at 23:42:03.299
+starting worker pid=51236 on localhost:11860 at 23:42:03.518
+starting worker pid=51248 on localhost:11860 at 23:42:03.738
+starting worker pid=51261 on localhost:11860 at 23:42:03.959
+starting worker pid=51273 on localhost:11860 at 23:42:04.181
+starting worker pid=51293 on localhost:11860 at 23:42:04.403
+starting worker pid=51305 on localhost:11860 at 23:42:04.625
+starting worker pid=51317 on localhost:11860 at 23:42:04.847
+starting worker pid=51329 on localhost:11860 at 23:42:05.069
+starting worker pid=51341 on localhost:11860 at 23:42:05.288
+starting worker pid=51354 on localhost:11860 at 23:42:05.508
+starting worker pid=51366 on localhost:11860 at 23:42:05.727
+starting worker pid=51378 on localhost:11860 at 23:42:05.947
+starting worker pid=51390 on localhost:11860 at 23:42:06.168
+starting worker pid=51402 on localhost:11860 at 23:42:06.387
+starting worker pid=51414 on localhost:11860 at 23:42:06.611
+starting worker pid=51428 on localhost:11860 at 23:42:06.830
+starting worker pid=51440 on localhost:11860 at 23:42:07.049
+starting worker pid=51473 on localhost:11860 at 23:42:07.269
+starting worker pid=51488 on localhost:11860 at 23:42:07.489
+starting worker pid=51500 on localhost:11860 at 23:42:07.709
+starting worker pid=51512 on localhost:11860 at 23:42:07.931
+  |                                                                              |==                                                                    |   3%  |                                                                              |                                                                              |                                                                      |   0%  |====                                                                  |   6%  |                                                                              |========                                                              |  11%  |                                                                              |                                                                              |======                                                                |   9%  |==========                                                            |  14%  |                                                                              |============                                                          |  17%  |                                                                              |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |==================                                                    |  26%  |                                                                              |==================================                                    |  49%  |                                                                              |==============================================                        |  66%  |                                                                              |======================                                                |  31%  |                                                                              |==================================================                    |  71%  |                                                                              |============================================================          |  86%  |                                                                              |====================                                                  |  29%  |                                                                              |==========================================================            |  83%  |                                                                              |                                                                              |================================================                      |  69%  |==============================                                        |  43%  |                                                                              |                                                                              |========================================================              |  80%  |======================================                                |  54%  |                                                                              |                                                                              |                                                                              |                                                                              |====================================================================  |  97%  |====================================================                  |  74%  |====================================                                  |  51%  |============================                                          |  40%  |                                                                              |========================                                              |  34%  |                                                                              |================================================================      |  91%  |                                                                              |                                                                              |================================                                      |  46%  |======================================================================| 100%  |                                                                              |======================================================                |  77%  |                                                                              |==========================                                            |  37%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |==============================================================        |  89%  |                                                                              |==================================================================    |  94%
+starting worker pid=52133 on localhost:11860 at 23:42:47.966
+starting worker pid=52271 on localhost:11860 at 23:42:53.547
+starting worker pid=52283 on localhost:11860 at 23:42:53.762
+starting worker pid=52296 on localhost:11860 at 23:42:53.982
+DataFrame with 6 rows and 2 columns
+   sc3_8_clusters sc3_8_log2_outlier_score
+         <factor>                <numeric>
+V1              4          2.1531493439936
+V2              4         2.08596332198461
+V3              4         1.68531400424399
+V4              4                        0
+V5              4                        0
+V6              4                        0
+[1] 0.4074944
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nodelmr11>
+Subject: Job 145266179[1]: <cmd[1-1]> in cluster <hpcf_research_cluster> Done
+
+Job <cmd[1-1]> was submitted from host <nodecn201> by user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:28:43 2021
+Job was executed on host(s) <15*nodelmr11>, in queue <large_mem>, as user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:41:06 2021
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Nov 23 23:41:06 2021
+Terminated at Tue Nov 23 23:43:26 2021
+Results reported at Tue Nov 23 23:43:26 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_line_from_cmdfile /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   727.00 sec.
+    Max Memory :                                 42916 MB
+    Average Memory :                             7553.40 MB
+    Total Requested Memory :                     99990.00 MB
+    Delta Memory :                               57074.00 MB
+    Max Swap :                                   -
+    Max Processes :                              101
+    Max Threads :                                102
+    Run time :                                   140 sec.
+    Turnaround time :                            883 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file </home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.145266179.1.txt> for stderr output of this job.
+

@@ -1,0 +1,176 @@
+Sender: LSF System <lsfadmin@nodecn309>
+Subject: Job 129949313[1]: <cmd[1-1]> in cluster <hpcf_research_cluster> Exited
+
+Job <cmd[1-1]> was submitted from host <nodecn201> by user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 11:48:04 2021.
+Job was executed on host(s) <10*nodecn309>, in queue <large_mem>, as user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 11:48:05 2021.
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Jul 13 11:48:05 2021.
+Terminated at Tue Jul 13 12:05:08 2021.
+Results reported at Tue Jul 13 12:05:08 2021.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_line_from_cmdfile /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   2471.75 sec.
+    Max Memory :                                 40299 MB
+    Average Memory :                             25729.19 MB
+    Total Requested Memory :                     69990.00 MB
+    Delta Memory :                               29691.00 MB
+    Max Swap :                                   -
+    Max Processes :                              129
+    Max Threads :                                130
+    Run time :                                   1022 sec.
+    Turnaround time :                            1024 sec.
+
+The output (if any) follows:
+
+starting worker pid=58654 on localhost:11110 at 11:51:44.642
+starting worker pid=58667 on localhost:11110 at 11:51:45.667
+starting worker pid=58735 on localhost:11110 at 11:51:46.693
+starting worker pid=59356 on localhost:11110 at 11:52:23.801
+starting worker pid=59411 on localhost:11110 at 11:52:24.810
+starting worker pid=59424 on localhost:11110 at 11:52:25.805
+starting worker pid=59439 on localhost:11110 at 11:52:26.818
+starting worker pid=59451 on localhost:11110 at 11:52:27.820
+starting worker pid=59464 on localhost:11110 at 11:52:28.811
+starting worker pid=66929 on localhost:11110 at 12:00:41.865
+starting worker pid=66942 on localhost:11110 at 12:00:42.882
+starting worker pid=67011 on localhost:11110 at 12:00:43.897
+starting worker pid=67024 on localhost:11110 at 12:00:44.901
+starting worker pid=67037 on localhost:11110 at 12:00:45.918
+starting worker pid=67051 on localhost:11110 at 12:00:46.922
+starting worker pid=67075 on localhost:11110 at 12:00:47.930
+starting worker pid=67144 on localhost:11110 at 12:00:48.946
+starting worker pid=67157 on localhost:11110 at 12:00:49.964
+starting worker pid=67170 on localhost:11110 at 12:00:50.979
+starting worker pid=67183 on localhost:11110 at 12:00:51.987
+starting worker pid=67205 on localhost:11110 at 12:00:52.991
+starting worker pid=67240 on localhost:11110 at 12:00:53.990
+starting worker pid=67294 on localhost:11110 at 12:00:55.002
+starting worker pid=67319 on localhost:11110 at 12:00:56.014
+starting worker pid=67336 on localhost:11110 at 12:00:57.010
+starting worker pid=67349 on localhost:11110 at 12:00:58.080
+starting worker pid=67361 on localhost:11110 at 12:00:59.081
+starting worker pid=67430 on localhost:11110 at 12:01:00.103
+starting worker pid=67443 on localhost:11110 at 12:01:01.107
+starting worker pid=67476 on localhost:11110 at 12:01:02.144
+starting worker pid=67489 on localhost:11110 at 12:01:03.149
+starting worker pid=67514 on localhost:11110 at 12:01:04.163
+starting worker pid=67579 on localhost:11110 at 12:01:05.169
+starting worker pid=67596 on localhost:11110 at 12:01:06.176
+starting worker pid=67610 on localhost:11110 at 12:01:07.163
+starting worker pid=67623 on localhost:11110 at 12:01:08.165
+starting worker pid=67644 on localhost:11110 at 12:01:09.171
+starting worker pid=67657 on localhost:11110 at 12:01:10.182
+starting worker pid=67725 on localhost:11110 at 12:01:11.192
+starting worker pid=67752 on localhost:11110 at 12:01:12.212
+starting worker pid=67765 on localhost:11110 at 12:01:13.232
+starting worker pid=67778 on localhost:11110 at 12:01:14.259
+starting worker pid=67791 on localhost:11110 at 12:01:15.257
+starting worker pid=67861 on localhost:11110 at 12:01:16.268
+starting worker pid=67875 on localhost:11110 at 12:01:17.277
+starting worker pid=67888 on localhost:11110 at 12:01:18.298
+starting worker pid=67901 on localhost:11110 at 12:01:19.302
+starting worker pid=67926 on localhost:11110 at 12:01:20.320
+starting worker pid=67991 on localhost:11110 at 12:01:21.320
+starting worker pid=68007 on localhost:11110 at 12:01:22.373
+starting worker pid=68030 on localhost:11110 at 12:01:23.375
+starting worker pid=68050 on localhost:11110 at 12:01:24.407
+starting worker pid=68063 on localhost:11110 at 12:01:25.413
+starting worker pid=68076 on localhost:11110 at 12:01:26.426
+starting worker pid=68159 on localhost:11110 at 12:01:27.429
+starting worker pid=68173 on localhost:11110 at 12:01:28.422
+starting worker pid=68186 on localhost:11110 at 12:01:29.444
+starting worker pid=68199 on localhost:11110 at 12:01:30.446
+starting worker pid=68218 on localhost:11110 at 12:01:31.477
+starting worker pid=68286 on localhost:11110 at 12:01:32.471
+starting worker pid=68299 on localhost:11110 at 12:01:33.531
+starting worker pid=68312 on localhost:11110 at 12:01:34.529
+starting worker pid=68337 on localhost:11110 at 12:01:35.604
+starting worker pid=68351 on localhost:11110 at 12:01:36.597
+starting worker pid=68418 on localhost:11110 at 12:01:37.640
+starting worker pid=68440 on localhost:11110 at 12:01:38.631
+starting worker pid=68453 on localhost:11110 at 12:01:39.660
+starting worker pid=68466 on localhost:11110 at 12:01:40.663
+starting worker pid=68482 on localhost:11110 at 12:01:41.672
+starting worker pid=68495 on localhost:11110 at 12:01:42.681
+starting worker pid=68580 on localhost:11110 at 12:01:43.682
+starting worker pid=68593 on localhost:11110 at 12:01:44.702
+starting worker pid=68606 on localhost:11110 at 12:01:45.706
+starting worker pid=68619 on localhost:11110 at 12:01:46.782
+starting worker pid=68633 on localhost:11110 at 12:01:47.803
+starting worker pid=68703 on localhost:11110 at 12:01:48.832
+starting worker pid=68715 on localhost:11110 at 12:01:49.838
+starting worker pid=68728 on localhost:11110 at 12:01:50.852
+starting worker pid=68753 on localhost:11110 at 12:01:51.876
+starting worker pid=68776 on localhost:11110 at 12:01:52.882
+starting worker pid=68855 on localhost:11110 at 12:01:53.917
+starting worker pid=68871 on localhost:11110 at 12:01:54.908
+starting worker pid=68884 on localhost:11110 at 12:01:55.946
+starting worker pid=68899 on localhost:11110 at 12:01:56.956
+starting worker pid=68913 on localhost:11110 at 12:01:57.960
+starting worker pid=68926 on localhost:11110 at 12:01:58.988
+starting worker pid=69006 on localhost:11110 at 12:02:00.003
+starting worker pid=69125 on localhost:11110 at 12:02:01.012
+starting worker pid=69138 on localhost:11110 at 12:02:02.035
+starting worker pid=69151 on localhost:11110 at 12:02:03.047
+starting worker pid=69164 on localhost:11110 at 12:02:04.059
+starting worker pid=69232 on localhost:11110 at 12:02:05.083
+starting worker pid=69246 on localhost:11110 at 12:02:06.093
+starting worker pid=69260 on localhost:11110 at 12:02:07.122
+starting worker pid=69286 on localhost:11110 at 12:02:08.133
+starting worker pid=69306 on localhost:11110 at 12:02:09.142
+starting worker pid=69372 on localhost:11110 at 12:02:10.157
+starting worker pid=69387 on localhost:11110 at 12:02:11.164
+starting worker pid=69402 on localhost:11110 at 12:02:12.203
+starting worker pid=69415 on localhost:11110 at 12:02:13.209
+starting worker pid=69428 on localhost:11110 at 12:02:14.224
+starting worker pid=69446 on localhost:11110 at 12:02:15.241
+starting worker pid=69540 on localhost:11110 at 12:02:16.272
+starting worker pid=69554 on localhost:11110 at 12:02:17.268
+starting worker pid=69568 on localhost:11110 at 12:02:18.267
+starting worker pid=69587 on localhost:11110 at 12:02:19.273
+starting worker pid=69603 on localhost:11110 at 12:02:20.279
+starting worker pid=69676 on localhost:11110 at 12:02:21.301
+starting worker pid=69688 on localhost:11110 at 12:02:22.311
+starting worker pid=69712 on localhost:11110 at 12:02:23.326
+starting worker pid=69745 on localhost:11110 at 12:02:24.333
+starting worker pid=69758 on localhost:11110 at 12:02:25.336
+starting worker pid=69822 on localhost:11110 at 12:02:26.350
+starting worker pid=69843 on localhost:11110 at 12:02:27.353
+starting worker pid=69856 on localhost:11110 at 12:02:28.353
+starting worker pid=69869 on localhost:11110 at 12:02:29.377
+starting worker pid=69882 on localhost:11110 at 12:02:30.418
+starting worker pid=69895 on localhost:11110 at 12:02:31.418
+starting worker pid=69976 on localhost:11110 at 12:02:32.419
+starting worker pid=69988 on localhost:11110 at 12:02:33.433
+starting worker pid=70001 on localhost:11110 at 12:02:34.446
+starting worker pid=70014 on localhost:11110 at 12:02:35.446
+starting worker pid=70028 on localhost:11110 at 12:02:36.459
+starting worker pid=70099 on localhost:11110 at 12:02:37.452
+starting worker pid=70119 on localhost:11110 at 12:02:38.475
+starting worker pid=70131 on localhost:11110 at 12:02:39.476
+starting worker pid=70156 on localhost:11110 at 12:02:40.486
+starting worker pid=70169 on localhost:11110 at 12:02:41.513
+starting worker pid=70227 on localhost:11110 at 12:02:42.522
+starting worker pid=70266 on localhost:11110 at 12:02:43.530
+starting worker pid=70278 on localhost:11110 at 12:02:44.538
+starting worker pid=70291 on localhost:11110 at 12:02:45.545
+starting worker pid=70305 on localhost:11110 at 12:02:46.548
+starting worker pid=70333 on localhost:11110 at 12:02:47.591
+starting worker pid=70406 on localhost:11110 at 12:02:48.585
+
+
+PS:
+
+Read file </home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.129949313.1.txt> for stderr output of this job.
+

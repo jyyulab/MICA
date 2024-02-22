@@ -1,0 +1,176 @@
+Sender: LSF System <lsfadmin@nodelmr14>
+Subject: Job 129955182[1]: <cmd[1-1]> in cluster <hpcf_research_cluster> Exited
+
+Job <cmd[1-1]> was submitted from host <nodecn201> by user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 12:31:30 2021.
+Job was executed on host(s) <20*nodelmr14>, in queue <large_mem>, as user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 12:31:31 2021.
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Jul 13 12:31:31 2021.
+Terminated at Tue Jul 13 12:51:57 2021.
+Results reported at Tue Jul 13 12:51:57 2021.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_line_from_cmdfile /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   3354.41 sec.
+    Max Memory :                                 40301 MB
+    Average Memory :                             27546.99 MB
+    Total Requested Memory :                     89980.00 MB
+    Delta Memory :                               49679.00 MB
+    Max Swap :                                   -
+    Max Processes :                              127
+    Max Threads :                                128
+    Run time :                                   1226 sec.
+    Turnaround time :                            1227 sec.
+
+The output (if any) follows:
+
+starting worker pid=142222 on localhost:11937 at 12:35:32.650
+starting worker pid=142236 on localhost:11937 at 12:35:33.509
+starting worker pid=142292 on localhost:11937 at 12:35:34.387
+starting worker pid=142969 on localhost:11937 at 12:36:14.680
+starting worker pid=142982 on localhost:11937 at 12:36:15.335
+starting worker pid=143010 on localhost:11937 at 12:36:16.194
+starting worker pid=143076 on localhost:11937 at 12:36:16.860
+starting worker pid=143089 on localhost:11937 at 12:36:17.486
+starting worker pid=143102 on localhost:11937 at 12:36:18.120
+starting worker pid=154034 on localhost:11937 at 12:48:01.800
+starting worker pid=154046 on localhost:11937 at 12:48:02.687
+starting worker pid=154074 on localhost:11937 at 12:48:03.568
+starting worker pid=154128 on localhost:11937 at 12:48:04.236
+starting worker pid=154140 on localhost:11937 at 12:48:04.867
+starting worker pid=154153 on localhost:11937 at 12:48:05.730
+starting worker pid=154166 on localhost:11937 at 12:48:06.614
+starting worker pid=154178 on localhost:11937 at 12:48:07.279
+starting worker pid=154192 on localhost:11937 at 12:48:08.039
+starting worker pid=154257 on localhost:11937 at 12:48:08.903
+starting worker pid=154286 on localhost:11937 at 12:48:09.668
+starting worker pid=154306 on localhost:11937 at 12:48:10.553
+starting worker pid=154318 on localhost:11937 at 12:48:11.223
+starting worker pid=154331 on localhost:11937 at 12:48:11.845
+starting worker pid=154354 on localhost:11937 at 12:48:12.712
+starting worker pid=154367 on localhost:11937 at 12:48:13.381
+starting worker pid=154437 on localhost:11937 at 12:48:14.249
+starting worker pid=154451 on localhost:11937 at 12:48:15.139
+starting worker pid=154466 on localhost:11937 at 12:48:15.945
+starting worker pid=154480 on localhost:11937 at 12:48:16.807
+starting worker pid=154505 on localhost:11937 at 12:48:17.472
+starting worker pid=154519 on localhost:11937 at 12:48:18.340
+starting worker pid=154538 on localhost:11937 at 12:48:19.229
+starting worker pid=154601 on localhost:11937 at 12:48:19.900
+starting worker pid=154615 on localhost:11937 at 12:48:20.769
+starting worker pid=154629 on localhost:11937 at 12:48:21.440
+starting worker pid=154642 on localhost:11937 at 12:48:22.310
+starting worker pid=154656 on localhost:11937 at 12:48:23.201
+starting worker pid=154670 on localhost:11937 at 12:48:24.081
+starting worker pid=154739 on localhost:11937 at 12:48:24.760
+starting worker pid=154771 on localhost:11937 at 12:48:25.636
+starting worker pid=154784 on localhost:11937 at 12:48:26.299
+starting worker pid=154798 on localhost:11937 at 12:48:27.174
+starting worker pid=154811 on localhost:11937 at 12:48:28.058
+starting worker pid=154825 on localhost:11937 at 12:48:28.946
+starting worker pid=154891 on localhost:11937 at 12:48:29.833
+starting worker pid=154909 on localhost:11937 at 12:48:30.688
+starting worker pid=154923 on localhost:11937 at 12:48:31.352
+starting worker pid=154937 on localhost:11937 at 12:48:32.217
+starting worker pid=154950 on localhost:11937 at 12:48:33.097
+starting worker pid=154975 on localhost:11937 at 12:48:33.775
+starting worker pid=154989 on localhost:11937 at 12:48:34.654
+starting worker pid=155058 on localhost:11937 at 12:48:35.328
+starting worker pid=155072 on localhost:11937 at 12:48:35.973
+starting worker pid=155084 on localhost:11937 at 12:48:36.844
+starting worker pid=155098 on localhost:11937 at 12:48:37.739
+starting worker pid=155113 on localhost:11937 at 12:48:38.410
+starting worker pid=155126 on localhost:11937 at 12:48:39.284
+starting worker pid=155139 on localhost:11937 at 12:48:40.081
+starting worker pid=155215 on localhost:11937 at 12:48:40.736
+starting worker pid=155240 on localhost:11937 at 12:48:41.393
+starting worker pid=155256 on localhost:11937 at 12:48:42.047
+starting worker pid=155276 on localhost:11937 at 12:48:42.691
+starting worker pid=155290 on localhost:11937 at 12:48:43.561
+starting worker pid=155303 on localhost:11937 at 12:48:44.450
+starting worker pid=155319 on localhost:11937 at 12:48:45.333
+starting worker pid=155389 on localhost:11937 at 12:48:46.009
+starting worker pid=155403 on localhost:11937 at 12:48:46.886
+starting worker pid=155416 on localhost:11937 at 12:48:47.572
+starting worker pid=155431 on localhost:11937 at 12:48:48.444
+starting worker pid=155443 on localhost:11937 at 12:48:49.316
+starting worker pid=155470 on localhost:11937 at 12:48:50.208
+starting worker pid=155540 on localhost:11937 at 12:48:51.106
+starting worker pid=155553 on localhost:11937 at 12:48:51.784
+starting worker pid=155567 on localhost:11937 at 12:48:52.523
+starting worker pid=155581 on localhost:11937 at 12:48:53.417
+starting worker pid=155593 on localhost:11937 at 12:48:54.092
+starting worker pid=155607 on localhost:11937 at 12:48:54.928
+starting worker pid=155627 on localhost:11937 at 12:48:55.715
+starting worker pid=155695 on localhost:11937 at 12:48:56.348
+starting worker pid=155708 on localhost:11937 at 12:48:56.983
+starting worker pid=155732 on localhost:11937 at 12:48:57.619
+starting worker pid=155746 on localhost:11937 at 12:48:58.255
+starting worker pid=155758 on localhost:11937 at 12:48:58.890
+starting worker pid=155771 on localhost:11937 at 12:48:59.526
+starting worker pid=155783 on localhost:11937 at 12:49:00.159
+starting worker pid=155798 on localhost:11937 at 12:49:00.790
+starting worker pid=155866 on localhost:11937 at 12:49:01.552
+starting worker pid=155879 on localhost:11937 at 12:49:02.177
+starting worker pid=155891 on localhost:11937 at 12:49:03.039
+starting worker pid=155904 on localhost:11937 at 12:49:03.924
+starting worker pid=155917 on localhost:11937 at 12:49:04.583
+starting worker pid=155929 on localhost:11937 at 12:49:05.215
+starting worker pid=155954 on localhost:11937 at 12:49:05.850
+starting worker pid=156019 on localhost:11937 at 12:49:06.481
+starting worker pid=156035 on localhost:11937 at 12:49:07.342
+starting worker pid=156049 on localhost:11937 at 12:49:08.223
+starting worker pid=156061 on localhost:11937 at 12:49:09.106
+starting worker pid=156074 on localhost:11937 at 12:49:09.986
+starting worker pid=156094 on localhost:11937 at 12:49:10.867
+starting worker pid=156159 on localhost:11937 at 12:49:11.747
+starting worker pid=156244 on localhost:11937 at 12:49:12.622
+starting worker pid=156257 on localhost:11937 at 12:49:13.280
+starting worker pid=156282 on localhost:11937 at 12:49:14.147
+starting worker pid=156294 on localhost:11937 at 12:49:14.805
+starting worker pid=156309 on localhost:11937 at 12:49:15.442
+starting worker pid=156321 on localhost:11937 at 12:49:16.070
+starting worker pid=156334 on localhost:11937 at 12:49:16.692
+starting worker pid=156403 on localhost:11937 at 12:49:17.331
+starting worker pid=156416 on localhost:11937 at 12:49:17.972
+starting worker pid=156429 on localhost:11937 at 12:49:18.616
+starting worker pid=156443 on localhost:11937 at 12:49:19.253
+starting worker pid=156455 on localhost:11937 at 12:49:20.111
+starting worker pid=156472 on localhost:11937 at 12:49:21.000
+starting worker pid=156499 on localhost:11937 at 12:49:21.883
+starting worker pid=156568 on localhost:11937 at 12:49:22.736
+starting worker pid=156582 on localhost:11937 at 12:49:23.626
+starting worker pid=156596 on localhost:11937 at 12:49:24.517
+starting worker pid=156616 on localhost:11937 at 12:49:25.366
+starting worker pid=156629 on localhost:11937 at 12:49:26.253
+starting worker pid=156642 on localhost:11937 at 12:49:27.132
+starting worker pid=156713 on localhost:11937 at 12:49:28.002
+starting worker pid=156726 on localhost:11937 at 12:49:28.672
+starting worker pid=156751 on localhost:11937 at 12:49:29.545
+starting worker pid=156767 on localhost:11937 at 12:49:30.409
+starting worker pid=156779 on localhost:11937 at 12:49:31.076
+starting worker pid=156793 on localhost:11937 at 12:49:31.706
+starting worker pid=156847 on localhost:11937 at 12:49:32.578
+starting worker pid=156875 on localhost:11937 at 12:49:33.248
+starting worker pid=156888 on localhost:11937 at 12:49:34.119
+starting worker pid=156901 on localhost:11937 at 12:49:35.011
+starting worker pid=156914 on localhost:11937 at 12:49:35.674
+starting worker pid=156927 on localhost:11937 at 12:49:36.538
+starting worker pid=156940 on localhost:11937 at 12:49:37.424
+starting worker pid=157021 on localhost:11937 at 12:49:38.094
+starting worker pid=157034 on localhost:11937 at 12:49:38.725
+
+
+PS:
+
+Read file </home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.129955182.1.txt> for stderr output of this job.
+

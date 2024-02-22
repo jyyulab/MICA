@@ -1,0 +1,178 @@
+starting worker pid=19956 on localhost:11317 at 01:37:02.483
+starting worker pid=19969 on localhost:11317 at 01:37:02.893
+starting worker pid=19981 on localhost:11317 at 01:37:03.306
+starting worker pid=20335 on localhost:11317 at 01:37:37.985
+starting worker pid=20347 on localhost:11317 at 01:37:38.402
+starting worker pid=20360 on localhost:11317 at 01:37:38.816
+starting worker pid=20372 on localhost:11317 at 01:37:39.230
+starting worker pid=20384 on localhost:11317 at 01:37:39.644
+starting worker pid=20397 on localhost:11317 at 01:37:40.056
+starting worker pid=28738 on localhost:11317 at 01:50:49.495
+starting worker pid=28750 on localhost:11317 at 01:50:49.908
+starting worker pid=28763 on localhost:11317 at 01:50:50.323
+starting worker pid=28775 on localhost:11317 at 01:50:50.734
+starting worker pid=28787 on localhost:11317 at 01:50:51.145
+starting worker pid=28800 on localhost:11317 at 01:50:51.556
+starting worker pid=28812 on localhost:11317 at 01:50:51.968
+starting worker pid=28837 on localhost:11317 at 01:50:52.376
+starting worker pid=28860 on localhost:11317 at 01:50:52.787
+starting worker pid=28874 on localhost:11317 at 01:50:53.205
+starting worker pid=28886 on localhost:11317 at 01:50:53.621
+starting worker pid=28900 on localhost:11317 at 01:50:54.036
+starting worker pid=28912 on localhost:11317 at 01:50:54.450
+starting worker pid=28936 on localhost:11317 at 01:50:54.867
+starting worker pid=28949 on localhost:11317 at 01:50:55.283
+starting worker pid=28963 on localhost:11317 at 01:50:55.700
+starting worker pid=28981 on localhost:11317 at 01:50:56.117
+starting worker pid=28994 on localhost:11317 at 01:50:56.533
+starting worker pid=29013 on localhost:11317 at 01:50:56.949
+starting worker pid=29026 on localhost:11317 at 01:50:57.364
+starting worker pid=29063 on localhost:11317 at 01:50:57.776
+starting worker pid=29088 on localhost:11317 at 01:50:58.191
+starting worker pid=29100 on localhost:11317 at 01:50:58.604
+starting worker pid=29113 on localhost:11317 at 01:50:59.017
+starting worker pid=29125 on localhost:11317 at 01:50:59.429
+starting worker pid=29137 on localhost:11317 at 01:50:59.845
+starting worker pid=29150 on localhost:11317 at 01:51:00.260
+starting worker pid=29162 on localhost:11317 at 01:51:00.678
+starting worker pid=29174 on localhost:11317 at 01:51:01.091
+starting worker pid=29187 on localhost:11317 at 01:51:01.505
+starting worker pid=29199 on localhost:11317 at 01:51:01.918
+starting worker pid=29211 on localhost:11317 at 01:51:02.332
+starting worker pid=29259 on localhost:11317 at 01:51:02.748
+starting worker pid=29271 on localhost:11317 at 01:51:03.160
+starting worker pid=29283 on localhost:11317 at 01:51:03.574
+starting worker pid=29296 on localhost:11317 at 01:51:03.985
+starting worker pid=29308 on localhost:11317 at 01:51:04.393
+starting worker pid=29331 on localhost:11317 at 01:51:04.806
+starting worker pid=29344 on localhost:11317 at 01:51:05.218
+starting worker pid=29356 on localhost:11317 at 01:51:05.632
+starting worker pid=29368 on localhost:11317 at 01:51:06.045
+starting worker pid=29381 on localhost:11317 at 01:51:06.459
+starting worker pid=29393 on localhost:11317 at 01:51:06.874
+starting worker pid=29406 on localhost:11317 at 01:51:07.289
+starting worker pid=29442 on localhost:11317 at 01:51:07.705
+starting worker pid=29456 on localhost:11317 at 01:51:08.119
+starting worker pid=29468 on localhost:11317 at 01:51:08.532
+starting worker pid=29487 on localhost:11317 at 01:51:08.951
+starting worker pid=29499 on localhost:11317 at 01:51:09.368
+starting worker pid=29519 on localhost:11317 at 01:51:09.785
+starting worker pid=29532 on localhost:11317 at 01:51:10.198
+starting worker pid=29559 on localhost:11317 at 01:51:10.614
+starting worker pid=29571 on localhost:11317 at 01:51:11.031
+starting worker pid=29584 on localhost:11317 at 01:51:11.444
+starting worker pid=29603 on localhost:11317 at 01:51:11.861
+starting worker pid=29615 on localhost:11317 at 01:51:12.272
+starting worker pid=29658 on localhost:11317 at 01:51:12.690
+starting worker pid=29687 on localhost:11317 at 01:51:13.105
+starting worker pid=29699 on localhost:11317 at 01:51:13.518
+starting worker pid=29712 on localhost:11317 at 01:51:13.929
+starting worker pid=29724 on localhost:11317 at 01:51:14.337
+starting worker pid=29736 on localhost:11317 at 01:51:14.751
+starting worker pid=29749 on localhost:11317 at 01:51:15.163
+starting worker pid=29761 on localhost:11317 at 01:51:15.573
+starting worker pid=29773 on localhost:11317 at 01:51:15.989
+starting worker pid=29786 on localhost:11317 at 01:51:16.407
+starting worker pid=29798 on localhost:11317 at 01:51:16.823
+starting worker pid=29812 on localhost:11317 at 01:51:17.235
+starting worker pid=29825 on localhost:11317 at 01:51:17.651
+starting worker pid=29861 on localhost:11317 at 01:51:18.067
+starting worker pid=29873 on localhost:11317 at 01:51:18.486
+starting worker pid=29898 on localhost:11317 at 01:51:18.905
+starting worker pid=29910 on localhost:11317 at 01:51:19.323
+starting worker pid=29923 on localhost:11317 at 01:51:19.742
+starting worker pid=29936 on localhost:11317 at 01:51:20.155
+starting worker pid=29948 on localhost:11317 at 01:51:20.569
+starting worker pid=29960 on localhost:11317 at 01:51:20.987
+starting worker pid=29973 on localhost:11317 at 01:51:21.407
+starting worker pid=29985 on localhost:11317 at 01:51:21.823
+starting worker pid=29997 on localhost:11317 at 01:51:22.239
+starting worker pid=30010 on localhost:11317 at 01:51:22.660
+starting worker pid=30047 on localhost:11317 at 01:51:23.079
+starting worker pid=30059 on localhost:11317 at 01:51:23.497
+starting worker pid=30072 on localhost:11317 at 01:51:23.916
+starting worker pid=30084 on localhost:11317 at 01:51:24.332
+starting worker pid=30096 on localhost:11317 at 01:51:24.747
+starting worker pid=30109 on localhost:11317 at 01:51:25.165
+starting worker pid=30121 on localhost:11317 at 01:51:25.575
+starting worker pid=30133 on localhost:11317 at 01:51:25.993
+starting worker pid=30146 on localhost:11317 at 01:51:26.410
+starting worker pid=30177 on localhost:11317 at 01:51:26.823
+starting worker pid=30190 on localhost:11317 at 01:51:27.241
+starting worker pid=30203 on localhost:11317 at 01:51:27.660
+starting worker pid=30238 on localhost:11317 at 01:51:28.079
+starting worker pid=30250 on localhost:11317 at 01:51:28.498
+starting worker pid=30263 on localhost:11317 at 01:51:28.916
+starting worker pid=30275 on localhost:11317 at 01:51:29.332
+starting worker pid=30287 on localhost:11317 at 01:51:29.748
+starting worker pid=30300 on localhost:11317 at 01:51:30.159
+starting worker pid=30312 on localhost:11317 at 01:51:30.578
+starting worker pid=30324 on localhost:11317 at 01:51:30.990
+starting worker pid=30337 on localhost:11317 at 01:51:31.408
+starting worker pid=30349 on localhost:11317 at 01:51:31.826
+starting worker pid=30361 on localhost:11317 at 01:51:32.248
+starting worker pid=30374 on localhost:11317 at 01:51:32.665
+starting worker pid=30409 on localhost:11317 at 01:51:33.078
+starting worker pid=30421 on localhost:11317 at 01:51:33.499
+starting worker pid=30434 on localhost:11317 at 01:51:33.918
+starting worker pid=30447 on localhost:11317 at 01:51:34.334
+starting worker pid=30479 on localhost:11317 at 01:51:34.751
+starting worker pid=30494 on localhost:11317 at 01:51:35.165
+starting worker pid=30512 on localhost:11317 at 01:51:35.578
+starting worker pid=30524 on localhost:11317 at 01:51:35.991
+starting worker pid=30537 on localhost:11317 at 01:51:36.407
+starting worker pid=30549 on localhost:11317 at 01:51:36.826
+starting worker pid=30562 on localhost:11317 at 01:51:37.244
+starting worker pid=30575 on localhost:11317 at 01:51:37.658
+starting worker pid=30612 on localhost:11317 at 01:51:38.074
+starting worker pid=30624 on localhost:11317 at 01:51:38.493
+starting worker pid=30643 on localhost:11317 at 01:51:38.909
+starting worker pid=30655 on localhost:11317 at 01:51:39.321
+starting worker pid=30667 on localhost:11317 at 01:51:39.738
+starting worker pid=30680 on localhost:11317 at 01:51:40.152
+starting worker pid=30692 on localhost:11317 at 01:51:40.563
+starting worker pid=30704 on localhost:11317 at 01:51:40.977
+starting worker pid=30717 on localhost:11317 at 01:51:41.400
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nodesd01>
+Subject: Job 145930138[1]: <cmd[1-1]> in cluster <hpcf_research_cluster> Exited
+
+Job <cmd[1-1]> was submitted from host <nodecn201> by user <lding> in cluster <hpcf_research_cluster> at Fri Dec 10 01:32:50 2021
+Job was executed on host(s) <12*nodesd01>, in queue <superdome>, as user <lding> in cluster <hpcf_research_cluster> at Fri Dec 10 01:33:30 2021
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Fri Dec 10 01:33:30 2021
+Terminated at Fri Dec 10 01:53:59 2021
+Results reported at Fri Dec 10 01:53:59 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_line_from_cmdfile /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   3317.00 sec.
+    Max Memory :                                 40320 MB
+    Average Memory :                             28807.74 MB
+    Total Requested Memory :                     499992.00 MB
+    Delta Memory :                               459672.00 MB
+    Max Swap :                                   -
+    Max Processes :                              126
+    Max Threads :                                127
+    Run time :                                   1229 sec.
+    Turnaround time :                            1269 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file </home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.145930138.1.txt> for stderr output of this job.
+

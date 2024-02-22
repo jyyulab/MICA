@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/research_jude/rgs01_jude/resgen/prod/tartan/runs/code/code-phoenix-62CYe82L/output/app/phoenix/bin/_phoenix_track_and_resub.py", line 268, in <module>
+    main()
+  File "/research_jude/rgs01_jude/resgen/prod/tartan/runs/code/code-phoenix-62CYe82L/output/app/phoenix/bin/_phoenix_track_and_resub.py", line 263, in main
+    time.sleep(sleeptime)
+KeyboardInterrupt

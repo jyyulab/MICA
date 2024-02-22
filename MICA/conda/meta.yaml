@@ -1,0 +1,26 @@
+{% set version = "0.2.1" %}
+
+package:
+  name: "mica"
+  version: {{ version }}
+
+source:
+  git_rev: {{ version }}
+  git_url: https://github.com/jyyulab/MICA.git
+
+requirements:
+  host:
+    - python
+    - setuptools
+  build:
+    - python
+  run:
+    - python
+    - pynndescent
+
+about:
+  home: https://github.com/jyyulab/MICA
+  license: Apache License 2.0
+  license_familY: Apache
+  license_file: LICENSE
+  summary: "Mutual Information-based Non-linear Clustering Analysis"

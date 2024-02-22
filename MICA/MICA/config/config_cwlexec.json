@@ -1,0 +1,23 @@
+{
+    "queue": "superdome",
+    "rerunnable": true,
+    "project": "MICA_MDS",
+    "steps": {
+        "prep": {
+            "res_req": "rusage[mem=16000MB]"
+        },
+        "calc_pairwise_MI": {
+            "res_req": "rusage[mem=2000MB]"
+        },
+        "mergeAndnorm": {
+            "res_req": "rusage[mem=80000MB]"
+        },
+        "dimension_reduce": {
+            "res_req": "rusage[mem=80000MB]"
+        },
+        "clustering": {
+            "processors": "10",
+            "res_req": "span[ptile=10] rusage[mem=5000MB]"
+        }
+    }
+}
