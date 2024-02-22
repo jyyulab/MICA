@@ -3,10 +3,17 @@
 Step 1:
 
 download MICA from Jiayu branch
+```bash
+module load git
+git clone -b mica_hnsw_test https://github.com/jyyulab/MICA.git
+```
 
 Step 2:
 
 unzip file
+```bash
+unzip MICA-mica_hnsw_test
+```
 
 Step 3:
 
