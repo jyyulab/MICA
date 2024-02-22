@@ -13,6 +13,7 @@ Step 2:
 unzip file
 ```bash
 unzip MICA-mica_hnsw_test
+cd MICA-mica_hnsw_test
 ```
 
 Step 3:
