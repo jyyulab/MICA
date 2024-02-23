@@ -12,7 +12,6 @@ Step 2:
 
 unzip file if needed
 ```bash
-# unzip MICA-mica_hnsw_test
 cd MICA
 ```
 
@@ -22,8 +21,7 @@ create conda env
 
 ```bash
 module load conda3
-conda create -n mica_hnsw python=3.7.6
-#press y if needed
+conda create -y -n mica_hnsw python=3.7.6
 source activate mica_hnsw
 ```
 
