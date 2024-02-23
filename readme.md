@@ -10,7 +10,7 @@ git clone -b mica_hnsw_test https://github.com/jyyulab/MICA.git
 
 Step 2:
 
-unzip file if needed
+change current directory
 ```bash
 cd MICA
 ```
@@ -38,7 +38,7 @@ python -m pip install . numpy==1.20.1
 To check hnswlib:
 
 ```bash
-Python
+python
 ```
 
 ```python
