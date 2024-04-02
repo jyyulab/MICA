@@ -1,0 +1,62 @@
+Sender: LSF System <lsfadmin@nodecn201>
+Subject: Job 129962975: <tracker_cmd> in cluster <hpcf_research_cluster> Exited
+
+Job <tracker_cmd> was submitted from host <noderome189> by user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 13:30:39 2021.
+Job was executed on host(s) <nodecn201>, in queue <compbio_tracker>, as user <lding> in cluster <hpcf_research_cluster> at Tue Jul 13 13:30:40 2021.
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Jul 13 13:30:40 2021.
+Terminated at Tue Jul 13 14:13:02 2021.
+Results reported at Tue Jul 13 14:13:02 2021.
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_LSF -P PBMC_20k  -J cmd -q large_mem -n 10 -M 99999 -o /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/out.%J.%I.txt -e /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.%J.%I.txt -i /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh -update 181
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   5.91 sec.
+    Max Memory :                                 19 MB
+    Average Memory :                             15.02 MB
+    Total Requested Memory :                     1000.00 MB
+    Delta Memory :                               981.00 MB
+    Max Swap :                                   -
+    Max Processes :                              10
+    Max Threads :                                11
+    Run time :                                   2541 sec.
+    Turnaround time :                            2543 sec.
+
+The output (if any) follows:
+
+[INFO] Splitting jobids 129962976
+[INFO] array_jids:  ['129962976']
+[INFO] Reading bjobs
+[INFO] Reading jobs from bjobs
+[INFO] Number of jobs found:  1
+[INFO] Sleeping for 181 seconds between each update
+[UPDATE][129962976] 2021-07-13 13:30:43 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][129962976] 2021-07-13 13:33:45 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:36:46 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:39:47 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:42:49 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:45:50 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:48:51 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:51:53 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:54:54 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 13:57:55 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 14:00:57 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 14:03:58 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[UPDATE][129962976] 2021-07-13 14:06:59 nPEND nRUN nDONE nREQUEUE nFAIL =     0     1     0     0     0
+[INFO] Job 129962976.1 has exited ...
+[UPDATE][129962976] 2021-07-13 14:10:00 nPEND nRUN nDONE nREQUEUE nFAIL =     0     0     0     0     1
+
+
+PS:
+
+Read file <tracker_cmd.2021.07.13.err> for stderr output of this job.
+

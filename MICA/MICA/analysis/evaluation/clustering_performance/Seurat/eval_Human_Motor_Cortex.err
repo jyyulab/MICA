@@ -1,0 +1,102 @@
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘data.table’
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, first, last
+
+pdfCluster 1.0-3
+
+Attaching package: ‘pdfCluster’
+
+The following object is masked from ‘package:dplyr’:
+
+    groups
+
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Calculating gene variances
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Calculating feature variances of standardized and clipped values
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Centering and scaling data matrix
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  18%  |                                                                              |===============                                                       |  21%  |                                                                              |=================                                                     |  24%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |=========================                                             |  36%  |                                                                              |============================                                          |  39%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  45%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |======================================                                |  55%  |                                                                              |========================================                              |  58%  |                                                                              |==========================================                            |  61%  |                                                                              |=============================================                         |  64%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |=====================================================                 |  76%  |                                                                              |=======================================================               |  79%  |                                                                              |=========================================================             |  82%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+PC_ 1 
+Positive:  ZNF536, GAD1, ERBB4, SLC6A1, QKI, DNER, RBMS3, NXPH1, GAD2, MAF 
+	   PTPRM, TIAM1, DOCK10, KIAA1211, DGKD, GRIK1, RAB3IP, GRIP1, SPOCK3, GRIP2 
+	   ANK1, MTUS1, DLX6.AS1, SOX6, ANO4, IGF1, SOX2.OT, ZNF385D, NHS, ANKRD55 
+Negative:  SV2B, SATB2, CADPS2, LDB2, ARPP21, CABP1, KIAA1211L, MLIP, ANO3, ENC1 
+	   LOC284930, PART1, LOC105376407, NRGN, FAT3, CBLN2, GAP43, CA10, TESPA1, LOC105373893 
+	   NECAB1, SLC17A7, OLFM3, FAM19A1, PTPRK, PTK2B, MIR137HG, ZFPM2, HOMER1, LMO3 
+PC_ 2 
+Positive:  GRIP1, GRIK2, KCNC2, XKR4, PPARGC1A, RAB3C, ZNF385D, ELAVL2, CNTNAP5, ROBO2 
+	   KLF12, DAB1, PTPRM, GAD1, VWC2, NHS, NXPH1, TENM2, TENM1, CNTN5 
+	   SLC44A5, RBMS3, NCALD, ANK1, GAD2, PTCHD4, TENM3, ADCY8, KCNAB1, PITPNC1 
+Negative:  ST18, PLP1, ENPP2, MOBP, COL4A5, C10orf90, UGT8, DOCK5, BCAS1, MOG 
+	   RNF220, CERCAM, SLCO1A2, CARNS1, SEPP1, LOC101927967, TRIM59, SLC5A11, ABCA8, SHROOM4 
+	   TMEM144, CTNNA3, CLDN11, PTGDS, KCNH8, FOLH1, LINC00639, FAM107B, LINC00609, SCD 
+PC_ 3 
+Positive:  FOXP2, RXFP1, CHN2, CPNE4, CAMK2D, HS3ST2, DPY19L1, SEMA3E, ARSJ, LOC105377703 
+	   LOC102546299, TOX, CLSTN2, PID1, COL11A1, KIAA1456, IL1RAPL2, PDZRN4, LRMP, LOC105374971 
+	   PHLDB2, ETV1, ABCC9, TSHZ2, COL12A1, LOC105374973, TMEFF2, TLL1, LOC401134, FSTL5 
+Negative:  PDZD2, EPHA6, CUX2, RASGRF2, SYN3, LINC00507, GNAL, PPP4R4, DAB1, CBLN2 
+	   BMPR1B, PCDH8, SERPINE2, LOC101928278, LOC101928964, CDH9, GRM1, MOXD1, HS6ST3, ZNF804A 
+	   PVRL3, KIF13A, ART3, KCNMB2, LINC00508, TESPA1, PTPRO, SV2C, MAML2, LOC101928250 
+PC_ 4 
+Positive:  CNTNAP3, CNTNAP3B, MYO5B, SOX6, LOC101929680, ADAMTS17, PVALB, RNF144B, PPARGC1A, SAMD5 
+	   SLC9A9, POSTN, EPB41, SATB1.AS1, GRIK3, TMEM132C, GAS2, SULF1, FLJ41278, TAC1 
+	   DPP10, CNTNAP3P2, LRRC38, NEAT1, ETV6, SASH1, PLCL1, KIAA1217, FLT3, KIF26B 
+Negative:  ADARB2, NFIB, EGFR, PKP2, RGS12, KIT, CXCL14, PROX1, KCNT2, LINC00299 
+	   PRELID2, NYAP2, CNTNAP4, LINGO2, CHST11, TPD52L1, AP1S2, NKAIN3, PROX1.AS1, SCG2 
+	   ANKRD6, DLX6.AS1, LRRC3B, RERG, VIP, CNR1, EYA4, ATP11C, EGFEM1P, FBXL7 
+PC_ 5 
+Positive:  RORB, UNC5D, PTPRT, NTNG1, PLCH1, LOC105377703, IL1RAPL2, LOC102546299, LOC101927281, KCNH1 
+	   CCDC85A, VIPR2, COL5A2, CNTN5, KCNC2, UNC13C, LOC105377785, LOC105377788, COBLL1, CPNE4 
+	   PARM1, GRM7, PTPRK, LINC01202, LRRK1, PHLDB2, DCC, CEMIP, LOC101927745, PAPSS2 
+Negative:  KIAA1217, DLC1, SEMA3E, MEIS2, DGKG, TLE4, CDH11, HS3ST4, DCHS2, DOCK4 
+	   ZFHX3, MCTP2, TMEM2, LOC105376591, NELL1, NRP1, ASIC2, LOC101928095, PCSK5, LOC645544 
+	   GRIK3, SEMA3D, EPHA5, LOC105373592, PLCB4, NFIA, CTGF, SDK1, LOC105376103, SLIT3 
+Warning message:
+Removed 21000 rows containing missing values (geom_point). 
+Computing nearest neighbor graph
+Computing SNN
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
+To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
+This message will be shown once per session
+02:24:42 UMAP embedding parameters a = 0.9922 b = 1.112
+02:24:42 Read 76317 rows and found 10 numeric columns
+02:24:42 Using Annoy for neighbor search, n_neighbors = 30
+02:24:42 Building Annoy index with metric = cosine, n_trees = 50
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+02:24:49 Writing NN index file to temp file /tmp/147741698.tmpdir/RtmpeTOZFi/file247b430c98a09
+02:24:49 Searching Annoy index using 1 thread, search_k = 3000
+02:25:14 Annoy recall = 100%
+02:25:15 Commencing smooth kNN distance calibration using 1 thread
+02:25:18 Initializing from normalized Laplacian + noise
+02:26:08 Commencing optimization for 200 epochs, with 3163022 positive edges
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+02:27:31 Optimization finished
