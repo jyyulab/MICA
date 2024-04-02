@@ -6,7 +6,7 @@ download MICA from Jiayu branch
 
 ```bash
 module load git
-git clone -b mica_031 https://github.com/jyyulab/MICA.git
+git clone -b mica031 https://github.com/jyyulab/MICA.git
 ```
 
 Step 2:
