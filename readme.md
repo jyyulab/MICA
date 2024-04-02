@@ -33,7 +33,7 @@ install customized hnswlib first:
 
 ```bash
 cd hnswlib
-pip install setuptools anndata pandas scipy typing typing-extensions numba networkx
+pip install setuptools==65.6.3 anndata==0.8.0 pandas==1.2.3 scipy==1.7.3 typing==3.7.4.3 typing-extensions==4.7.1 numba==0.53.1 networkx==2.6.3
 python -m pip install . numpy==1.21.6
 ```
 
