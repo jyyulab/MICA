@@ -13,7 +13,7 @@ setup(
     author_email="liang.ding@stjude.org, hao.shi@stjude.org, jiayu.zhou@stjude.org",
     license="See LICENSE.md",
     install_requires=[
-        "hnswlib==0.8.1"
+        "hnswlib==0.8.1",
 #         "pandas==1.2.3",
         "numpy>=1.20.1,<=1.21.6",
 #         "scikit-learn==0.24.1",
