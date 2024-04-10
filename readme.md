@@ -6,7 +6,7 @@ download MICA from Jiayu branch
 
 ```bash
 module load git
-git clone -b mica031 https://github.com/jyyulab/MICA.git
+git clone -b bin_test https://github.com/jyyulab/MICA.git
 ```
 
 Step 2:
@@ -23,8 +23,8 @@ create conda env
 
 ```bash
 module load conda3
-conda create -y -n mica_031 python=3.7.6
-source activate mica_031
+conda create -y -n mica_bin_test python=3.7.6
+source activate mica_bin_test
 ```
 
 Step 4:
@@ -102,9 +102,14 @@ Also new in mica 0.3.1:
 
 The package requirement range has been broaden, and it will be more convenient in the future.
 
+New in mica bin test:
+for ge mode:
+-bs(--bin-size): set the bin size for MI calculation
+-bp(--bin-power): set the bin size by setting the index of the power for MI calculation(4 means **1/4)
+
 Example:
 
-mica ge -i /input_root -o /output_root -nnt ann -annm 8 -annef 1000
+mica ge -i /input_root -o /output_root -nnt ann -annm 8 -annef 1000 
 
 ## Common questions/issues:
 
