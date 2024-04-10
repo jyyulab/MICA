@@ -910,6 +910,9 @@ class BFIndex {
 PYBIND11_PLUGIN(hnswlib) {
         py::module m("hnswlib");
 
+        m.def("set_bin_size", &set_bin_size);
+        m.def("set_bin_power", &set_bin_power);
+
         py::class_<Index<float>>(m, "Index")
         .def(py::init(&Index<float>::createFromParams), py::arg("params"))
            /* WARNING: Index::createFromIndex is not thread-safe with Index::addItems */

@@ -85,7 +85,9 @@ def add_ge_arguments(parser):
     parser.add_argument('-nnt', '--nn-type', metavar='STR', required=False, default='knn', help='knn/ann')
     parser.add_argument('-annef', '--ann-ef', metavar='INT', required=False, default=400, help='ef value of hnsw', type=int)
     parser.add_argument('-annm', '--ann-m', metavar='INT', required=False, default=8, help='M value of hnsw', type=int)
-    
+    parser.add_argument('-bp', '--bin-power', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
+    parser.add_argument('-bs', '--bin-size', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
+
     parser.add_argument('-cldis', '--clustering-distance', metavar='STR', 
                         required=False, default='cosine', help='euclidean/cosine')
 
@@ -132,6 +134,8 @@ def mica_ge(args):
     if args.dr_modality == 'gene':
         if args.nn_type == 'ann':
             logging.info('Running HNSW ANN mode.')
+            hnswlib.set_bin_power(args.bin_power)
+            hnswlib.set_bin_size(args.bin_size)
             knn_indices, knn_dists = hnswlib_ann(frame.to_numpy(), 
                                                  ef=args.ann_ef,
                                                  M=args.ann_m,
@@ -146,6 +150,9 @@ def mica_ge(args):
                                                                     num_jobs=args.num_workers)
     elif args.dr_modality == 'cell':
         if args.nn_type == 'ann':
+            logging.info('Running HNSW ANN mode.')
+            hnswlib.set_bin_power(args.bin_power)
+            hnswlib.set_bin_size(args.bin_size)
             knn_indices, knn_dists = hnswlib_ann(frame.T.to_numpy(), 
                                                  ef=args.ann_ef,
                                                  M=args.ann_m,

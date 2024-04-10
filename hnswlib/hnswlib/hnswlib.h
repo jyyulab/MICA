@@ -114,6 +114,23 @@ AlgorithmInterface<dist_t>::searchKnnCloserFirst(const void* query_data, size_t 
 }
 }  // namespace hnswlib
 
+size_t bin_size_mi = 0;
+size_t bin_power_mi = 0;
+
+void set_bin_size(size_t bins){
+    bin_size_mi = bins;
+    if (bin_power_mi != 0){
+        bin_power_mi = 0;
+    }
+}
+
+void set_bin_power(size_t bins){
+    bin_power_mi = bins;
+    if (bin_size_mi != 0){
+        bin_size_mi = 0;
+    }
+}
+
 #include "space_l2.h"
 #include "space_ip.h"
 #include "stop_condition.h"

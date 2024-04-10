@@ -29,7 +29,18 @@ L2Sqr(const void *pVect1v, const void *pVect2v, const void *qty_ptr) {
     float *x = (float *) pVect1v;
     float *y = (float *) pVect2v;
     size_t qty = *((size_t *) qty_ptr);
-    size_t bins = static_cast<size_t>(pow(qty, 1.0 / 3.0));
+    size_t bins;
+    if (bin_size_mi != 0){
+        bins = bin_size_mi;
+    }
+    else if (bin_power_mi != 0){
+        bins = static_cast<size_t>(pow(qty, 1.0 / bin_power_mi));
+    }
+    else{
+        bins = static_cast<size_t>(pow(qty, 1.0 / 3.0));
+    }
+    // size_t bins = static_cast<size_t>(pow(qty, 1.0 / 3.0));
+    
 
     // float res = 0;
     // for (size_t i = 0; i < qty; i++) {
