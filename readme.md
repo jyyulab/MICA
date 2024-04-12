@@ -102,10 +102,13 @@ Also new in mica 0.3.1:
 
 The package requirement range has been broaden, and it will be more convenient in the future.
 
+
 New in mica bin test:
+
 for both ge/mds mode:
 
 -bsz(--bin-size): set the bin size for MI calculation
+
 -bpr(--bin-power): set the bin size by setting the index of the power for MI calculation(4 means **1/4)
 
 Example:
