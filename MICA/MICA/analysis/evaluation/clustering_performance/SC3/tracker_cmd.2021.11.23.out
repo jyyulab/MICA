@@ -1,0 +1,99 @@
+[INFO] Splitting jobids 145266196
+[INFO] array_jids:  ['145266196']
+[INFO] Reading bjobs
+[INFO] Reading jobs from bjobs
+[INFO] Number of jobs found:  1
+[INFO] Sleeping for 181 seconds between each update
+[UPDATE][145266196] 2021-11-23 23:43:13 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145266196] 2021-11-23 23:46:14 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145266196] 2021-11-23 23:49:15 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145266196] 2021-11-23 23:52:16 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145266196] 2021-11-23 23:55:17 nPEND nRUN nDONE nREQUEUE nFAIL =     1     0     0     0     0
+[UPDATE][145266179] 2021-11-23 23:43:50 nPEND nRUN nDONE nREQUEUE nFAIL =     0     0     1     0     0
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nodecn201>
+Subject: Job 145265497: <tracker_cmd> in cluster <hpcf_research_cluster> Done
+
+Job <tracker_cmd> was submitted from host <noderome176> by user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:25:59 2021
+Job was executed on host(s) <nodecn201>, in queue <compbio_tracker>, as user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:28:42 2021
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Nov 23 23:28:42 2021
+Terminated at Tue Nov 23 23:46:51 2021
+Results reported at Tue Nov 23 23:46:51 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_LSF -P Yan  -J cmd -q large_mem -n 15 -M 99999 -o /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/out.%J.%I.txt -e /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.%J.%I.txt -i /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh -update 181
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   2.34 sec.
+    Max Memory :                                 13 MB
+    Average Memory :                             13.00 MB
+    Total Requested Memory :                     1000.00 MB
+    Delta Memory :                               987.00 MB
+    Max Swap :                                   -
+    Max Processes :                              7
+    Max Threads :                                8
+    Run time :                                   1089 sec.
+    Turnaround time :                            1252 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <tracker_cmd.2021.11.23.err> for stderr output of this job.
+
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nodecn201>
+Subject: Job 145266191: <tracker_cmd> in cluster <hpcf_research_cluster> Exited
+
+Job <tracker_cmd> was submitted from host <noderome186> by user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:39:06 2021
+Job was executed on host(s) <nodecn201>, in queue <compbio_tracker>, as user <lding> in cluster <hpcf_research_cluster> at Tue Nov 23 23:43:10 2021
+</home/lding> was used as the home directory.
+</home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3> was used as the working directory.
+Started at Tue Nov 23 23:43:10 2021
+Terminated at Tue Nov 23 23:55:45 2021
+Results reported at Tue Nov 23 23:55:45 2021
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+_phoenix_sub_LSF -P Yan  -J cmd -q compbio -n 1 -M 9999 -o /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/out.%J.%I.txt -e /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/logs/err.%J.%I.txt -i /home/lding/Git/MICA/MICA/analysis/evaluation/clustering_performance/SC3/cmd.sh -update 181
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   1.69 sec.
+    Max Memory :                                 13 MB
+    Average Memory :                             12.91 MB
+    Total Requested Memory :                     1000.00 MB
+    Delta Memory :                               987.00 MB
+    Max Swap :                                   -
+    Max Processes :                              4
+    Max Threads :                                5
+    Run time :                                   753 sec.
+    Turnaround time :                            999 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <tracker_cmd.2021.11.23.err> for stderr output of this job.
+
