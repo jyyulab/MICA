@@ -122,6 +122,8 @@ def mica_mds(args):
     else:
         sys.exit('Error - invalid platform.')
 
+    
+    global paras
     if args.bin_size != 0 :
         paras.bin_size_mds = args.bin_size
     elif args.bin_power != 0:
