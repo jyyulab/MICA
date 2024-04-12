@@ -94,7 +94,15 @@ def mica_mds(args):
     installed_path = os.path.dirname(os.path.realpath(__file__))
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
-
+    
+    global paras
+    if args.bin_size != 0 :
+        paras.bin_size_mds = args.bin_size
+    elif args.bin_power != 0:
+        paras.bin_power_mds = args.bin_power
+    else:
+        paras.bin_power_mds = 3
+        
     if args.num_neighbor:   # Use graph-based clustering
         cwl_script = 'mica_g.cwl'
     else:
@@ -121,15 +129,6 @@ def mica_mds(args):
                    args.config_json, args.output_dir, cwl_path, cwl_script, fp_yml.name)
     else:
         sys.exit('Error - invalid platform.')
-
-    
-    global paras
-    if args.bin_size != 0 :
-        paras.bin_size_mds = args.bin_size
-    elif args.bin_power != 0:
-        paras.bin_power_mds = args.bin_power
-    else:
-        paras.bin_power_mds = 3
 
     logging.info(cmd)
     run_shell_command_call(cmd)
