@@ -85,8 +85,8 @@ def add_ge_arguments(parser):
     parser.add_argument('-nnt', '--nn-type', metavar='STR', required=False, default='knn', help='knn/ann')
     parser.add_argument('-annef', '--ann-ef', metavar='INT', required=False, default=400, help='ef value of hnsw', type=int)
     parser.add_argument('-annm', '--ann-m', metavar='INT', required=False, default=8, help='M value of hnsw', type=int)
-    parser.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
-    parser.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
+    parser.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
+    parser.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
 
     parser.add_argument('-cldis', '--clustering-distance', metavar='STR', 
                         required=False, default='cosine', help='euclidean/cosine')
