@@ -74,8 +74,8 @@ def add_mds_arguments(parser):
                                  '(default: [19])')   # Use [12, 13, 14, 15, 16, 17, 18, 19] for robustness but slower
     additional.add_argument('-dp', '--dims-plot', metavar='INT', default=19, type=int, required=False,
                             help='Number of dimensions used in visualization (default: 19)')
-    additional.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
-    additional.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
+    additional.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
+    additional.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
 
     graph = parser.add_argument_group('graph clustering arguments')
     graph.add_argument('-nn', '--num-neighbor', metavar='INT', required=False, type=int,
