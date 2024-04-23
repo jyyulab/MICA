@@ -1,5 +1,29 @@
 # How to install MICA hnsw-ann version
 
+Step 0:
+
+load gcc and conda
+
+```bash
+module load conda3/202311
+module load gcc/10.2.0
+#others may also works like gcc 9.5.0
+```
+
+some other gcc/conda versions may work(like gcc 9.5.0), but some conda versions(like conda3/5.1.0) may not work
+
+use
+```bash
+module list
+```
+to check the conda/gcc version
+
+use 
+```bash
+module unload conda3/5.1.0
+```
+to disable conflicted versions.
+
 Step 1:
 
 download MICA from Jiayu branch
