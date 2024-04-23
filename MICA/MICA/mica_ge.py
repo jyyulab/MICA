@@ -49,10 +49,12 @@ def add_ge_arguments(parser):
                         default='node2vec', help='Dimension reduction method [node2vec | deepwalk] (default: node2vec)')
     parser.add_argument('-dd', '--dr-dim', metavar='INT', required=False, default=20, type=int,
                         help='Number of dimensions to reduce to (default: 20)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
-                        help='Determines the minimum size of the communities (default: 1.0)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.0, type=float,
-                        help='Determines the maximum size of the communities (default: 1.0)')
+    parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=0.6, type=float,
+                        help='Determines the the communities (default: 0.6)')
+    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.6, type=float,
+                        help='Determines the minimum size of the communities (default: 0.6)')
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=0.6, type=float,
+                        help='Determines the maximum size of the communities (default: 0.6)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.2, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
                              '(default: 0.2)')
@@ -94,6 +96,7 @@ def add_ge_arguments(parser):
     # parser.add_argument('-ha', '--harmony', metavar='FILE', required=False,
     #                     help='Path to a cell metadata file (tab-delimited text file) with "batch" as a column, '
     #                          'required for Harmony batch correction.')
+    parser.add_argument('-sil', '--silhouette', metavar='INT', required=False, default=0, help='silhouette analysis(0) or not(other number)', type=int)
     parser.add_argument('-cs', '--consensus', metavar='STR', required=False, default='None', type=str,
                         choices=['None', 'CSPA', 'MCLA'], help='Consensus clustering methods. None means skip '
                                                                'consensus clustering;'
@@ -228,9 +231,14 @@ def mica_ge(args):
     
     # edgelist_file = '{}/sklearn_knn_graph_edgelist.txt'.format(args.output_dir)
     # nx.write_edgelist(G, edgelist_file)
-    partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
-                                                         max_resolution=args.max_resolution,
-                                                         step_size=args.step_size, num_workers=args.num_workers)
+    if args.max_resolution == args.min_resolution:
+        partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.resolution,
+                                                             max_resolution=args.resolution,
+                                                             step_size=args.step_size, num_workers=args.num_workers)
+    else:
+        partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.min_resolution,
+                                                             max_resolution=args.max_resolution,
+                                                             step_size=args.step_size, num_workers=args.num_workers)
     end = time.time()
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
@@ -275,29 +283,31 @@ def mica_ge(args):
     runtime = end - start
     logging.info('Done. Runtime: {} seconds'.format(runtime))
 
-    start = time.time()
-    logging.info('Optimal number of clusters analysis ...')
-    with open('{}/silhouette_avg.txt'.format(args.output_dir), 'w') as fout:
-        if args.consensus != 'None':
-            fout.write('dimension\tnum_clusters\tsilhouette_avg\n')
-            for agg, num_clusters in aggs_embed:
-                logging.info('number of clusters: {}'.format(num_clusters))
-                logging.info(agg)
-                silhouette_avg = cl.silhouette_analysis(agg, num_clusters, agg.loc[:, ['X', 'Y']], args.output_dir)
-                fout.write('{}\t{}\t{}\n'.format(args.dr_dim, num_clusters, silhouette_avg))
-        else:
-            fout.write('dimension\tresolution\tnum_clusters\tsilhouette_avg\n')
-            for agg, resolution in aggs_embed:
-                resolution = round(resolution, 5)
-                logging.info('resolution: {}'.format(resolution))
-                # logging.info(agg)
-                num_clusters = len(set(agg['label']))
-                silhouette_avg = cl.silhouette_analysis(agg, num_clusters, agg.loc[:, ['X', 'Y']], args.output_dir,
-                                                        resolution=resolution)
-                fout.write('{}\t{}\t{}\t{}\n'.format(args.dr_dim, resolution, num_clusters, silhouette_avg))
-    end = time.time()
-    runtime = end - start
-    logging.info('Done. Runtime: {} seconds'.format(runtime))
+
+    if args.silhouette != 0:
+        start = time.time()
+        logging.info('Optimal number of clusters analysis ...')
+        with open('{}/silhouette_avg.txt'.format(args.output_dir), 'w') as fout:
+            if args.consensus != 'None':
+                fout.write('dimension\tnum_clusters\tsilhouette_avg\n')
+                for agg, num_clusters in aggs_embed:
+                    logging.info('number of clusters: {}'.format(num_clusters))
+                    logging.info(agg)
+                    silhouette_avg = cl.silhouette_analysis(agg, num_clusters, agg.loc[:, ['X', 'Y']], args.output_dir)
+                    fout.write('{}\t{}\t{}\n'.format(args.dr_dim, num_clusters, silhouette_avg))
+            else:
+                fout.write('dimension\tresolution\tnum_clusters\tsilhouette_avg\n')
+                for agg, resolution in aggs_embed:
+                    resolution = round(resolution, 5)
+                    logging.info('resolution: {}'.format(resolution))
+                    # logging.info(agg)
+                    num_clusters = len(set(agg['label']))
+                    silhouette_avg = cl.silhouette_analysis(agg, num_clusters, agg.loc[:, ['X', 'Y']], args.output_dir,
+                                                            resolution=resolution)
+                    fout.write('{}\t{}\t{}\t{}\n'.format(args.dr_dim, resolution, num_clusters, silhouette_avg))
+        end = time.time()
+        runtime = end - start
+        logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     start = time.time()
     out_h5_file = '{}/clustered.h5ad'.format(args.output_dir)
