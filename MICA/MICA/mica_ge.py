@@ -231,7 +231,7 @@ def mica_ge(args):
     
     # edgelist_file = '{}/sklearn_knn_graph_edgelist.txt'.format(args.output_dir)
     # nx.write_edgelist(G, edgelist_file)
-    if (args.max_resolution == args.min_resolution) and (args.resolution==args.min_resolution):
+    if (args.max_resolution == args.min_resolution) and (args.resolution != args.min_resolution):
         partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.resolution,
                                                              max_resolution=args.resolution,
                                                              step_size=args.step_size, num_workers=args.num_workers)
