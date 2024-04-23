@@ -6,7 +6,7 @@ download MICA from Jiayu branch
 
 ```bash
 module load git
-git clone -b bin_test https://github.com/jyyulab/MICA.git
+git clone -b mica036 https://github.com/jyyulab/MICA.git
 ```
 
 Step 2:
@@ -23,21 +23,21 @@ create conda env
 
 ```bash
 module load conda3
-conda create -y -n mica_bin_test python=3.7.6
-source activate mica_bin_test
+conda create -y -n mica_036 python=3.7.6
+source activate mica_036
 ```
 
 Step 4:
 
-install customized hnswlib first:
+install customized mihnsw first:
 
 ```bash
-cd hnswlib
-pip install setuptools==65.6.3 anndata==0.8.0 pandas==1.2.3 scipy==1.7.3 typing==3.7.4.3 typing-extensions==4.7.1 numba==0.53.1 networkx==2.6.3
+cd mihnsw
+pip install setuptools==65.6.3 anndata==0.8.0 pandas==1.2.3 scipy==1.7.3 typing==3.7.4.3 typing-extensions==4.7.1 numba==0.53.1 networkx==2.6.3 pybind11
 python -m pip install . numpy==1.21.6
 ```
 
-To check hnswlib:
+To check mihnsw:
 
 ```bash
 Python
