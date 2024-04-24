@@ -36,3 +36,5 @@ stdlib-list==0.10.0
 tables==3.6.1
 tqdm==4.66.1
 umap-learn==0.5.1
+importlib-metadata==4.13.0
+packaging==20.9
