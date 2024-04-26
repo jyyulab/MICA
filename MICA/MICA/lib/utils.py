@@ -350,7 +350,7 @@ def mds(in_mat_file, max_dim, out_file_name, perplexity=30, print_plot="True", d
         columns=["mds_" + str(x) for x in np.arange(1, L.shape[0] + 1)],
     )
 
-    Y.to_hdf(out_file_name + "_reduced.h5", "mds")  # save reduced mi in mds
+    Y.to_hdf(out_file_name + "_reduced.h5", "MDS")  # save reduced mi in mds
 
     if print_plot == "True":
         vis = tsne(
@@ -361,7 +361,7 @@ def mds(in_mat_file, max_dim, out_file_name, perplexity=30, print_plot="True", d
             perplexity,
             print_plot,
         )
-        vis.to_hdf(out_file_name + "_reduced", "mds_tsne")  # save preview in key "mds_tsne"
+        vis.to_hdf(out_file_name + "_reduced", "MDS")  # save preview in key "mds_tsne"
 
 
 def lpl(in_mat_file, max_dim, out_file_name, perplexity=30, plot="True", dist_method="mi"):
