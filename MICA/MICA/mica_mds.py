@@ -91,7 +91,10 @@ def mica_mds(args):
     os.environ['PATH'] += (os.pathsep + installed_path + '/bin')
     cwl_path = installed_path + '/cwl'
 
-    cwl_script = 'mica.cwl'
+    if args.num_neighbor:   # Use graph-based clustering
+        cwl_script = 'mica_g.cwl'
+    else:
+        cwl_script = 'mica.cwl'
 
     pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
 
