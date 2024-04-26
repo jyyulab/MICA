@@ -71,7 +71,7 @@ def add_mds_arguments(parser):
     additional.add_argument('-dk', '--dims-km', metavar='INT', nargs='+', default=[19], type=int, required=False,
                             help='Dimensions used in k-mean clustering, array inputs are supported '
                                  '(default: [19])')   # Use [12, 13, 14, 15, 16, 17, 18, 19] for robustness but slower
-    additional.add_argument('-dp', '--dims-plot', metavar='INT', default=19, type=int, required=False, type=int,
+    additional.add_argument('-dp', '--dims-plot', metavar='INT', default=19, type=int, required=False,
                             help='Number of dimensions used in visualization (default: 19)')
 
     graph = parser.add_argument_group('graph clustering arguments')
