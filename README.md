@@ -108,7 +108,7 @@ project name; ```-nc``` specifies the numbers of clusters (k in k-mean clusterin
 the numbers of dimensions used in performing k-mean clusterings in the dimension reduced matrix.
 
 `mica mds -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
-./test_data/outputs -pn PBMC3k -nc 8 9 10`
+./test_data/outputs -pn PBMC3k -nc 8`
 
 ## Reference
 To be added
