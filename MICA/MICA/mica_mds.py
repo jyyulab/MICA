@@ -77,7 +77,7 @@ def add_mds_arguments(parser):
     graph = parser.add_argument_group('graph clustering arguments')
     graph.add_argument('-nn', '--num-neighbor', metavar='INT', required=False, type=int,
                        help='Number of neighbors of a cell for building k-nearest neighbor graph')
-    graph.add_argument('-dg', '--dims-graph', metavar='INT', nargs='+', default=19, required=False,
+    graph.add_argument('-dg', '--dims-graph', metavar='INT', nargs='+', default=19, required=False, type=int,
                        help='Dimensions used in graph clustering, array inputs are supported (default: 19)')
     return parser
 
