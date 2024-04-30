@@ -75,7 +75,7 @@ def clustering(in_file, dr, k, n_bootstrap, out_name,
 
     hdf = pd.HDFStore(in_file)
     dr = "pca" if dr == "lpca" else dr
-    hdf_trans = hdf[dr.lower()]
+    hdf_trans = hdf[dr]
     hdf.close()
 
     # UMAP or tSNE plot
