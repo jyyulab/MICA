@@ -470,28 +470,53 @@ def kmeans(in_mat, n_clusters, project_name, dim, bootstrap_id):
 #     return cclust, out_file
 
 
-# def visualization(agg_mtx, reduced_mi_file, transformation, out_file_name, max_dim=0,
-#                   visualize="umap", min_dist=0.25, perplexity=30,):
-#     cclust = agg_mtx
-#     hdf = pd.HDFStore(reduced_mi_file)
-#     transformation = "pca" if transformation == "lpca" else transformation
-#     hdf_trans = hdf[transformation.lower()]
-#     hdf.close()
-#
-#     if visualize == "umap":
-#         embed_2d = umap(hdf_trans, max_dim, min_dist)
-#
-#     elif visualize == "tsne":
-#         perplexity = np.min([perplexity, np.max(cclust.groupby(["label"]).size())])
-#         embed_2d = tsne(hdf_trans, max_dim, "", None, perplexity, "False")
-#
-#     cclust = pd.concat([cclust, embed_2d.loc[cclust.index, :]], axis=1)
-#     res = cclust.loc[:, ["X", "Y", "label"]]
-#     # save 2D embedding to txt file
-#     out_file_name = out_file_name + "_" + visualize
-#
-#     scatter2(res, out_file_name + '.pdf')
-#     res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
+def scatter_plot(data, out_file, marker_size=1.0, marker="o", method='UMAP', marker_scale=10.0):
+    """ Create a scatter plot for cluster results embedded in 2D space.
+    """
+    if data is None:
+        return
+    plt.figure(figsize=(10, 10), dpi=400)
+    lab = np.unique(data.loc[:, "label"])
+    colors = plt.cm.jet(np.linspace(0, 1, len(lab)))
+    for i, z in enumerate(lab):
+        df = data.loc[data.loc[:, "label"] == z, ["X", "Y"]]
+        plt.scatter(df.loc[:, "X"], df.loc[:, "Y"], facecolor=colors[i], s=marker_size,
+                    marker=marker, vmin=0, vmax=len(lab), label=str(z) + "(" + str(df.shape[0]) + ")", alpha=0.7)
+        center = np.mean(df, axis=0)
+        plt.scatter(center.loc["X"], center.loc["Y"], marker="o", c="white", alpha=0.7, s=100, edgecolor="k")
+        plt.scatter(center.loc["X"], center.loc["Y"], marker="$%d$" % (i+1), c="black", alpha=0.7, s=80, edgecolor="k")
+    plt.ylabel("{}-2".format(method.upper()))
+    plt.xlabel("{}-1".format(method.upper()))
+    plt.xticks([])
+    plt.yticks([])
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5), title="Clusters(" + str(data.shape[0]) + ")",
+               markerscale=marker_scale)
+    plt.savefig(out_file, bbox_inches="tight")
+    plt.cla()
+
+
+def visualization(agg_mtx, reduced_mi_file, transformation, out_file_name, max_dim=0,
+                  visualize="umap", min_dist=0.25, perplexity=30,):
+    cclust = agg_mtx
+    hdf = pd.HDFStore(reduced_mi_file)
+    transformation = "pca" if transformation == "lpca" else transformation
+    hdf_trans = hdf[transformation]
+    hdf.close()
+
+    if visualize == "umap":
+        embed_2d = umap(hdf_trans, max_dim, min_dist)
+
+    elif visualize == "tsne":
+        perplexity = np.min([perplexity, np.max(cclust.groupby(["label"]).size())])
+        embed_2d = tsne(hdf_trans, max_dim, "", None, perplexity, "False")
+
+    cclust = pd.concat([cclust, embed_2d.loc[cclust.index, :]], axis=1)
+    res = cclust.loc[:, ["X", "Y", "label"]]
+    # save 2D embedding to txt file
+    out_file_name = out_file_name + "_" + visualize
+
+    scatter_plot(res, out_file_name + '.pdf')
+    res.to_csv(out_file_name + "_ClusterMem.txt", sep="\t")
 
 
 def heatmap(df, linkage_, matrix, out_dir, out_file_name, tag, dendro="True"):
