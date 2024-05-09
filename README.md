@@ -1,4 +1,7 @@
 # How to install MICA hnsw-ann version
+NEW in MICA038:
+Deleted all cwls
+Optimized MI calculation
 
 Step 0:
 
