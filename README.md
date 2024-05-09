@@ -5,7 +5,7 @@ Step 0:
 load gcc and conda
 
 ```bash
-module load conda3/202311
+module load conda3/202402
 module load gcc/10.2.0
 #others may also works like gcc 9.5.0
 ```
@@ -30,7 +30,7 @@ download MICA from Jiayu branch
 
 ```bash
 module load git
-git clone -b mica036 https://github.com/jyyulab/MICA.git
+git clone -b mica038 https://github.com/jyyulab/MICA.git
 ```
 
 Step 2:
@@ -47,8 +47,8 @@ create conda env
 
 ```bash
 module load conda3
-conda create -y -n mica_036 python=3.7.6
-source activate mica_036
+conda create -y -n mica_038 python=3.7.6
+source activate mica_038
 ```
 
 Step 4:
@@ -154,7 +154,7 @@ Often because of the conda version or gcc version
 try:
 
 ```bash
-module load conda3/202311
+module load conda3/202402
 module load gcc/10.2.0
 #others may also works like gcc 9.5.0
 ```
