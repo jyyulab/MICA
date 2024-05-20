@@ -108,7 +108,7 @@ Optimize these 2 parameters to make them work on your case, to make the ge mode 
 `mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs
 -nnt ann -annm 8 -annef 400 -ar 4.0 -ss 0.1`
 
-To set the number of neighbors in graph for louvain clustering, please set ```-nne```
+To set the number of neighbors in the graph for Louvain clustering, please set ```-nne```
 
 #### Running MICA MDS mode
 MICA MDS mode reduces the dimensionality using the multidimensional scaling method. It includes both Kmeans clustering and louvain clustering.
@@ -121,7 +121,7 @@ number of dimensions used in performing k-mean clusterings in the dimension redu
 ./test_data/outputs -pn PBMC3k -nck 8`
 
 ### Running MICA Louvain mode
-MICA Louvain mode reduce the dimension without MI distance estimate via PCA or MDS directly, and then the Louvain clustering will be executed.
+MICA Louvain mode reduces the dimension without MI distance estimate via PCA or MDS directly, and then the Louvain clustering will be executed.
 To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 
 'mica louvain -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
@@ -141,5 +141,6 @@ To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 ```-nw```: num of workers
 
 ## Reference
-hnswlib
+hnswlib: the author of MICA adds a 'mutual-info-distance' to the space of hnswlib.
+
 To be added
