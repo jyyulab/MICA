@@ -14,7 +14,7 @@ MICA workflow:
 <img src="images/MICA_workflow.png" width="500">
 
 
-# Getting Started
+## Getting Started
 The easiest way to run MICA locally is using pip, as ```pip install``` creates an image with all of the
 dependencies:
 ```
@@ -127,7 +127,7 @@ To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 'mica louvain -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
 ./test_data/outputs -dm PCA'
 
-### Some sharing parameters
+## Some sharing parameters
 ```-dd```: Number of dimensions to reduce to
 
 ```-cldis```: distance in Louvain clustering, euclidean/cosine
@@ -139,6 +139,30 @@ To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 ```-sil```: run silhouette analysis for louvain clustering
 
 ```-nw```: num of workers
+
+## Some common issues for St Jude HPC users
+
+1. Try to install MICA 1.0.0 but when checking, it’s still old version: 
+
+Solve: make sure to create a new folder and change direction into there before you start Step 1, if you’ve have a like ‘MICA’ at the current direction.
+
+```bash
+mkdir MICA100
+cd MICA100
+#start installation
+```
+
+2. Illegal instruction(core dumped) or other problem when importing mihnsw
+
+Often because of the conda version or gcc version
+
+try:
+
+```bash
+module load conda3/202402
+module load gcc/10.2.0
+#others may also works like gcc 9.5.0
+```
 
 ## Reference
 hnswlib: the author of MICA adds a 'mutual-info-distance' to the space of hnswlib.
