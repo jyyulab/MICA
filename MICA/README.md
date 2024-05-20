@@ -43,7 +43,7 @@ $ pip install MICA                            # Install MICA and its dependencie
 ```
 $ git clone https://github.com/jyyulab/MICA     # Clone the repo
 $ cd MICA                                       # Switch to the MICA root directory
-$ python setup.py install                       # Install MICA from source
+$ pip install .                      # Install MICA from source
 $ mica -h                                       # Check if mica works correctly
 ```
 
