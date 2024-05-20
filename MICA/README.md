@@ -15,18 +15,12 @@ MICA workflow:
 
 
 # Getting Started
-The easiest way to run MICA locally is using Docker, as ```docker build``` creates an image with all of the
+The easiest way to run MICA locally is using pip, as ```pip install``` creates an image with all of the
 dependencies:
 ```
 git clone https://github.com/jyyulab/MICA
 cd MICA
-docker build -t mica:0.2.2 .
-
-# Test run on small dataset
-mkdir results
-docker run --mount type=bind,source=$(pwd)/test_data/inputs,target=/data,readonly --mount 
-type=bind,source=$(pwd)/test_data/outputs/docker,target=/results -it mica:0.2.2 ge -i 
-/data/PBMC_Demo_MICA_input_mini.txt -o /results
+pip install .
 ```
 
 
