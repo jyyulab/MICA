@@ -129,10 +129,15 @@ To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 
 ### Some sharing parameters
 ```-dd```: Number of dimensions to reduce to
+
 ```-cldis```: distance in Louvain clustering, euclidean/cosine
+
 ```-bpr```: set the power index of the bin size for MI, 3 -> bins=(features)**(1/3)
+
 ```-bsz```: set the bin size for MI
+
 ```-sil```: run silhouette analysis for louvain clustering
+
 ```-nw```: num of workers
 
 ## Reference
