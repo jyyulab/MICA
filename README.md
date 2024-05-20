@@ -122,7 +122,7 @@ number of dimensions used in performing k-mean clusterings in the dimension redu
 `mica mds -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o 
 ./test_data/outputs -pn PBMC3k -nck 8`
 
-### Running MICA Louvain mode
+#### Running MICA Louvain mode
 MICA Louvain mode reduces the dimension without MI distance estimate via PCA or MDS directly, and then the Louvain clustering will be executed.
 To set the dimension-reduction method, please set ```-dm``` (PCA or MDS)
 
