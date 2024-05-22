@@ -88,8 +88,8 @@ def main():
             args = parser.parse_args()
             if args.project_name is None:
                 sys.exit('ArgumentError: argument -pn/--project-name is required')
-            if args.num_clusters is None:
-                sys.exit('ArgumentError: argument -nc/--num-clusters is required')
+            # if args.num_clusters is None:
+            #     sys.exit('ArgumentError: argument -nc/--num-clusters is required')
             mica_mds.mica_mds(args)
     elif args.version == 'ge':
         logging.info('Start GE mode...')
