@@ -19,8 +19,8 @@ MICA workflow:
 
 
 ## Installation
-#### Using conda to create a virtual environment (recommended)
-##### Not available until this line is removed
+#### Using conda to create a virtual environment 
+##### (Not available until this line is removed)
 The recommended method of setting up the required Python environment and dependencies 
 is to use the [conda](https://conda.io/docs/) dependency manager:
 ```
