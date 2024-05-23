@@ -37,7 +37,7 @@ setup(
     #     "anndata>=0.7.5, <=0.8.0",
     #     "networkx>=2.5.0, <=2.6.3"
     #     ],
-    python_requires="==3.7.6",
+    python_requires=">=3.7.6, <=3.9.2",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
     include_package_data=True,
     # test_suite="tests",
