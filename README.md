@@ -14,7 +14,7 @@ MICA workflow:
 
 
 ## Prerequisites
-* [python==3.7.6](https://www.python.org/downloads/) (developed and tested on python 3.7.6)
+* [python>=3.7.6, <=3.9.2](https://www.python.org/downloads/) (developed and tested on python 3.7.6, tested on python3.9.2)
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other dependencies
 
 
@@ -23,14 +23,14 @@ MICA workflow:
 The recommended method of setting up the required Python environment and dependencies 
 is to use the [conda](https://conda.io/docs/) dependency manager:
 ```
-conda create -n mica100 python=3.7.6        # Create a python virtual environment
+conda create -n mica100 python=3.9.2        # Create a python virtual environment
 source activate mica100                     # Activate the virtual environment
 pip install MICA                            # Install MICA and its dependencies
 ```
 
 #### Install from source
 ```
-conda create -n mica100 python=3.7.6        # Create a python virtual environment
+conda create -n mica100 python=3.9.2        # Create a python virtual environment
 source activate mica100                     # Activate the virtual environment
 git clone https://github.com/jyyulab/MICA   # Clone the repo
 cd MICA                                     # Switch to the MICA root directory
