@@ -31,7 +31,7 @@ scikit-learn==0.24.1
 seaborn==0.11.1
 sinfo==0.3.1
 smart-open==6.4.0
-tqdm==4.66.1
+tqdm==4.66.3
 umap-learn>=0.5.1
 importlib-metadata==4.13.0
 packaging==20.9
