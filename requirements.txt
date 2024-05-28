@@ -20,7 +20,7 @@ packaging==20.9
 pandas==1.2.3
 patsy==0.5.6
 pecanpy==1.0.1
-Pillow==8.1.2
+Pillow==10.3.0
 prov==1.5.1
 psutil==5.9.8
 pynndescent==0.5.2
