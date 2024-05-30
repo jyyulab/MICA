@@ -64,15 +64,15 @@ def add_mds_arguments(parser):
                             'dimension reduction (default: 20)')
     parser.add_argument('-cldis', '--clustering-distance', metavar='STR', 
                         required=False, default='euclidean', help='euclidean/cosine')
-    parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=0.6, type=float,
-                        help='Determines the the communities (default: 0.6)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=0.6, type=float,
-                        help='Determines the minimum size of the communities (default: 0.6)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=0.6, type=float,
-                        help='Determines the maximum size of the communities (default: 0.6)')
-    parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=0.2, type=float,
+    parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+                        help='Determines the the communities (default: 1.822)')
+    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+                        help='Determines the minimum size of the communities (default: 1.822)')
+    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+                        help='Determines the maximum size of the communities (default: 1.822)')
+    parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=1, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
-                             '(default: 0.2)')
+                             '(default: 1)')
 
     parser.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
     parser.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
