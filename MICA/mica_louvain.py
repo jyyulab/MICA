@@ -149,7 +149,7 @@ def mica_louvain(args):
     else:
         for par, reso in partition_resolutions:
             labels = [x + 1 for x in par.values()]
-            clustering_res = pd.DataFrame(data=labels, columns=["label"])
+            clustering_res = pd.DataFrame(data=labels, index=frame.index, columns=["label"])
             aggs.append((clustering_res, reso))
 
     logging.info('Visualizing clustering results using {}'.format(args.visual_method))
