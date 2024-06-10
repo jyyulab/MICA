@@ -157,7 +157,12 @@ module load gcc/10.2.0
 #others may also works like gcc 9.5.0
 ```
 
+
+## About scMINER
+https://jyyulab.github.io/scMINER/site/
+
+
 ## Reference
 hnswlib: https://github.com/nmslib/hnswlib. The author of MICA adds a 'mutual-info-distance' to the space of hnswlib.
 
-To be added
+ScMINER paper: https://www.biorxiv.org/content/10.1101/2023.01.26.523391
