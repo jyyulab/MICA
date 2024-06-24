@@ -50,9 +50,9 @@ def add_louvain_arguments(parser):
     
     parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the the communities (default: 1.822)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-minr', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the minimum size of the communities (default: 1.822)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-maxr', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the maximum size of the communities (default: 1.822)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=1, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
