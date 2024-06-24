@@ -64,7 +64,8 @@ subcommands:
 Use ```mica ge -h```, ```mica mds -h```, and ```mica louvain -h``` to check helps with subcommands.
 
 #### Inputs
-The main input for MICA is tab-separated cells/samples by genes/proteins (rows are cells/samples) expression 
+****Recently Changed*****
+The main input for MICA is tab-separated genes/proteins by cells/samples (rows are genes/proteins) expression 
 matrix or an [anndata](https://anndata.readthedocs.io/en/latest/index.html) file after preprocessing.
 
 
@@ -87,7 +88,7 @@ MICA GE mode reduces the dimensionality using the graph embedding method. It swe
 of the Louvain clustering algorithm. ```-ar``` parameter sets the upper bound of the range.
 
 `mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs
--ar 4.0 -ss 1`
+-maxr 4.0 -ss 1`
 
 The default setting is to build the MI distance-based graph with the K-nearest-neighbors algorithm, and the number of the neighbors can be set with ```-nnm```. Another way to build the graph is to run approximate-nearest-neighbors(ann) based on the Hierarchical Navigable Small World(HNSW) algorithm. Set ```-nnt```(knn or ann) to enable nn type selection.
 
@@ -99,7 +100,7 @@ Here are 2 main hyperparameters in ann, ef(```-annef```) and m(```-annm```). Sug
 Optimize these 2 parameters to make them work on your case, to make the ge mode both fast and robust. Please increase ef when ```-nnm``` is increased.
 
 `mica ge -i ./test_data/inputs/10x/PBMC/3k/pre-processed/pbmc3k_preprocessed.h5ad -o ./test_data/outputs
--nnt ann -annm 8 -annef 400 -ar 4.0 -ss 1`
+-nnt ann -annm 8 -annef 400 -maxr 4.0 -ss 1`
 
 To set the number of neighbors in the graph for Louvain clustering, please set ```-nne```
 
