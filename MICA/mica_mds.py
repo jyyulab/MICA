@@ -56,9 +56,9 @@ def add_mds_arguments(parser):
 
     # parser.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=False, default=0, type=int,
     #                       help='Number of clusters to be specified in kmeans')
-    parser.add_argument('-nck', '--num-clusters-k', metavar='INT', default=0, required=False, type=int,
+    parser.add_argument('-nck', '--num-clusters-k', metavar='INT', default=4, required=False, type=int,
                                  help='Number of clusters to be specified in kmeans')
-
+    parser.add_argument('-le', '--louvain-enable', metavar='INT', required=False, default=0, help='enable knn-louvain clustering or not(0)', type=int)
     parser.add_argument('-nn', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
                             'dimension reduction (default: 20)')
@@ -139,7 +139,7 @@ def mica_mds(args):
     logging.info('Performing clustering ...')
     logging.info('(cells, genes): {}'.format(frame.shape))
 
-    if args.num_clusters_k:
+    if not args.louvain_enable:
         logging.info('Performing Kmeans clustering for # of {}...'.format(args.num_clusters_k))
         kms = KMeans(n_clusters=args.num_clusters_k)
         kms.fit(mi_mds)
