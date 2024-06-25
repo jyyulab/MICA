@@ -56,9 +56,9 @@ def add_mds_arguments(parser):
 
     # parser.add_argument('-nc', '--num-clusters', metavar='INT', nargs='+', required=False, default=0, type=int,
     #                       help='Number of clusters to be specified in kmeans')
-    parser.add_argument('-nck', '--num-clusters-k', metavar='INT', default=0, required=False, type=int,
+    parser.add_argument('-nck', '--num-clusters-k', metavar='INT', default=4, required=False, type=int,
                                  help='Number of clusters to be specified in kmeans')
-
+    parser.add_argument('-le', '--louvain-enable', metavar='INT', required=False, default=0, help='enable knn-louvain clustering or not(0)', type=int)
     parser.add_argument('-nn', '--num-neighbors', metavar='INT', required=False, default=20, type=int,
                         help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
                             'dimension reduction (default: 20)')
@@ -66,9 +66,9 @@ def add_mds_arguments(parser):
                         required=False, default='euclidean', help='euclidean/cosine')
     parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the the communities (default: 1.822)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-minr', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the minimum size of the communities (default: 1.822)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-maxr', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the maximum size of the communities (default: 1.822)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=1, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
@@ -93,7 +93,7 @@ def mica_mds(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
-    frame = adata.to_df()
+    frame = adata.to_df().T
     data = frame.to_numpy()
     logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
@@ -139,7 +139,7 @@ def mica_mds(args):
     logging.info('Performing clustering ...')
     logging.info('(cells, genes): {}'.format(frame.shape))
 
-    if args.num_clusters_k:
+    if not args.louvain_enable:
         logging.info('Performing Kmeans clustering for # of {}...'.format(args.num_clusters_k))
         kms = KMeans(n_clusters=args.num_clusters_k)
         kms.fit(mi_mds)

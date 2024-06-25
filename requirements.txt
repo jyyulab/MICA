@@ -2,7 +2,7 @@ setuptools==65.6.3
 anndata==0.8.0 
 pandas==1.2.3 
 scipy==1.7.3 
-networkx 
+networkx<3
 pybind11
 fast-histogram==0.9
 gensim==4.1.2

@@ -51,9 +51,9 @@ def add_ge_arguments(parser):
                         help='Number of dimensions to reduce to (default: 20)')
     parser.add_argument('-res', '--resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the the communities (default: 1.822)')
-    parser.add_argument('-ir', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-minr', '--min-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the minimum size of the communities (default: 1.822)')
-    parser.add_argument('-ar', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
+    parser.add_argument('-maxr', '--max-resolution', metavar='FLOAT', required=False, default=1.822, type=float,
                         help='Determines the maximum size of the communities (default: 1.822)')
     parser.add_argument('-ss', '--step-size', metavar='FLOAT', required=False, default=1.0, type=float,
                         help='Determines the step size to sweep resolution from min_resolution to max_resolution '
@@ -126,7 +126,7 @@ def mica_ge(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
-    frame = adata.to_df()
+    frame = adata.to_df().T
     logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
     runtime = end - start
