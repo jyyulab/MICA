@@ -63,9 +63,6 @@ def add_ge_arguments(parser):
     parser.add_argument('-nnm', '--num-neighbors-mi', metavar='INT', required=False, default=80, type=int,
                         help='Number of neighbors to build mutual information-based nearest neighbor graph '
                              '(default: 80)')
-    parser.add_argument('-pdm', '--pruning-degree-multi', metavar='FLOAT', required=False, default=3.0, type=float,
-                        help='Prune vertex has degree greater than pruning_degree_multi * num_neighbors_mi '
-                             '(default: 3.0)')
     parser.add_argument('-wl', '--walk-length', metavar='INT', required=False, default=60, type=int,
                         help='Length of random walks per source for graph embedding (default: 60)')
     parser.add_argument('-nl', '--num-walks', metavar='INT', required=False, default=110, type=int,
