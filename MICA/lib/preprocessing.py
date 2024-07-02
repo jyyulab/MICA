@@ -10,7 +10,7 @@ from natsort import natsorted
 def read_preprocessed_mat(in_file, start_row=1):
     """ Read in preprocessed matrix file (h5ad file or tab-delimited text file) into a dataframe."""
     if in_file.endswith('.txt'):
-        adata = anndata.read_text(in_file, delimiter='\t', first_column_names=True)
+        adata = anndata.read_text(in_file, delimiter='\t', first_column_names=True).T
         if adata.obs.index[0] == 'ID' or adata.var.index[0] == 0:
             adata = adata[start_row:, :]    # 1st row used as header by default
     elif in_file.endswith('.csv'):

@@ -63,9 +63,6 @@ def add_ge_arguments(parser):
     parser.add_argument('-nnm', '--num-neighbors-mi', metavar='INT', required=False, default=80, type=int,
                         help='Number of neighbors to build mutual information-based nearest neighbor graph '
                              '(default: 80)')
-    parser.add_argument('-pdm', '--pruning-degree-multi', metavar='FLOAT', required=False, default=3.0, type=float,
-                        help='Prune vertex has degree greater than pruning_degree_multi * num_neighbors_mi '
-                             '(default: 3.0)')
     parser.add_argument('-wl', '--walk-length', metavar='INT', required=False, default=60, type=int,
                         help='Length of random walks per source for graph embedding (default: 60)')
     parser.add_argument('-nl', '--num-walks', metavar='INT', required=False, default=110, type=int,
@@ -84,7 +81,6 @@ def add_ge_arguments(parser):
     parser.add_argument('-mc', '--meta-cell', required=False, action='store_true',
                         help='Create a MetaCell for each cell cluster.')
     
-    parser.add_argument('-nnt', '--nn-type', metavar='STR', required=False, default='knn', help='knn/ann')
     parser.add_argument('-annef', '--ann-ef', metavar='INT', required=False, default=400, help='ef value of hnsw', type=int)
     parser.add_argument('-annm', '--ann-m', metavar='INT', required=False, default=8, help='M value of hnsw', type=int)
     parser.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
@@ -126,7 +122,7 @@ def mica_ge(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
-    frame = adata.to_df().T
+    frame = adata.to_df()
     logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
     runtime = end - start
@@ -135,36 +131,25 @@ def mica_ge(args):
     start = time.time()
     logging.info('Building MI-based kNN graph on {} ...'.format(args.dr_modality))
     if args.dr_modality == 'gene':
-        if args.nn_type == 'ann':
-            logging.info('Running HNSW ANN mode.')
-            hnswlib.set_bin_power(args.bin_power)
-            hnswlib.set_bin_size(args.bin_size)
-            knn_indices, knn_dists = hnswlib_ann(frame.to_numpy(), 
-                                                 ef=args.ann_ef,
-                                                 M=args.ann_m,
-                                                 num_neighbors=args.num_neighbors_mi,
-                                                 num_jobs=args.num_workers)
-        else:
-            logging.info('Running KNN mode.')
-            knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.to_numpy(), 
-                                                
-                                                                    num_neighbors=args.num_neighbors_mi,
-                                                                    pruning_degree_multi=args.pruning_degree_multi,
-                                                                    num_jobs=args.num_workers)
+        logging.info('Running HNSW ANN mode.')
+        hnswlib.set_bin_power(args.bin_power)
+        hnswlib.set_bin_size(args.bin_size)
+        knn_indices, knn_dists = hnswlib_ann(frame.to_numpy(), 
+                                             ef=args.ann_ef,
+                                             M=args.ann_m,
+                                             num_neighbors=args.num_neighbors_mi,
+                                             num_jobs=args.num_workers)
+            
     elif args.dr_modality == 'cell':
-        if args.nn_type == 'ann':
-            logging.info('Running HNSW ANN mode.')
-            hnswlib.set_bin_power(args.bin_power)
-            hnswlib.set_bin_size(args.bin_size)
-            knn_indices, knn_dists = hnswlib_ann(frame.T.to_numpy(), 
-                                                 ef=args.ann_ef,
-                                                 M=args.ann_m,
-                                                 num_neighbors=args.num_neighbors_mi, 
-                                                 num_jobs=args.num_workers)
-        else:  
-            knn_indices, knn_dists = ng.nearest_neighbors_NNDescent(frame.T.to_numpy(), num_neighbors=args.num_neighbors_mi,
-                                                                    pruning_degree_multi=args.pruning_degree_multi,
-                                                                    num_jobs=args.num_workers)
+        logging.info('Running HNSW ANN mode.')
+        hnswlib.set_bin_power(args.bin_power)
+        hnswlib.set_bin_size(args.bin_size)
+        knn_indices, knn_dists = hnswlib_ann(frame.T.to_numpy(), 
+                                             ef=args.ann_ef,
+                                             M=args.ann_m,
+                                             num_neighbors=args.num_neighbors_mi, 
+                                             num_jobs=args.num_workers)
+            
     logging.info('kNN/ANN costs {}s'.format(time.time() - start))
     logging.info('kNN MI distance shape: {}'.format(knn_dists.shape))
     knn_graph = ng.general_graph_builder(knn_indices, knn_dists)
