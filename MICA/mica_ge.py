@@ -126,7 +126,7 @@ def mica_ge(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
-    frame = adata.to_df().T
+    frame = adata.to_df()
     logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
     runtime = end - start
