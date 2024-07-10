@@ -5,6 +5,7 @@ import math
 import numpy as np
 import community
 import logging
+from collections import Counter
 from multiprocessing import Pool
 from functools import partial
 import matplotlib
@@ -40,6 +41,14 @@ def graph_clustering(G, method='louvain', min_resolution=-2.0, max_resolution=3.
     return partitions
 
 
+def cluster_rank(par):
+    category_counts = Counter(par.values())
+    sorted_categories = [cate for cate, count in category_counts.most_common()]
+    category_mapping = {old_cate: new_cate for new_cate, old_cate in enumerate(sorted_categories)}
+    new_par = {sample: category_mapping[category] for sample, category in par.items()}
+    return new_par
+
+
 def best_partition_wrapper(G, max_resolution):
     return community.best_partition(G, resolution=max_resolution), max_resolution
 
@@ -68,6 +77,9 @@ def graph_clustering_parallel(G, method='louvain', min_resolution=-2.0, max_reso
     else:
         sys.exit('Error - invalid graph clustering method: {}'.format(method))
     pool.close()
+    for i, ii in enumerate(partition_resolutions):
+        par, res = ii
+        partition_resolutions[i] = (cluster_rank(par), res)
     return partition_resolutions
 
 
