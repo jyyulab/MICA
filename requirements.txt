@@ -1,4 +1,4 @@
-setuptools==65.6.3 
+setuptools==70.0.0 
 anndata==0.8.0 
 pandas==1.2.3 
 scipy==1.7.3 
