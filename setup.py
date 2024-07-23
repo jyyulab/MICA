@@ -43,6 +43,6 @@ setup(
     # test_suite="tests",
     entry_points={"console_scripts": ["mica=MICA.mica:main"]},
     cmdclass={
-        'install': PreInstall
+        # 'install': PreInstall
     }
 )
