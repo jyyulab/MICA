@@ -18,26 +18,25 @@ MICA workflow:
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other dependencies
 
 
-## Installation
-#### Using conda to create a virtual environment 
-##### (Not available until this line is removed)
-The recommended method of setting up the required Python environment and dependencies 
-is to use the [conda](https://conda.io/docs/) dependency manager:
-```
-conda create -n mica100 python=3.9.2        # Create a python virtual environment
-source activate mica100                     # Activate the virtual environment
-pip install MICA                            # Install MICA and its dependencies
-```
-
+## Installation for Arm-based Mchip MacOS device
+Before Start, install mini-forge/conda-forge first and then install miniconda/anaconda
 #### Install from source
 ```
-conda create -n mica100 python=3.9.2        # Create a python virtual environment
+conda create -n mica100 python=3.8.8        # Create a python virtual environment
 source activate mica100                     # Activate the virtual environment
-git clone https://github.com/jyyulab/MICA   # Clone the repo
+git clone https://github.com/jyyulab/MICA -b MICA_MacOS_Mchip  # Clone the repo
 cd MICA                                     # Switch to the MICA root directory
-pip install .                               # Install MICA from source
+conda install pyblind11
+pip install numpy==1.21.6
+pip install ./mihnsw
+pip install pecanpy
+conda install anndata==0.8 numpy==1.21.6 pandas scipy pandas seaborn umap-learn numba tqdm pynndescent fast-histogram matplotlib scanpy scikit-learn python-louvain
+conda install numpy==1.21.6 networkx==2.3
+pip install ./
 mica -h                                     # Check if mica works correctly
 ```
+
+
 
 
 ## Usage
