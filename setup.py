@@ -9,11 +9,11 @@ with open("./version.py") as fp:
     exec(fp.read(), version)
 
 
-class PreInstall(install):
-    def run(self):
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', './mihnsw'])
-        install.run(self)
+# class PreInstall(install):
+#     def run(self):
+#         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+#         subprocess.check_call([sys.executable, '-m', 'pip', 'install', './mihnsw'])
+#         install.run(self)
         
 
 setup(
