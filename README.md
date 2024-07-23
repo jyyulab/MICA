@@ -26,7 +26,7 @@ conda create -n mica100 python=3.8.8        # Create a python virtual environmen
 source activate mica100                     # Activate the virtual environment
 git clone https://github.com/jyyulab/MICA -b MICA_MacOS_Mchip  # Clone the repo
 cd MICA                                     # Switch to the MICA root directory
-conda install pyblind11
+conda install pybind11
 pip install numpy==1.21.6
 pip install ./mihnsw
 pip install pecanpy
