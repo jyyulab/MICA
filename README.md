@@ -30,7 +30,7 @@ conda install pybind11
 pip install numpy==1.21.6
 pip install ./mihnsw
 pip install pecanpy
-conda install anndata==0.8 numpy==1.21.6 pandas scipy pandas seaborn umap-learn numba tqdm pynndescent fast-histogram matplotlib scanpy scikit-learn python-louvain
+conda install anndata==0.8 numpy==1.21.6 pandas scipy pandas seaborn umap-learn numba tqdm pynndescent fast-histogram matplotlib scikit-learn python-louvain
 conda install numpy==1.21.6 networkx==2.3
 pip install ./
 mica -h                                     # Check if mica works correctly
