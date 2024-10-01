@@ -26,7 +26,6 @@ psutil==5.9.8
 pynndescent==0.5.2
 pyparsing==3.1.1
 python-louvain==0.15
-scanpy==1.7.1
 scikit-learn==0.24.1
 seaborn==0.11.1
 sinfo==0.3.1
