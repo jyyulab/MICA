@@ -45,10 +45,10 @@ def visual_embed(clustering_res, frame_dr, out_dir, dr_dim=None, dis_metric='euc
         partial_calc_norm_mi = partial(numba_calc_mi_dis, bins=num_bins, m=num_genes)
 
         if visual_method.lower() == 't-sne':
-            embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity, random_state=10,
+            embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity,
                          metric=partial_calc_norm_mi, early_exaggeration=12.0, n_jobs=num_works).fit_transform(frame_dr)
         elif visual_method.lower() == 'umap':
-            res = umap.UMAP(random_state=42, metric=partial_calc_norm_mi, n_neighbors=20,
+            res = umap.UMAP(metric=partial_calc_norm_mi, n_neighbors=20,
                             min_dist=min_dist).fit_transform(frame_dr)
             embed = pd.DataFrame(data=res, index=clustering_res.index, columns=["X", "Y"])
         else:
@@ -57,10 +57,10 @@ def visual_embed(clustering_res, frame_dr, out_dir, dr_dim=None, dis_metric='euc
         if dr_dim:
             frame_dr = frame_dr.iloc[:, 0:dr_dim]
         if visual_method.lower() == 't-sne':
-            embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity, random_state=10,
+            embed = TSNE(n_components=2, n_iter=5000, learning_rate=200, perplexity=perplexity,
                          early_exaggeration=12.0, n_jobs=num_works).fit_transform(frame_dr)
         elif visual_method.lower() == 'umap':
-            res = umap.UMAP(random_state=42, metric='euclidean', n_neighbors=30,
+            res = umap.UMAP(metric='euclidean', n_neighbors=30,
                             min_dist=min_dist).fit_transform(frame_dr)
             embed = pd.DataFrame(data=res, index=clustering_res.index, columns=["X", "Y"])
         else:
