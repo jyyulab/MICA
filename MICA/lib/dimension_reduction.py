@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import numpy as np
 import umap
@@ -101,6 +102,8 @@ def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', d
     Returns:
         out_emb_file (txt file): output embedding file
     """
+    if not os.path.exists(edgelist_file):
+        logging.info(f"No MI-estimation file/MI-estimation didn't finish properly!")
     cmd = 'pecanpy --input {} --output {} --mode {} --dimensions {} --walk-length {} ' \
           '--num-walks {} --window-size {} --workers {} --p {} --q {} --weighted'.format(edgelist_file, out_emb_file,
                                                                                          mode, dim, walk_len, n_walks,
@@ -108,6 +111,8 @@ def dim_reduce_node2vec_pecanpy(edgelist_file, out_emb_file, mode='SparseOTF', d
                                                                                          hyper_p, hyper_q)
     logging.info(cmd)
     run_shell_command(cmd)
+    if not os.path.exists(out_emb_file):
+        logging.info(f"pecanpy didn't finish properly!")
 
 """
 def dim_reduce_node2vec_pytorch_geometric(knn_graph, out_emb_file, sparse=True, dim=20, walk_len=100, n_walks=120,
