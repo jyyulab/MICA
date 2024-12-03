@@ -68,10 +68,11 @@ def graph_clustering_parallel(G, method='louvain', min_resolution=-2.0, max_reso
         partition_resolutions [(dict, float)]: a list of clustering_result and resolution tuples
     """
     pool = Pool(processes=num_workers)
-    reso_lst = []
-    reso_lst = list(np.arange(min_resolution, max_resolution + step_size - 0.001, step_size))
+    # reso_lst = []
+    # reso_lst = list(np.arange(min_resolution, max_resolution + step_size - 0.001, step_size))
     # for reso in list(np.arange(min_resolution, max_resolution+0.001, step_size)):
     #     reso_lst.append(math.exp(reso))
+    reso_lst = [math.exp(i) for i in list(np.arange(min_resolution, max_resolution + step_size + 0.001, step_size))]
     if method == 'louvain':
         community_partial = partial(best_partition_wrapper, G)
         partition_resolutions = pool.map(community_partial, reso_lst)
