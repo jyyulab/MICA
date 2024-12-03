@@ -8,13 +8,12 @@ from pynndescent import NNDescent
 from .distance import numba_calc_mi_dis
 
 
-def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorithm='ball_tree', num_jobs=1):
+def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, num_jobs=1):
     """ Build a graph representation of the dimension reduced matrix.
     Args:
         frame_dr (numpy ndarray): dimension reduced n_obs * dim matrix
         dis_metric (str): 'MI' or 'euclidean'
         num_neighbors (int): number of neighbors
-        knn_algorithm (str): algorithm used to compute the nearest neighbors
         num_jobs (None or int): n_jobs parameter in sklearn.neighbors.NearestNeighbors
     Returns:
         networkx graph
@@ -25,18 +24,18 @@ def build_graph(frame_dr, dis_metric='euclidean', num_neighbors=20, knn_algorith
         logging.info('Number of bins for estimating MI: {}'.format(num_bins))
         num_genes = frame_dr.shape[1]
         metric_params = {"bins": num_bins, "m": num_genes}
-        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, metric=numba_calc_mi_dis,
+        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm='ball_tree', metric=numba_calc_mi_dis,
                                 metric_params=metric_params, n_jobs=num_jobs)
     elif dis_metric == 'euclidean':
-        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, n_jobs=num_jobs)
+        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm='ball_tree', n_jobs=num_jobs)
     elif dis_metric =='cosine':
-        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm=knn_algorithm, n_jobs=num_jobs)
+        nbrs = NearestNeighbors(n_neighbors=num_neighbors, algorithm='auto', n_jobs=num_jobs, metric='cosine')
     else:
         sys.exit('Error - invalid distance metric: {}'.format(dis_metric))
     nbrs.fit(frame_dr)
     logging.info(nbrs.get_params())
-    kneighbor_graph = nbrs.kneighbors_graph(frame_dr, mode='distance').toarray()
-    return nx.from_numpy_matrix(kneighbor_graph)
+    kneighbor_graph = nbrs.kneighbors_graph(frame_dr, mode='distance')
+    return nx.from_scipy_sparse_array(kneighbor_graph)
 
 
 def nearest_neighbors_NNDescent(mat, num_neighbors=100, pruning_degree_multi=3.0, diversify_p=0.0, num_jobs=10):
@@ -110,3 +109,11 @@ def general_graph_builder(labels, distances):
             graph.add_node(n_node)
             graph.add_edge(i, n_node, MI=distances[i, j])
     return graph
+
+def weighted_graph_builder(indices, distances):
+    G_weighted = nx.Graph()
+    for i, (neighbors, dists) in enumerate(zip(indices, distances)):
+        for neighbor, dist in zip(neighbors, dists):
+            if i != neighbor:
+                G_weighted.add_edge(i, neighbor, weight=dist)
+    return G_weighted
