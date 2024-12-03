@@ -110,6 +110,7 @@ def general_graph_builder(labels, distances):
             graph.add_edge(i, n_node, MI=distances[i, j])
     return graph
 
+
 def weighted_graph_builder(indices, distances):
     G_weighted = nx.Graph()
     for i, (neighbors, dists) in enumerate(zip(indices, distances)):
