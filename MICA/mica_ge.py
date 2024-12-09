@@ -60,29 +60,29 @@ def add_ge_arguments(parser):
                              '(default: 1)')
     parser.add_argument('-nw', '--num-workers', metavar='INT', required=False, default=1, type=int,
                         help='Number of workers to run in parallel (default: 1, suggested: 25)')
-    parser.add_argument('-nnm', '--num-neighbors-mi', metavar='INT', required=False, default=80, type=int,
+    parser.add_argument('-nnm', '--num-neighbors-mi', metavar='INT', required=False, default=160, type=int,
                         help='Number of neighbors to build mutual information-based nearest neighbor graph '
                              '(default: 80)')
-    parser.add_argument('-wl', '--walk-length', metavar='INT', required=False, default=60, type=int,
-                        help='Length of random walks per source for graph embedding (default: 60)')
-    parser.add_argument('-nl', '--num-walks', metavar='INT', required=False, default=110, type=int,
-                        help='Number of random walks per source for graph embedding (default: 110)')
-    parser.add_argument('-ws', '--window-size', metavar='INT', required=False, default=10, type=int,
-                        help='Context window size of a random walk (default: 10)')
-    parser.add_argument('-hp', '--hyper-p', metavar='FLOAT', required=False, default=2.8, type=float,
+    parser.add_argument('-wl', '--walk-length', metavar='INT', required=False, default=15, type=int,
+                        help='Length of random walks per source for graph embedding (default: 15)')
+    parser.add_argument('-nl', '--num-walks', metavar='INT', required=False, default=20, type=int,
+                        help='Number of random walks per source for graph embedding (default: 20)')
+    parser.add_argument('-ws', '--window-size', metavar='INT', required=False, default=5, type=int,
+                        help='Context window size of a random walk (default: 5)')
+    parser.add_argument('-hp', '--hyper-p', metavar='FLOAT', required=False, default=1, type=float,
                         help='Hyperparameter p controls the likelihood of immediately traveling back to a node '
-                             'recently traversed (default: 2.8)')
-    parser.add_argument('-hq', '--hyper-q', metavar='FLOAT', required=False, default=0.4, type=float,
+                             'recently traversed (default: 1)')
+    parser.add_argument('-hq', '--hyper-q', metavar='FLOAT', required=False, default=1, type=float,
                         help='Hyperparameter q controls the likelihood of walking away from the previous '
-                             'node (default: 0.4)')
-    parser.add_argument('-nne', '--num-neighbors-eu', metavar='INT', required=False, default=20, type=int,
+                             'node (default: 1)')
+    parser.add_argument('-nne', '--num-neighbors-eu', metavar='INT', required=False, default=25, type=int,
                         help='Number of neighbors to build euclidean distance-based nearest neighbor graph after '
                              'dimension reduction (default: 20)')
     parser.add_argument('-mc', '--meta-cell', required=False, action='store_true',
                         help='Create a MetaCell for each cell cluster.')
     
-    parser.add_argument('-annef', '--ann-ef', metavar='INT', required=False, default=400, help='ef value of hnsw', type=int)
-    parser.add_argument('-annm', '--ann-m', metavar='INT', required=False, default=8, help='M value of hnsw', type=int)
+    parser.add_argument('-annef', '--ann-ef', metavar='INT', required=False, default=800, help='ef value of hnsw', type=int)
+    parser.add_argument('-annm', '--ann-m', metavar='INT', required=False, default=4, help='M value of hnsw', type=int)
     parser.add_argument('-bpr', '--bin-power', metavar='INT', required=False, default=0, help='set the power index of the bin size for MI', type=int)
     parser.add_argument('-bsz', '--bin-size', metavar='INT', required=False, default=0, help='set the bin size for MI', type=int)
 
@@ -208,14 +208,19 @@ def mica_ge(args):
     #     end = time.time()
     #     runtime = end - start
     #     logging.info('Done. Runtime: {} seconds'.format(runtime))
-
+    logging.info('Building Neighbor Graph...')
     G = ng.build_graph(mat_dr, 
                        dis_metric=args.clustering_distance, 
                        num_neighbors=args.num_neighbors_eu, 
                        num_jobs=args.num_workers)
     
-    # edgelist_file = '{}/sklearn_knn_graph_edgelist.txt'.format(args.output_dir)
-    # nx.write_edgelist(G, edgelist_file)
+    edgelist_file = '{}/sklearn_knn_graph_edgelist.txt'.format(args.output_dir)
+    nx.write_edgelist(G, edgelist_file)
+    end = time.time()
+    runtime = end - start
+    logging.info('Done. Runtime: {} seconds'.format(runtime))
+    start = time.time()
+    logging.info('Louvain clustering...')
     if (args.max_resolution == args.min_resolution) and (args.resolution != args.min_resolution):
         partition_resolutions = cl.graph_clustering_parallel(G, min_resolution=args.resolution,
                                                              max_resolution=args.resolution,
