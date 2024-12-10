@@ -125,7 +125,8 @@ def mica_ge(args):
     start = time.time()
     logging.info('Read preprocessed expression matrix ...')
     adata = pp.read_preprocessed_mat(args.input_file)
-    frame = adata.to_df()
+    frame = adata.to_df().astype(np.float32)
+    del(adata)
     logging.info('(cells, genes): {}'.format(frame.shape))
     end = time.time()
     runtime = end - start
@@ -302,13 +303,13 @@ def mica_ge(args):
         runtime = end - start
         logging.info('Done. Runtime: {} seconds'.format(runtime))
 
-    start = time.time()
-    out_h5_file = '{}/clustered.h5ad'.format(args.output_dir)
-    logging.info('Write h5ad file {} ...'.format(out_h5_file))
-    pp.write_h5(adata, out_h5_file)
-    end = time.time()
-    runtime = end - start
-    logging.info('Done. Runtime: {} seconds'.format(runtime))
+    # start = time.time()
+    # out_h5_file = '{}/clustered.h5ad'.format(args.output_dir)
+    # logging.info('Write h5ad file {} ...'.format(out_h5_file))
+    # pp.write_h5(adata, out_h5_file)
+    # end = time.time()
+    # runtime = end - start
+    # logging.info('Done. Runtime: {} seconds'.format(runtime))
 
     logging.info('All done.')
 
