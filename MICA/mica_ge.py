@@ -19,6 +19,9 @@ from MICA.lib import consensus as cs
 from MICA.lib import metacell as mc
 
 
+np.set_default_dtype(np.float32)
+
+
 def main():
     head_description = 'MICA - Mutual Information-based Clustering Analysis tool. This version uses a graph ' \
                        'embedding method for dimension reduction on MI-kNN graph.'
