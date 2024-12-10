@@ -150,7 +150,8 @@ def mica_ge(args):
                                              M=args.ann_m,
                                              num_neighbors=args.num_neighbors_mi, 
                                              num_jobs=args.num_workers)
-            
+
+    logging.info('{} is the type of knn dists'.format(knn_dists.dtype))
     logging.info('kNN/ANN costs {}s'.format(time.time() - start))
     logging.info('kNN MI distance shape: {}'.format(knn_dists.shape))
     knn_graph = ng.general_graph_builder(knn_indices, knn_dists)
@@ -196,7 +197,7 @@ def mica_ge(args):
     mat_dr_df = pd.read_csv(emb_file, delimiter=' ', skiprows=1, index_col=0, names=np.arange(1, args.dr_dim+1))
     logging.info('(cells, genes): {}'.format(frame.shape))
     mat_dr_df.sort_index(inplace=True)
-    mat_dr = mat_dr_df.to_numpy()
+    mat_dr = mat_dr_df.to_numpy().astype(np.float32)
     logging.info('(cells, dimensions): {}'.format(mat_dr.shape))
 
     # Comment out this step as it does not work well based on a preliminary evaluation by Zhen Xie
