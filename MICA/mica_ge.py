@@ -5,6 +5,7 @@ import sys
 import logging
 import time
 import argparse
+import pickle
 import numpy as np
 import pandas as pd
 import pathlib
@@ -103,7 +104,7 @@ def add_ge_arguments(parser):
     return parser
 
 
-def hnswlib_ann(data, num_neighbors=100, ef=200, M=16, num_jobs=1):
+def hnswlib_ann(data, output_dir, num_neighbors=100, ef=200, M=16, num_jobs=1):
     dim = data.shape[1]
     num_elements = data.shape[0]
     ids = np.arange(num_elements)
@@ -113,6 +114,9 @@ def hnswlib_ann(data, num_neighbors=100, ef=200, M=16, num_jobs=1):
     p.init_index(max_elements = num_elements, ef_construction = ef, M = M)
     p.add_items(data, ids)
     p.set_ef(ef)
+    with open("{}/mihnsw_p.pkl".format(output_dir)) as f:
+        pickle.dump(p, f)
+    p.save_index("{}/mihnsw_index.bin".format(output_dir))
     labels, distances = p.knn_query(data, k = num_neighbors)
     return labels, distances
 
@@ -136,6 +140,7 @@ def mica_ge(args):
         hnswlib.set_bin_power(args.bin_power)
         hnswlib.set_bin_size(args.bin_size)
         knn_indices, knn_dists = hnswlib_ann(frame.to_numpy(), 
+                                             output_dir=args.output_dir,
                                              ef=args.ann_ef,
                                              M=args.ann_m,
                                              num_neighbors=args.num_neighbors_mi,
@@ -146,6 +151,7 @@ def mica_ge(args):
         hnswlib.set_bin_power(args.bin_power)
         hnswlib.set_bin_size(args.bin_size)
         knn_indices, knn_dists = hnswlib_ann(frame.T.to_numpy(), 
+                                             output_dir = args.output_dir,
                                              ef=args.ann_ef,
                                              M=args.ann_m,
                                              num_neighbors=args.num_neighbors_mi, 
