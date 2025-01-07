@@ -2,6 +2,7 @@
 
 import sys
 import logging
+import numpy as np
 import networkx as nx
 from sklearn.neighbors import NearestNeighbors
 from pynndescent import NNDescent
