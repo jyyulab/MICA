@@ -632,45 +632,98 @@ class Index {
                 num_threads = 1;
             }
 
+            // data_numpy_l = new hnswlib::labeltype[rows * k];
+            // data_numpy_d = new dist_t[rows * k];
+
+            // // Warning: search with a filter works slow in python in multithreaded mode. For best performance set num_threads=1
+            // CustomFilterFunctor idFilter(filter);
+            // CustomFilterFunctor* p_idFilter = filter ? &idFilter : nullptr;
+
+            // if (normalize == false) {
+            //     ParallelFor(0, rows, num_threads, [&](size_t row, size_t threadId) {
+            //         std::priority_queue<std::pair<dist_t, hnswlib::labeltype >> result = appr_alg->searchKnn(
+            //             (void*)items.data(row), k, p_idFilter);
+            //         if (result.size() != k)
+            //             throw std::runtime_error(
+            //                 "Cannot return the results in a contiguous 2D array. Probably ef or M is too small");
+            //         for (int i = k - 1; i >= 0; i--) {
+            //             auto& result_tuple = result.top();
+            //             data_numpy_d[row * k + i] = result_tuple.first;
+            //             data_numpy_l[row * k + i] = result_tuple.second;
+            //             result.pop();
+            //         }
+            //     });
+            // } else {
+            //     std::vector<float> norm_array(num_threads * features);
+            //     ParallelFor(0, rows, num_threads, [&](size_t row, size_t threadId) {
+            //         float* data = (float*)items.data(row);
+
+            //         size_t start_idx = threadId * dim;
+            //         normalize_vector((float*)items.data(row), (norm_array.data() + start_idx));
+
+            //         std::priority_queue<std::pair<dist_t, hnswlib::labeltype >> result = appr_alg->searchKnn(
+            //             (void*)(norm_array.data() + start_idx), k, p_idFilter);
+            //         if (result.size() != k)
+            //             throw std::runtime_error(
+            //                 "Cannot return the results in a contiguous 2D array. Probably ef or M is too small");
+            //         for (int i = k - 1; i >= 0; i--) {
+            //             auto& result_tuple = result.top();
+            //             data_numpy_d[row * k + i] = result_tuple.first;
+            //             data_numpy_l[row * k + i] = result_tuple.second;
+            //             result.pop();
+            //         }
+            //     });
+            // }
             data_numpy_l = new hnswlib::labeltype[rows * k];
             data_numpy_d = new dist_t[rows * k];
-
+            
             // Warning: search with a filter works slow in python in multithreaded mode. For best performance set num_threads=1
             CustomFilterFunctor idFilter(filter);
             CustomFilterFunctor* p_idFilter = filter ? &idFilter : nullptr;
-
+            
             if (normalize == false) {
                 ParallelFor(0, rows, num_threads, [&](size_t row, size_t threadId) {
-                    std::priority_queue<std::pair<dist_t, hnswlib::labeltype >> result = appr_alg->searchKnn(
+                    std::priority_queue<std::pair<dist_t, hnswlib::labeltype>> result = appr_alg->searchKnn(
                         (void*)items.data(row), k, p_idFilter);
-                    if (result.size() != k)
-                        throw std::runtime_error(
-                            "Cannot return the results in a contiguous 2D array. Probably ef or M is too small");
-                    for (int i = k - 1; i >= 0; i--) {
+            
+                    // Initialize default values
+                    for (size_t i = 0; i < k; ++i) {
+                        data_numpy_d[row * k + i] = std::numeric_limits<dist_t>::max();
+                        data_numpy_l[row * k + i] = -1;
+                    }
+            
+                    int idx = k - 1;
+                    while (!result.empty() && idx >= 0) {
                         auto& result_tuple = result.top();
-                        data_numpy_d[row * k + i] = result_tuple.first;
-                        data_numpy_l[row * k + i] = result_tuple.second;
+                        data_numpy_d[row * k + idx] = result_tuple.first;
+                        data_numpy_l[row * k + idx] = result_tuple.second;
                         result.pop();
+                        idx--;
                     }
                 });
             } else {
                 std::vector<float> norm_array(num_threads * features);
                 ParallelFor(0, rows, num_threads, [&](size_t row, size_t threadId) {
                     float* data = (float*)items.data(row);
-
                     size_t start_idx = threadId * dim;
                     normalize_vector((float*)items.data(row), (norm_array.data() + start_idx));
-
-                    std::priority_queue<std::pair<dist_t, hnswlib::labeltype >> result = appr_alg->searchKnn(
+            
+                    std::priority_queue<std::pair<dist_t, hnswlib::labeltype>> result = appr_alg->searchKnn(
                         (void*)(norm_array.data() + start_idx), k, p_idFilter);
-                    if (result.size() != k)
-                        throw std::runtime_error(
-                            "Cannot return the results in a contiguous 2D array. Probably ef or M is too small");
-                    for (int i = k - 1; i >= 0; i--) {
+            
+                    // Initialize default values
+                    for (size_t i = 0; i < k; ++i) {
+                        data_numpy_d[row * k + i] = std::numeric_limits<dist_t>::max();
+                        data_numpy_l[row * k + i] = -1;
+                    }
+            
+                    int idx = k - 1;
+                    while (!result.empty() && idx >= 0) {
                         auto& result_tuple = result.top();
-                        data_numpy_d[row * k + i] = result_tuple.first;
-                        data_numpy_l[row * k + i] = result_tuple.second;
+                        data_numpy_d[row * k + idx] = result_tuple.first;
+                        data_numpy_l[row * k + idx] = result_tuple.second;
                         result.pop();
+                        idx--;
                     }
                 });
             }
