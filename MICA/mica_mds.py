@@ -132,7 +132,6 @@ def mica_mds(args):
         logging.info('Performing MDS transformation ...')
         mi_mds = trans.mds_trans(mi_matrix)[:, :args.dr_dim]
     logging.info('dim-reduced data shape {}'.format(mi_mds.shape))
-
     pathlib.Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     with open(args.output_dir + '/mi_reduced.pkl', 'wb') as f:
         pickle.dump(mi_mds, f)
