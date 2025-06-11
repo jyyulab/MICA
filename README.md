@@ -166,4 +166,4 @@ https://jyyulab.github.io/scMINER/site/
 ## Reference
 hnswlib: https://github.com/nmslib/hnswlib. The author of MICA adds a 'mutual-info-distance' to the space of hnswlib.
 
-ScMINER paper: https://www.biorxiv.org/content/10.1101/2023.01.26.523391
+scMINER paper: https://www.nature.com/articles/s41467-025-59620-6
