@@ -17,6 +17,12 @@ MICA workflow:
 * [python>=3.7.6, <=3.9.2](https://www.python.org/downloads/) (developed and tested on python 3.7.6, tested on python3.9.2)
     * See [requirements.txt](https://github.com/jyyulab/MICA/blob/million/requirements.txt) file for other dependencies
 
+## Orientation
+#### For MacOS users with arm-based Mchip, please visit MICA_MacOS_Mchip branch https://github.com/jyyulab/MICA/tree/MICA_MacOS_Mchip
+
+#### If you have a MacOS device but with x86 cpu like intel core i7, please follow this instruction
+
+#### Other x86 cpu, please follow this instruction
 
 ## Installation
 #### Using conda to create a virtual environment 
