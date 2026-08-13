@@ -2,6 +2,7 @@
 
 import sys
 import logging
+import numpy as np
 import networkx as nx
 from sklearn.neighbors import NearestNeighbors
 from pynndescent import NNDescent
@@ -104,6 +105,8 @@ def general_graph_builder(labels, distances):
     for i, neighbors in enumerate(labels):
         graph.add_node(i)
         for j, n_node in enumerate(neighbors):
+            if n_node == -1 or np.isinf(distances[i, j]):
+                continue
             if n_node == i:
                 continue
             graph.add_node(n_node)

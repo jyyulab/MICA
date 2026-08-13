@@ -114,7 +114,7 @@ def hnswlib_ann(data, output_dir, num_neighbors=100, ef=200, M=16, num_jobs=1):
     p.init_index(max_elements = num_elements, ef_construction = ef, M = M)
     p.add_items(data, ids)
     p.set_ef(ef)
-    with open("{}/mihnsw_p.pkl".format(output_dir)) as f:
+    with open("{}/mihnsw_p.pkl".format(output_dir), 'wb') as f:
         pickle.dump(p, f)
     p.save_index("{}/mihnsw_index.bin".format(output_dir))
     labels, distances = p.knn_query(data, k = num_neighbors)
